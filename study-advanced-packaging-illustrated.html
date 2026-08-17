@@ -1,0 +1,176 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>先进封装 · 图文详解：材料 / 封装 / CoWoS</title><style>
+:root{--bg:#f7f8fa;--panel:#fff;--ink:#1f2733;--ink-soft:#5b6675;--line:#e6e9ef;
+--brand:#2f6df6;--brand-soft:#eaf1ff;--accent:#ff7a45;--accent-soft:#fff1ea;
+--green:#1faa6b;--green-soft:#e9f8f0;--purple:#7b5cff;--purple-soft:#f0ecff;
+--teal:#0aa6b8;--teal-soft:#e2f6f8;--shadow:0 6px 24px rgba(31,39,51,.08);--radius:14px;}
+*{box-sizing:border-box} html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;line-height:1.78;font-size:16px}
+#progress{position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,var(--brand),var(--accent));z-index:50;transition:width .1s}
+header.hero{background:linear-gradient(135deg,#0f2a5a 0%,#2f6df6 55%,#13b6c9 100%);color:#fff;padding:40px 24px 30px}
+.hero-inner{max-width:1080px;margin:0 auto}
+.hero h1{font-size:28px;line-height:1.3;margin:0 0 10px;font-weight:800}
+.hero .sub{font-size:15px;opacity:.92;margin:0 0 14px;max-width:780px}
+.hero .tags{display:flex;gap:8px;flex-wrap:wrap}
+.tag{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);padding:4px 11px;border-radius:999px;font-size:13px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 22px;display:flex;gap:26px;align-items:flex-start}
+nav.toc{position:sticky;top:16px;flex:0 0 232px;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:15px 13px;box-shadow:var(--shadow);max-height:calc(100vh-32px);overflow:auto}
+nav.toc h4{margin:0 0 9px;font-size:13px;color:var(--ink-soft);letter-spacing:1px}
+nav.toc a{display:block;color:var(--ink-soft);text-decoration:none;font-size:13.5px;padding:6px 9px;border-radius:8px;border-left:3px solid transparent}
+nav.toc a:hover{background:var(--brand-soft);color:var(--brand)}
+nav.toc a.active{background:var(--brand-soft);color:var(--brand);border-left-color:var(--brand);font-weight:600}
+main{flex:1 1 600px;min-width:0;padding:26px 0 60px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:24px 26px;margin:0 0 20px;box-shadow:var(--shadow)}
+h2.chapter{font-size:21px;margin:4px 0 4px;padding-top:6px;scroll-margin-top:16px;font-weight:800}
+h2.chapter .num{color:var(--brand);font-weight:800;margin-right:8px}
+h3{font-size:17px;margin:18px 0 8px}
+h3 .bar{display:inline-block;width:6px;height:17px;background:var(--brand);border-radius:3px;margin-right:8px;vertical-align:-3px}
+p{margin:10px 0}
+.lead{font-size:16px;color:var(--ink)}
+.notice{background:var(--accent-soft);border:1px solid #ffd2bd;border-left:4px solid var(--accent);border-radius:10px;padding:13px 16px;font-size:14px;color:#9a3b16}
+.figure{background:#fbfcfe;border:1px solid var(--line);border-radius:10px;padding:14px;margin:16px 0}
+.figure svg{width:100%;height:auto;max-width:720px;display:block;margin:0 auto}
+.figure .cap{font-size:13px;color:var(--ink-soft);margin-top:10px;text-align:center}
+.def{background:var(--brand-soft);border:1px solid #cfe0ff;border-left:4px solid var(--brand);border-radius:10px;padding:13px 16px;margin:14px 0}
+.def .t{font-weight:700;color:var(--brand);margin-bottom:3px}
+.tip{background:var(--green-soft);border:1px solid #bfe9d4;border-left:4px solid var(--green);border-radius:10px;padding:12px 16px;margin:14px 0;font-size:14.5px}
+.tip .t{font-weight:700;color:var(--green);margin-bottom:2px}
+.analogy{background:var(--purple-soft);border:1px solid #ddd2ff;border-left:4px solid var(--purple);border-radius:10px;padding:13px 16px;margin:14px 0}
+.analogy .t{font-weight:700;color:var(--purple);margin-bottom:3px}
+.mat{display:grid;grid-template-columns:1fr;gap:0;margin:14px 0}
+.mat .row{border:1px solid var(--line);border-radius:10px;padding:13px 15px;margin:8px 0;background:#fbfcfe}
+.mat .row .h{font-weight:800;color:var(--brand);font-size:15px;margin-bottom:4px}
+.mat .row .h .code{display:inline-block;background:var(--brand-soft);color:var(--brand);font-size:11.5px;padding:1px 7px;border-radius:6px;margin-left:6px;font-weight:700}
+.mat .row p{font-size:13.6px;margin:4px 0 0;color:var(--ink-soft)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin:12px 0}
+.cell{background:#fbfcfe;border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.cell .h{font-weight:700;color:var(--brand);margin-bottom:5px}
+.cell p{font-size:13.3px;margin:0;color:var(--ink-soft)}
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.6px}
+th,td{border:1px solid var(--line);padding:9px 11px;text-align:left;vertical-align:top}
+th{background:var(--brand-soft);color:var(--brand);font-weight:700}
+tr:nth-child(even) td{background:#fafbfd}
+footer{text-align:center;color:var(--ink-soft);font-size:13px;padding:24px}
+footer a{color:var(--brand)}
+@media (max-width:860px){.wrap{flex-direction:column}nav.toc{position:static;width:100%;max-height:none}}
+</style></head><body>
+<div id="progress"></div>
+<header class="hero"><div class="hero-inner">
+<h1>先进封装 · 图文详解<br>从“每种材料”到 CoWoS，一张图讲明白</h1>
+<p class="sub">深入学习版：用 10 张示意图，挨个解释封装里每种材料是干什么的、封装到底在做什么，并把 CoWoS / HBM / Chiplet / 混合键合这些概念拆开讲透。资料口径来自雪球深度文（引用券商研报 / 东方财富 / 万得 / Yole）。</p>
+<div class="tags"><span class="tag">材料图解</span><span class="tag">封装流程</span><span class="tag">CoWoS 详解</span><span class="tag">HBM / Chiplet</span><span class="tag">混合键合</span></div>
+</div></header>
+<div class="wrap"><nav class="toc" id="toc"><h4>目录</h4>
+<a href="#c0">阅读指引</a><a href="#c1">1 · 封装在做什么</a><a href="#c2">2 · 封装工艺流程</a>
+<a href="#c3">3 · 每种材料图解</a><a href="#c4">4 · 传统 vs 先进</a><a href="#c5">5 · Flip Chip / Fan-out</a>
+<a href="#c6">6 · CoWoS 详解</a><a href="#c7">7 · HBM 详解</a><a href="#c8">8 · Chiplet / 混合键合</a>
+<a href="#c9">9 · 学习小结</a><a href="#src">资料来源</a>
+</nav><main>
+
+<div class="card"><div class="notice">
+⚠️ <b>阅读指引与免责</b>：本文目标是帮你<b>学懂先进封装（材料 / 封装 / CoWoS）</b>，不是荐股。所有公司、营收、估值来自雪球深度文（截至 2026-05-25，引用券商研报 / 东方财富 / 万得 / Yole）及公开检索，部分估值为机构预测。据此交易风险自担。完整的“产业链 + 龙头标的”清单见同目录《先进封装产业链学习图谱.html》。
+</div></div>
+
+<section class="card" id="c1"><h2 class="chapter"><span class="num">01</span>封装到底在做什么？</h2>
+<p class="lead">一颗晶圆切出来的<b>裸片（Die）</b>又薄又脆、引脚细如发丝，既不能焊接也不能碰。封装要解决三件事：<b>保护</b>（穿盔甲）、<b>供电与信号</b>（接外线）、<b>散热</b>。它不再只是"封起来"，而是先进封装里"帮芯片组队"的关键。</p>
+<div class="figure"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" font-family="PingFang SC,Microsoft YaHei,sans-serif"><rect width="720" height="300" fill="#fbfcfe"/><text x="360" y="26" text-anchor="middle" font-size="17" font-weight="800" fill="#1f2733">封装到底在干什么？给裸片“穿盔甲 + 接外线”</text><rect x="70" y="70" width="200" height="160" rx="10" stroke="#cfd8e6" fill="#fff"/><text x="170" y="60" text-anchor="middle" font-size="14" font-weight="700" fill="#5b6675">封装前：裸片</text><rect x="140" y="120" width="60" height="60" stroke="#1f3a8a" fill="#2f6df6"/><text x="170" y="155" text-anchor="middle" font-size="11" fill="#fff">Die</text><text x="170" y="210" text-anchor="middle" font-size="11" fill="#5b6675">又薄又脆、引脚</text><text x="170" y="226" text-anchor="middle" font-size="11" fill="#5b6675">细如发丝，碰不得</text><text x="170" y="250" text-anchor="middle" font-size="11" fill="#ff7a45">不能直接焊到主板</text><text x="360" y="160" text-anchor="middle" font-size="34" fill="#2f6df6">→</text><text x="360" y="190" text-anchor="middle" font-size="12" fill="#5b6675">封装</text><rect x="450" y="70" width="200" height="160" rx="10" stroke="#cfd8e6" fill="#fff"/><text x="550" y="60" text-anchor="middle" font-size="14" font-weight="700" fill="#5b6675">封装后：成品芯片</text><rect x="500" y="100" width="100" height="70" rx="6" stroke="#ff7a45" fill="#ffe9dd"/><rect x="525" y="120" width="50" height="35" fill="#2f6df6"/><circle cx="510" cy="178" r="5" fill="#0aa6b8"/><circle cx="532" cy="178" r="5" fill="#0aa6b8"/><circle cx="554" cy="178" r="5" fill="#0aa6b8"/><circle cx="576" cy="178" r="5" fill="#0aa6b8"/><circle cx="598" cy="178" r="5" fill="#0aa6b8"/><text x="550" y="200" text-anchor="middle" font-size="11" fill="#5b6675">有外壳保护、有焊球</text><text x="550" y="216" text-anchor="middle" font-size="11" fill="#5b6675">连外线、能散热</text><text x="550" y="240" text-anchor="middle" font-size="11" fill="#1faa6b">可直接贴装到主板</text></svg><div class="cap">图：裸片（又薄又脆、碰不得）→ 经过封装 → 成品芯片（有外壳保护、有焊球连外线、能散热，可直接贴装主板）</div></div>
+<div class="analogy"><div class="t">🧩 类比：给运动员发装备</div>
+裸片像一名全能选手，但赤手空拳上不了场；封装就是给他发盔甲（塑封料）、接上神经线（键合丝/焊球）、装好鞋底（基板/焊球）让他能站上主板这个赛场。先进封装更进一步——不是发装备，而是把多个选手组队协同。
+</div></section>
+
+<section class="card" id="c2"><h2 class="chapter"><span class="num">02</span>封装工艺流程：晶圆 → 成品芯片</h2>
+<p>裸片要经历"贴 → 连 → 封 → 测"四步才成为可交付芯片。下面这张图是封装厂每天都要跑的标准动作。</p>
+<div class="figure"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" font-family="PingFang SC,Microsoft YaHei,sans-serif"><rect width="720" height="180" fill="#fbfcfe"/><text x="360" y="26" text-anchor="middle" font-size="16" font-weight="800" fill="#1f2733">封装工艺流程：把晶圆变成能用的芯片</text><rect x="40" y="70" width="86" height="46" rx="8" stroke="#cfd8e6" fill="#d7e3f7"/><text x="83" y="98" text-anchor="middle" font-size="11.5" fill="#1f2733">晶圆</text><text x="132" y="98" text-anchor="middle" font-size="16" fill="#2f6df6">→</text><rect x="144" y="70" width="86" height="46" rx="8" stroke="#cfd8e6" fill="#cfe9da"/><text x="187" y="98" text-anchor="middle" font-size="11.5" fill="#1f2733">划片</text><text x="236" y="98" text-anchor="middle" font-size="16" fill="#2f6df6">→</text><rect x="248" y="70" width="86" height="46" rx="8" stroke="#cfd8e6" fill="#fde7cf"/><text x="291" y="98" text-anchor="middle" font-size="11.5" fill="#1f2733">贴装</text><text x="340" y="98" text-anchor="middle" font-size="16" fill="#2f6df6">→</text><rect x="352" y="70" width="86" height="46" rx="8" stroke="#cfd8e6" fill="#e7dcff"/><text x="395" y="98" text-anchor="middle" font-size="11.5" fill="#1f2733">键合</text><text x="444" y="98" text-anchor="middle" font-size="16" fill="#2f6df6">→</text><rect x="456" y="70" width="86" height="46" rx="8" stroke="#cfd8e6" fill="#ffe1d2"/><text x="499" y="98" text-anchor="middle" font-size="11.5" fill="#1f2733">塑封</text><text x="548" y="98" text-anchor="middle" font-size="16" fill="#2f6df6">→</text><rect x="560" y="70" width="86" height="46" rx="8" stroke="#cfd8e6" fill="#d6f1f4"/><text x="603" y="98" text-anchor="middle" font-size="11.5" fill="#1f2733">植球</text><text x="652" y="98" text-anchor="middle" font-size="16" fill="#2f6df6">→</text><rect x="664" y="70" width="86" height="46" rx="8" stroke="#cfd8e6" fill="#dde9ff"/><text x="707" y="98" text-anchor="middle" font-size="11.5" fill="#1f2733">测试</text><text x="360" y="150" text-anchor="middle" font-size="12" fill="#5b6675">裸片经过“贴→连→封→测”四步，才成为可交付的成品芯片</text></svg><div class="cap">图：晶圆 → 划片（切成裸片）→ 贴装（粘到基板）→ 键合（连线）→ 塑封（包封保护）→ 植球/电镀（做外部焊点）→ 测试（质检）</div></div>
+<table><tr><th>步骤</th><th>在干什么</th><th>关键材料/设备</th></tr>
+<tr><td>划片</td><td>用划片机把晶圆切成一颗颗裸片</td><td>划片机（光力科技等）</td></tr>
+<tr><td>贴装 Die Attach</td><td>用银胶/焊料把裸片粘到基板或引线框架上</td><td>贴片机、导电胶</td></tr>
+<tr><td>键合 Bond</td><td>把裸片引脚连到外部——打线或倒装焊</td><td>键合丝 / 凸点、键合机</td></tr>
+<tr><td>塑封 Mold</td><td>用环氧塑封料把裸片包起来保护</td><td>环氧塑封料 EMC（华海诚科等）</td></tr>
+<tr><td>植球/电镀</td><td>在基板背面做出连主板的焊球</td><td>电镀液、锡球</td></tr>
+<tr><td>测试 Test</td><td>通电测试成品是否合格</td><td>测试机/分选机（华峰测控、长川科技）</td></tr>
+</table></section>
+
+<section class="card" id="c3"><h2 class="chapter"><span class="num">03</span>每种材料图解：封装里都用了啥？</h2>
+<p class="lead">先看一张剖面图，标出每种材料在封装里的位置；下面再逐个拆开讲它是干啥的、谁在做。</p>
+<div class="figure"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" font-family="PingFang SC,Microsoft YaHei,sans-serif"><text x="360" y="26" text-anchor="middle" font-size="17" font-weight="800" fill="#1f2733">一张“剖面图”看懂封装里每种材料在哪</text><rect x="150" y="300" width="420" height="40" rx="6" stroke="#2f6df6" fill="#d7e3f7"/><text x="360" y="325" text-anchor="middle" font-size="13" fill="#1f3a8a">封装基板（ABF/BT）——芯片与主板之间的“桥梁”</text><rect x="230" y="120" width="260" height="180" rx="10" stroke="#ff7a45" fill="#ffe9dd"/><text x="360" y="215" text-anchor="middle" font-size="12.5" fill="#9a3b16">环氧塑封料 EMC（包封保护）</text><rect x="150" y="290" width="60" height="60" stroke="#1faa6b" fill="none"/><line x1="150" y1="320" x2="210" y2="320" stroke="#1faa6b" stroke-width="3"/><text x="120" y="348" text-anchor="middle" font-size="12" fill="#1faa6b">引线框架</text><rect x="300" y="160" width="120" height="70" stroke="#1f3a8a" fill="#2f6df6"/><text x="360" y="200" text-anchor="middle" font-size="13" fill="#fff">裸片 Die</text><path d="M360 160 Q360 130 300 122" fill="none" stroke="#7b5cff" stroke-width="2.5"/><path d="M360 160 Q380 128 430 120" fill="none" stroke="#7b5cff" stroke-width="2.5"/><text x="470" y="120" text-anchor="middle" font-size="12" fill="#7b5cff">键合丝（连线）</text><circle cx="200" cy="295" r="7" fill="#0aa6b8"/><circle cx="240" cy="295" r="7" fill="#0aa6b8"/><circle cx="280" cy="295" r="7" fill="#0aa6b8"/><circle cx="320" cy="295" r="7" fill="#0aa6b8"/><circle cx="360" cy="295" r="7" fill="#0aa6b8"/><circle cx="400" cy="295" r="7" fill="#0aa6b8"/><circle cx="440" cy="295" r="7" fill="#0aa6b8"/><circle cx="480" cy="295" r="7" fill="#0aa6b8"/><text x="360" y="278" text-anchor="middle" font-size="12" fill="#0aa6b8">底部焊球（连到主板）</text><line x1="300" y1="195" x2="120" y2="195" stroke="#5b6675" stroke-width="1"/><text x="20" y="190" text-anchor="middle" font-size="12" fill="#5b6675">核心芯片</text></svg><div class="cap">图：封装剖面标注——裸片被环氧塑封料包住，用键合丝/焊球连到引线框架与基板，底部焊球连到主板</div></div>
+<div class="mat">
+<div class="row"><div class="h">① 封装基板（ABF / BT 载板）</div><p>芯片与主板之间的"桥梁"，负责把裸片密密麻麻的细引脚转成主板能焊的粗引脚。<b>ABF 载板</b>是 AI GPU/CPU/HBM 的 FC-BGA 封装核心材料（ABF 膜由味之素垄断、载板由揖斐电等垄断）；<b>BT 载板</b>用于射频/存储。国产代表：兴森科技（002436，ABF 载板广州基地量产）、深南电路、珠海越亚。2026 年 ABF 涨价 30-35%。</p></div>
+<div class="row"><div class="h">② 环氧塑封料 EMC</div><p>包封保护芯片的"外壳"热固性材料，承担绝缘、导热、耐湿、抗应力。是封装用量最大的材料之一。国产龙头<b>华海诚科（688535）</b>出货量全国第二、全球前列；<b>飞凯材料（300398）</b>居国内第二。上游关键填料是硅微粉（联瑞新材）。</p></div>
+<div class="row"><div class="h">③ 引线框架</div><p>传统封装的"骨架"，把芯片引脚引到外部。看似简单却是封测"耗材"，随产能稼动率同步放量。细分龙头<b>康强电子（002119）</b>满产满销，正升级高端蚀刻引线框架。</p></div>
+<div class="row"><div class="h">④ 键合丝 / 焊球</div><p>打线封装用<b>键合金丝/铜丝</b>把裸片连到框架（图里紫色弧线）；倒装/先进封装改用裸片底部的<b>焊球（bump）</b>直接连基板（图里青色小球）。焊球材料与电镀液直接相关。</p></div>
+<div class="row"><div class="h">⑤ 底部填充胶 Underfill</div><p>填进裸片与基板缝隙、保护微凸点的胶水，决定可靠性。长期被日系（信越/Namics）垄断。<b>德邦科技（688035）</b>布局 underfill 与临时键合/解键合材料。</p></div>
+<div class="row"><div class="h">⑥ 临时键合 / 解键合胶</div><p>3D 堆叠时先把薄晶圆"暂时粘"到载板上加工、做完再"解开"的关键耗材，壁垒高、国产率&lt;15%。德邦科技等正在突破。</p></div>
+<div class="row"><div class="h">⑦ 硅微粉（填料）</div><p>EMC/塑封料里的无机填料，决定导热与膨胀系数。AI 封装越高端用量越大。<b>联瑞新材（688147）</b>为国产代表。</p></div>
+<div class="row"><div class="h">⑧ 电镀液 / 电子化学品</div><p>先进封装要做铜互连、RDL 重布线，离不开电镀铜与各类清洗/刻蚀液。属"耗材"，随扩产放量。</p></div>
+</div>
+<div class="tip"><div class="t">✅ 记忆口诀</div>材料环节 = <b>基板(兴森) + EMC(华海诚科/飞凯) + 框架(康强) + 胶水(德邦) + 硅微粉(联瑞)</b>。特点是"小而专、日系垄断、国产替代弹性大"。</div></section>
+
+<section class="card" id="c4"><h2 class="chapter"><span class="num">04</span>传统封装 vs 先进封装</h2>
+<p>区别不在"封不封"，而在<b>互连密度</b>：传统打线连线细、密度低；先进倒装用焊球直连，距离短、密度高、能多芯片互连。</p>
+<div class="figure"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" font-family="PingFang SC,Microsoft YaHei,sans-serif"><rect width="720" height="320" fill="#fbfcfe"/><text x="360" y="26" text-anchor="middle" font-size="16" font-weight="800" fill="#1f2733">传统封装（打线） vs 先进封装（倒装焊）</text><rect x="60" y="60" width="280" height="220" rx="10" stroke="#cfd8e6" fill="#fff"/><text x="200" y="84" text-anchor="middle" font-size="14" font-weight="700" fill="#5b6675">传统：Wire Bond 打线</text><rect x="170" y="150" width="60" height="50" stroke="#1f3a8a" fill="#2f6df6"/><text x="200" y="180" text-anchor="middle" font-size="11" fill="#fff">Die</text><path d="M200 150 Q150 110 110 250" fill="none" stroke="#7b5cff" stroke-width="2"/><path d="M200 150 Q250 110 290 250" fill="none" stroke="#7b5cff" stroke-width="2"/><rect x="90" y="250" width="220" height="22" fill="#d7e3f7"/><text x="200" y="266" text-anchor="middle" font-size="11" fill="#1f3a8a">引线框架</text><rect x="380" y="60" width="280" height="220" rx="10" stroke="#cfd8e6" fill="#fff"/><text x="520" y="84" text-anchor="middle" font-size="14" font-weight="700" fill="#2f6df6">先进：Flip Chip 倒装</text><rect x="470" y="120" width="100" height="50" stroke="#1f3a8a" fill="#2f6df6"/><text x="520" y="150" text-anchor="middle" font-size="11" fill="#fff">Die(翻转)</text><circle cx="482" cy="172" r="4" fill="#0aa6b8"/><circle cx="502" cy="172" r="4" fill="#0aa6b8"/><circle cx="522" cy="172" r="4" fill="#0aa6b8"/><circle cx="542" cy="172" r="4" fill="#0aa6b8"/><circle cx="562" cy="172" r="4" fill="#0aa6b8"/><rect x="450" y="185" width="140" height="22" fill="#d7e3f7"/><text x="520" y="201" text-anchor="middle" font-size="11" fill="#1f3a8a">基板（焊球直连）</text><text x="200" y="300" text-anchor="middle" font-size="11.5" fill="#5b6675">连线细、密度低、速度慢</text><text x="520" y="300" text-anchor="middle" font-size="11.5" fill="#5b6675">焊球密、距离短、密度高</text></svg><div class="cap">图：左=传统 Wire Bond 打线（细弧线连引线框架，密度低）；右=先进 Flip Chip 倒装（焊球直连基板，密度高）</div></div>
+<div class="def"><div class="t">📌 一句话区分</div>看它有没有在<b>封装阶段创造性能</b>：能塞多颗裸片、能高密度互连、能异构集成 = 先进封装；只是把单颗芯片封好焊到板子上 = 传统封装。</div></section>
+
+<section class="card" id="c5"><h2 class="chapter"><span class="num">05</span>先进封装两大基础玩法：倒装焊 & 扇出</h2>
+<h3><span class="bar"></span>Flip Chip 倒装焊</h3>
+<div class="figure"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" font-family="PingFang SC,Microsoft YaHei,sans-serif"><rect width="720" height="280" fill="#fbfcfe"/><text x="360" y="26" text-anchor="middle" font-size="16" font-weight="800" fill="#1f2733">Flip Chip 倒装焊：把芯片“翻过来”用焊球连基板</text><rect x="270" y="70" width="180" height="80" stroke="#1f3a8a" fill="#2f6df6"/><text x="360" y="115" text-anchor="middle" font-size="13" fill="#fff">裸片（有源面朝下）</text><rect x="285" y="150" width="22" height="16" rx="3" fill="#0aa6b8"/><rect x="319" y="150" width="22" height="16" rx="3" fill="#0aa6b8"/><rect x="353" y="150" width="22" height="16" rx="3" fill="#0aa6b8"/><rect x="387" y="150" width="22" height="16" rx="3" fill="#0aa6b8"/><rect x="421" y="150" width="22" height="16" rx="3" fill="#0aa6b8"/><line x1="360" y1="166" x2="360" y2="180" stroke="#0aa6b8" stroke-width="1"/><rect x="250" y="180" width="220" height="36" rx="6" stroke="#2f6df6" fill="#d7e3f7"/><text x="360" y="203" text-anchor="middle" font-size="13" fill="#1f3a8a">封装基板（走线到主板）</text><text x="360" y="245" text-anchor="middle" font-size="12.5" fill="#5b6675">焊球（bump）直接互连 → 路径更短、密度更高、速度更快</text></svg><div class="cap">图：裸片翻转、有源面朝下，用一排焊球（bump）直接连到基板走线——路径短、密度高、速度快</div></div>
+<h3><span class="bar"></span>Fan-out 扇出（InFO）</h3>
+<div class="figure"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" font-family="PingFang SC,Microsoft YaHei,sans-serif"><rect width="720" height="280" fill="#fbfcfe"/><text x="360" y="26" text-anchor="middle" font-size="16" font-weight="800" fill="#1f2733">Fan-out 扇出（InFO）：把芯片埋进重构晶圆，省掉基板</text><rect x="300" y="70" width="120" height="70" fill="#2f6df6"/><text x="360" y="110" text-anchor="middle" font-size="12" fill="#fff">裸片</text><rect x="270" y="60" width="180" height="90" rx="8" stroke="#ff7a45" fill="#ffe9dd"/><text x="360" y="170" text-anchor="middle" font-size="11" fill="#9a3b16">重构晶圆（包封）</text><line x1="300" y1="150" x2="260" y2="185" stroke="#0aa6b8" stroke-width="1.5"/><line x1="312" y1="150" x2="278" y2="185" stroke="#0aa6b8" stroke-width="1.5"/><line x1="324" y1="150" x2="296" y2="185" stroke="#0aa6b8" stroke-width="1.5"/><line x1="336" y1="150" x2="314" y2="185" stroke="#0aa6b8" stroke-width="1.5"/><line x1="348" y1="150" x2="332" y2="185" stroke="#0aa6b8" stroke-width="1.5"/><line x1="360" y1="150" x2="350" y2="185" stroke="#0aa6b8" stroke-width="1.5"/><line x1="372" y1="150" x2="368" y2="185" stroke="#0aa6b8" stroke-width="1.5"/><line x1="384" y1="150" x2="386" y2="185" stroke="#0aa6b8" stroke-width="1.5"/><line x1="396" y1="150" x2="404" y2="185" stroke="#0aa6b8" stroke-width="1.5"/><line x1="408" y1="150" x2="422" y2="185" stroke="#0aa6b8" stroke-width="1.5"/><line x1="420" y1="150" x2="440" y2="185" stroke="#0aa6b8" stroke-width="1.5"/><circle cx="258" cy="186" r="4" fill="#0aa6b8"/><circle cx="276" cy="186" r="4" fill="#0aa6b8"/><circle cx="294" cy="186" r="4" fill="#0aa6b8"/><circle cx="312" cy="186" r="4" fill="#0aa6b8"/><circle cx="330" cy="186" r="4" fill="#0aa6b8"/><circle cx="348" cy="186" r="4" fill="#0aa6b8"/><circle cx="366" cy="186" r="4" fill="#0aa6b8"/><circle cx="384" cy="186" r="4" fill="#0aa6b8"/><circle cx="402" cy="186" r="4" fill="#0aa6b8"/><circle cx="420" cy="186" r="4" fill="#0aa6b8"/><circle cx="438" cy="186" r="4" fill="#0aa6b8"/><text x="360" y="225" text-anchor="middle" font-size="12.5" fill="#5b6675">引脚“扇出”到比裸片更大的范围 → 更薄、IO 更多、更便宜</text></svg><div class="cap">图：把裸片埋进一块“重构晶圆”包封，再把引脚“扇出”到比裸片更大的范围——省掉基板，更薄、IO 更多、更便宜。台积电 InFO 用于手机 AP</div></div>
+<div class="analogy"><div class="t">🪂 类比：扇出像"摊大饼"</div>裸片是中间的小饼，Fan-out 把它的"接线端子"摊到周围更大的圈上，于是能在不加大芯片的前提下接更多外线——手机里省空间就靠它。</div></section>
+
+<section class="card" id="c6"><h2 class="chapter"><span class="num">06</span>重点概念：CoWoS 到底是什么？</h2>
+<p class="lead">CoWoS（Chip on Wafer on Substrate，台积电的 2.5D 封装）是这一轮 AI 行情的"兵家必争之地"。它干的事：把 <b>GPU 逻辑芯片</b> 和 <b>多颗 HBM</b> 并排放在一块<b>硅中介层</b>上，用中介层里密密麻麻的走线把它们"贴身"互连，再整体坐到基板上。</p>
+<div class="figure"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" font-family="PingFang SC,Microsoft YaHei,sans-serif"><rect width="720" height="360" fill="#fbfcfe"/><text x="360" y="26" text-anchor="middle" font-size="17" font-weight="800" fill="#1f2733">CoWoS（2.5D 封装）详解：AI 芯片的“贴身合封”</text><rect x="90" y="300" width="540" height="34" rx="6" stroke="#2f6df6" fill="#d7e3f7"/><text x="360" y="322" text-anchor="middle" font-size="13" fill="#1f3a8a">封装基板 Substrate</text><rect x="150" y="235" width="420" height="50" rx="4" stroke="#2f6df6" fill="#bcd0ff"/><text x="360" y="264" text-anchor="middle" font-size="13" fill="#1f3a8a">硅中介层 Silicon Interposer（密集走线 + TSV 垂直通孔）</text><rect x="180" y="150" width="140" height="70" stroke="#1f3a8a" fill="#2f6df6"/><text x="250" y="190" text-anchor="middle" font-size="13" fill="#fff">GPU/逻辑芯片</text><rect x="330" y="150" width="64" height="70" stroke="#c44a1c" fill="#ff7a45"/><text x="362" y="190" text-anchor="middle" font-size="12" fill="#fff">HBM1</text><line x1="362" y1="220" x2="362" y2="235" stroke="#ff7a45" stroke-width="2"/><rect x="408" y="150" width="64" height="70" stroke="#c44a1c" fill="#ff7a45"/><text x="440" y="190" text-anchor="middle" font-size="12" fill="#fff">HBM2</text><line x1="440" y1="220" x2="440" y2="235" stroke="#ff7a45" stroke-width="2"/><rect x="486" y="150" width="64" height="70" stroke="#c44a1c" fill="#ff7a45"/><text x="518" y="190" text-anchor="middle" font-size="12" fill="#fff">HBM3</text><line x1="518" y1="220" x2="518" y2="235" stroke="#ff7a45" stroke-width="2"/><rect x="564" y="150" width="64" height="70" stroke="#c44a1c" fill="#ff7a45"/><text x="596" y="190" text-anchor="middle" font-size="12" fill="#fff">HBM4</text><line x1="596" y1="220" x2="596" y2="235" stroke="#ff7a45" stroke-width="2"/><line x1="250" y1="220" x2="250" y2="235" stroke="#2f6df6" stroke-width="2"/><line x1="200" y1="285" x2="200" y2="300" stroke="#0aa6b8" stroke-width="2"/><line x1="520" y1="285" x2="520" y2="300" stroke="#0aa6b8" stroke-width="2"/><text x="360" y="345" text-anchor="middle" font-size="12.5" fill="#5b6675">逻辑芯片与 4 颗 HBM 并排坐在硅中介层上“贴身”互连 → 带宽极高，是 AI 芯片必用方案</text></svg><div class="cap">图：GPU/逻辑芯片 + 4 颗 HBM 并排坐在“硅中介层”上，中介层里有密集走线并通过 TSV 垂直通孔连到下方基板</div></div>
+<div class="def"><div class="t">📌 CoWoS 三种变体</div>
+• <b>CoWoS-S</b>：全硅中介层，电性能最优、成本最高（H100/H200/B200 用），单片 ASP 约 6000-10000 美元；<br>
+• <b>CoWoS-R</b>：有机 RDL 中介层，成本低（中端推理芯片），ASP 约 3000-5000 美元；<br>
+• <b>CoWoS-L</b>：局部硅桥 + 有机 RDL，面积/成本折中（下一代超大芯片），ASP 约 5000-8000 美元。
+</div>
+<div class="tip"><div class="t">✅ 为什么 CoWoS 这么重要（景气发动机）</div>
+2024 全球 CoWoS 需求 37 万片 / 产能 33 万；2025 需求 70 万 / 产能 60 万；<b>2026E 需求 100 万 / 产能 90 万，仍缺约 10 万片</b>，台积电已涨价约 30%，紧张延续至 2027 年中。英伟达+博通+AMD 已锁定台积电 CoWoS 总产能 85%+。谁拿到 CoWoS 产能，谁就拿到 AI 芯片入场券——这正是先进封装成为战略赛道的核心原因。
+</div></section>
+
+<section class="card" id="c7"><h2 class="chapter"><span class="num">07</span>重点概念：HBM 到底是什么？</h2>
+<p>HBM（High Bandwidth Memory，高带宽存储器）是 AI 芯片的"贴身高速仓库"。它把多颗 DRAM 裸片用 <b>TSV（硅通孔）</b> 垂直堆叠，再紧挨 GPU 摆放，通过极短极宽的通道供数。</p>
+<div class="figure"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" font-family="PingFang SC,Microsoft YaHei,sans-serif"><rect width="720" height="340" fill="#fbfcfe"/><text x="360" y="26" text-anchor="middle" font-size="17" font-weight="800" fill="#1f2733">HBM（3D 堆叠）：DRAM 裸片用 TSV 垂直“叠罗汉”</text><rect x="270" y="60" width="180" height="36" stroke="#c44a1c" fill="#ffb894"/><text x="360" y="82" text-anchor="middle" font-size="12" fill="#7a2f12">DRAM 裸片 ×1</text><line x1="290" y1="60" x2="290" y2="96" stroke="#2f6df6" stroke-width="3"/><line x1="430" y1="60" x2="430" y2="96" stroke="#2f6df6" stroke-width="3"/><circle cx="290" cy="60" r="4" fill="#2f6df6"/><circle cx="430" cy="60" r="4" fill="#2f6df6"/><rect x="270" y="102" width="180" height="36" stroke="#c44a1c" fill="#ffd2bd"/><text x="360" y="124" text-anchor="middle" font-size="12" fill="#7a2f12">DRAM 裸片 ×2</text><line x1="290" y1="102" x2="290" y2="138" stroke="#2f6df6" stroke-width="3"/><line x1="430" y1="102" x2="430" y2="138" stroke="#2f6df6" stroke-width="3"/><circle cx="290" cy="102" r="4" fill="#2f6df6"/><circle cx="430" cy="102" r="4" fill="#2f6df6"/><rect x="270" y="144" width="180" height="36" stroke="#c44a1c" fill="#ffb894"/><text x="360" y="166" text-anchor="middle" font-size="12" fill="#7a2f12">DRAM 裸片 ×3</text><line x1="290" y1="144" x2="290" y2="180" stroke="#2f6df6" stroke-width="3"/><line x1="430" y1="144" x2="430" y2="180" stroke="#2f6df6" stroke-width="3"/><circle cx="290" cy="144" r="4" fill="#2f6df6"/><circle cx="430" cy="144" r="4" fill="#2f6df6"/><rect x="270" y="186" width="180" height="36" stroke="#c44a1c" fill="#ffd2bd"/><text x="360" y="208" text-anchor="middle" font-size="12" fill="#7a2f12">DRAM 裸片 ×4</text><line x1="290" y1="186" x2="290" y2="222" stroke="#2f6df6" stroke-width="3"/><line x1="430" y1="186" x2="430" y2="222" stroke="#2f6df6" stroke-width="3"/><circle cx="290" cy="186" r="4" fill="#2f6df6"/><circle cx="430" cy="186" r="4" fill="#2f6df6"/><rect x="270" y="228" width="180" height="36" stroke="#c44a1c" fill="#ffb894"/><text x="360" y="250" text-anchor="middle" font-size="12" fill="#7a2f12">DRAM 裸片 ×5</text><line x1="290" y1="228" x2="290" y2="264" stroke="#2f6df6" stroke-width="3"/><line x1="430" y1="228" x2="430" y2="264" stroke="#2f6df6" stroke-width="3"/><circle cx="290" cy="228" r="4" fill="#2f6df6"/><circle cx="430" cy="228" r="4" fill="#2f6df6"/><rect x="250" y="280" width="220" height="34" rx="6" stroke="#2f6df6" fill="#d7e3f7"/><text x="360" y="302" text-anchor="middle" font-size="12.5" fill="#1f3a8a">逻辑底座 / 与 GPU 合封</text><text x="600" y="150" text-anchor="middle" font-size="12" fill="#2f6df6">TSV</text><text x="600" y="166" text-anchor="middle" font-size="11" fill="#5b6675">垂直互连</text><text x="360" y="330" text-anchor="middle" font-size="12.5" fill="#5b6675">叠得越紧 → 通信越短、带宽越高、功耗越低（HBM3E/4/5 层数 8→12→16→20）</text></svg><div class="cap">图：多颗 DRAM 裸片用 TSV 垂直“叠罗汉”，叠得越紧通信越短、带宽越高；底部与 GPU 合封</div></div>
+<table><tr><th>代际</th><th>堆叠</th><th>带宽</th><th>状态</th></tr>
+<tr><td>HBM3</td><td>8Hi/12Hi</td><td>819 GB/s</td><td>当前主流（2024 量产）</td></tr>
+<tr><td>HBM3E</td><td>12Hi</td><td>1.2 TB/s</td><td>B200 配套（2025 量产）</td></tr>
+<tr><td>HBM4</td><td>16Hi</td><td>1.6-2.0 TB/s</td><td>2026-27，导入混合键合</td></tr>
+<tr><td>HBM5</td><td>20Hi</td><td>&gt;2.5 TB/s</td><td>2028+，必须全混合键合</td></tr>
+</table>
+<div class="analogy"><div class="t">📚 类比：仓库紧贴工作台</div>GPU 是拼命计算的工人，HBM 是紧贴他手的货架。货架离得越近（堆叠越紧）、通道越宽（TSV 越多），工人取料越快——AI 训练要喂海量数据，所以"贴身高速仓库"缺一不可。HBM 市场 2026E 约 546 亿美元，占 DRAM 近 40%。</div></section>
+
+<section class="card" id="c8"><h2 class="chapter"><span class="num">08</span>Chiplet 与混合键合</h2>
+<h3><span class="bar"></span>Chiplet 异构集成</h3>
+<div class="figure"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" font-family="PingFang SC,Microsoft YaHei,sans-serif"><rect width="720" height="300" fill="#fbfcfe"/><text x="360" y="26" text-anchor="middle" font-size="17" font-weight="800" fill="#1f2733">Chiplet 异构集成：把大芯片拆成“乐歌小芯片”再拼起来</text><rect x="120" y="70" width="480" height="160" rx="10" stroke="#2f6df6" fill="#eef3ff"/><text x="360" y="92" text-anchor="middle" font-size="13" fill="#1f3a8a">硅中介层 / 封装基板（把小芯片拼成一颗“超级芯片”）</text><rect x="150" y="110" width="80" height="48" rx="5" fill="#2f6df6"/><text x="190" y="138" text-anchor="middle" font-size="12" fill="#fff">计算</text><rect x="250" y="110" width="80" height="48" rx="5" fill="#ff7a45"/><text x="290" y="138" text-anchor="middle" font-size="12" fill="#fff">存储</text><rect x="350" y="110" width="80" height="48" rx="5" fill="#1faa6b"/><text x="390" y="138" text-anchor="middle" font-size="12" fill="#fff">IO</text><rect x="450" y="110" width="80" height="48" rx="5" fill="#7b5cff"/><text x="490" y="138" text-anchor="middle" font-size="12" fill="#fff">模拟</text><rect x="200" y="180" width="80" height="48" rx="5" fill="#2f6df6"/><text x="240" y="208" text-anchor="middle" font-size="12" fill="#fff">计算</text><rect x="320" y="180" width="80" height="48" rx="5" fill="#ff7a45"/><text x="360" y="208" text-anchor="middle" font-size="12" fill="#fff">存储</text><text x="360" y="262" text-anchor="middle" font-size="12.5" fill="#5b6675">各小芯片用最合适工艺分别制造 → 良率高、可混搭、能复用（计算/存储/IO 各一块）</text></svg><div class="cap">图：把大 SoC 拆成多个小芯片（计算/存储/IO/模拟），各自用最合适的工艺制造，再用硅中介层拼成一颗“超级芯片”</div></div>
+<div class="def"><div class="t">📌 Chiplet 为什么火</div>大芯片良率随面积指数下降；拆成小芯片分别制造再封装，可把研发周期缩短约 50%、成本降约 30%。华为"韬(τ)定律"也属此类"时间缩微"思路。生态标准有 UCIe（Intel/AMD/ARM/台积电/三星）、BoW、XSR。</div>
+<h3><span class="bar"></span>混合键合 Hybrid Bonding（3D 互连终极形态）</h3>
+<div class="figure"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" font-family="PingFang SC,Microsoft YaHei,sans-serif"><rect width="720" height="300" fill="#fbfcfe"/><text x="360" y="26" text-anchor="middle" font-size="16" font-weight="800" fill="#1f2733">混合键合 Hybrid Bonding：3D 互连的“终极形态”</text><rect x="70" y="60" width="260" height="190" rx="10" stroke="#cfd8e6" fill="#fff"/><text x="200" y="84" text-anchor="middle" font-size="13" font-weight="700" fill="#5b6675">传统：微凸点 μbump</text><rect x="120" y="110" width="80" height="50" fill="#2f6df6"/><rect x="230" y="110" width="80" height="50" fill="#2f6df6"/><circle cx="135" cy="165" r="6" fill="#0aa6b8"/><circle cx="150" cy="165" r="6" fill="#0aa6b8"/><circle cx="165" cy="165" r="6" fill="#0aa6b8"/><circle cx="180" cy="165" r="6" fill="#0aa6b8"/><circle cx="195" cy="165" r="6" fill="#0aa6b8"/><circle cx="245" cy="165" r="6" fill="#0aa6b8"/><circle cx="260" cy="165" r="6" fill="#0aa6b8"/><circle cx="275" cy="165" r="6" fill="#0aa6b8"/><circle cx="290" cy="165" r="6" fill="#0aa6b8"/><circle cx="305" cy="165" r="6" fill="#0aa6b8"/><text x="200" y="235" text-anchor="middle" font-size="12" fill="#5b6675">间距 40–50μm，密度有限</text><rect x="390" y="60" width="260" height="190" rx="10" stroke="#cfd8e6" fill="#fff"/><text x="520" y="84" text-anchor="middle" font-size="13" font-weight="700" fill="#2f6df6">混合键合：铜-铜直接键合</text><rect x="440" y="110" width="80" height="50" fill="#2f6df6"/><rect x="550" y="110" width="80" height="50" fill="#2f6df6"/><rect x="448" y="158" width="4" height="6" fill="#ff7a45"/><rect x="454" y="158" width="4" height="6" fill="#ff7a45"/><rect x="460" y="158" width="4" height="6" fill="#ff7a45"/><rect x="466" y="158" width="4" height="6" fill="#ff7a45"/><rect x="472" y="158" width="4" height="6" fill="#ff7a45"/><rect x="478" y="158" width="4" height="6" fill="#ff7a45"/><rect x="484" y="158" width="4" height="6" fill="#ff7a45"/><rect x="490" y="158" width="4" height="6" fill="#ff7a45"/><rect x="496" y="158" width="4" height="6" fill="#ff7a45"/><rect x="502" y="158" width="4" height="6" fill="#ff7a45"/><rect x="508" y="158" width="4" height="6" fill="#ff7a45"/><rect x="514" y="158" width="4" height="6" fill="#ff7a45"/><rect x="558" y="158" width="4" height="6" fill="#ff7a45"/><rect x="564" y="158" width="4" height="6" fill="#ff7a45"/><rect x="570" y="158" width="4" height="6" fill="#ff7a45"/><rect x="576" y="158" width="4" height="6" fill="#ff7a45"/><rect x="582" y="158" width="4" height="6" fill="#ff7a45"/><rect x="588" y="158" width="4" height="6" fill="#ff7a45"/><rect x="594" y="158" width="4" height="6" fill="#ff7a45"/><rect x="600" y="158" width="4" height="6" fill="#ff7a45"/><rect x="606" y="158" width="4" height="6" fill="#ff7a45"/><rect x="612" y="158" width="4" height="6" fill="#ff7a45"/><rect x="618" y="158" width="4" height="6" fill="#ff7a45"/><rect x="624" y="158" width="4" height="6" fill="#ff7a45"/><text x="520" y="235" text-anchor="middle" font-size="12" fill="#5b6675">间距 &lt;1μm，密度高一个数量级</text><text x="360" y="282" text-anchor="middle" font-size="12.5" fill="#1faa6b">HBM5（20 层）必须采用混合键合</text></svg><div class="cap">图：左=传统微凸点 μbump（间距 40-50μm）；右=混合键合铜-铜直接键合（间距&lt;1μm，密度高一个数量级）</div></div>
+<div class="tip"><div class="t">✅ 关键节点</div>混合键合通过铜-铜直接键合实现亚微米级互连，是 3D 封装的终极工艺。<b>HBM5（20 层）必须采用混合键合</b>。拓荆科技（688072）是国内混合键合设备唯一布局者，2028 年后该环节需求将爆发。</div></section>
+
+<section class="card" id="c9"><h2 class="chapter"><span class="num">09</span>学习小结</h2>
+<div class="def"><div class="t">📌 三句话串起全篇</div>
+① <b>封装在做什么</b>：给裸片穿盔甲(EMC)+接外线(键合丝/焊球/基板)+散热，先进封装还"帮芯片组队"；<br>
+② <b>每种材料</b>：基板/EMC/引线框架/键合丝/焊球/胶水/硅微粉，各有角色、多被日系垄断、国产替代弹性大；<br>
+③ <b>CoWoS/HBM</b>：AI 芯片=GPU+HBM 经 CoWoS 贴身合封，HBM 用 TSV 堆叠、HBM5 必须混合键合——这就是先进封装景气的发动机。
+</div>
+<p class="lead">想看完整"产业链 + 龙头标的"清单（长电/通富/华天、芯碁/拓荆/华峰测控、兴森/华海诚科/康强/德邦等，含代码与核心看点）和上游设备、国产化率表，见同目录《先进封装产业链学习图谱.html》。</p>
+<div class="notice" style="background:#fdeecb;border-color:#e6c200;color:#6b5200">⚠️ 本文所有公司与数据均来自公开资料整理，<b>仅供学习产业链，不构成任何投资建议</b>。</div></section>
+
+<section class="card" id="src"><h2 class="chapter"><span class="num">源</span>资料来源</h2>
+<p>• 雪球深度文《先进封装产业深度分析 及优质标的梳理》（2026-05-25，引用 券商研报 / 东方财富 / 万得 / Yole）：CoWoS 供需、HBM 代际、市场规模、标的明细。<br>
+• 雪球《先进封装三巨头深度对比：长电 / 通富 / 华天》（2026-07-07）。<br>
+• 前瞻产业研究院《半导体先进封装产业链全景梳理》（2024）。<br>
+• 公开检索补充：华海诚科(688535)、联瑞新材、飞凯材料、康强电子(002119)、兴森科技(002436)、德邦科技(688035) 等材料代表公司角色。<br>
+• 免责：数据截至 2026-05-25 前后，部分为机构预测，以最新公告为准。</p></section>
+
+<footer>先进封装图文详解 · 由 WorkBuddy AI 整理自雪球深度文与公开资料 · 仅供学习参考</footer>
+</main></div>
+<script>
+var progress=document.getElementById('progress');
+var links=Array.from(document.querySelectorAll('nav.toc a'));
+var sections=links.map(function(a){return document.querySelector(a.getAttribute('href'));});
+function onScroll(){var h=document.documentElement;progress.style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%';var idx=0;var y=h.scrollTop+120;sections.forEach(function(s,i){if(s&&s.offsetTop<=y)idx=i;});links.forEach(function(a,i){a.classList.toggle('active',i===idx);});}
+document.addEventListener('scroll',onScroll,{passive:true});onScroll();
+</script></body></html>

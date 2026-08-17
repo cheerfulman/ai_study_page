@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>先进封装产业链学习图谱 · 材料 → 封装 → 龙头标的</title>
+<style>
+  :root{
+    --bg:#f7f8fa;--panel:#fff;--ink:#1f2733;--ink-soft:#5b6675;--line:#e6e9ef;
+    --brand:#2f6df6;--brand-soft:#eaf1ff;--accent:#ff7a45;--accent-soft:#fff1ea;
+    --green:#1faa6b;--green-soft:#e9f8f0;--purple:#7b5cff;--purple-soft:#f0ecff;
+    --yellow:#f5b400;--teal:#0aa6b8;--teal-soft:#e2f6f8;
+    --shadow:0 6px 24px rgba(31,39,51,.08);--radius:14px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;line-height:1.7;font-size:16px}
+  #progress{position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,var(--brand),var(--accent));z-index:50;transition:width .1s}
+  header.hero{background:linear-gradient(135deg,#0f2a5a 0%,#2f6df6 55%,#13b6c9 100%);color:#fff;padding:40px 24px 30px}
+  .hero-inner{max-width:1180px;margin:0 auto}
+  .hero h1{font-size:29px;line-height:1.3;margin:0 0 10px;font-weight:800}
+  .hero .sub{font-size:15px;opacity:.92;margin:0 0 14px;max-width:760px}
+  .hero .tags{display:flex;gap:8px;flex-wrap:wrap}
+  .tag{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);padding:4px 11px;border-radius:999px;font-size:13px}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px;display:flex;gap:28px;align-items:flex-start}
+  nav.toc{position:sticky;top:18px;flex:0 0 248px;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px 14px;box-shadow:var(--shadow);max-height:calc(100vh - 36px);overflow:auto}
+  nav.toc h4{margin:0 0 10px;font-size:13px;color:var(--ink-soft);letter-spacing:1px}
+  nav.toc a{display:block;color:var(--ink-soft);text-decoration:none;font-size:14px;padding:7px 10px;border-radius:8px;border-left:3px solid transparent}
+  nav.toc a:hover{background:var(--brand-soft);color:var(--brand)}
+  nav.toc a.active{background:var(--brand-soft);color:var(--brand);border-left-color:var(--brand);font-weight:600}
+  main{flex:1 1 620px;min-width:0;padding:28px 0 60px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:24px 28px;margin:0 0 22px;box-shadow:var(--shadow)}
+  h2.chapter{font-size:22px;margin:4px 0 4px;padding-top:6px;scroll-margin-top:18px;font-weight:800}
+  h2.chapter .num{color:var(--brand);font-weight:800;margin-right:8px}
+  h3{font-size:18px;margin:20px 0 8px}
+  h3 .bar{display:inline-block;width:6px;height:18px;background:var(--brand);border-radius:3px;margin-right:8px;vertical-align:-3px}
+  h4.sub{font-size:15px;color:var(--ink-soft);margin:14px 0 6px}
+  p{margin:10px 0}
+  .lead{font-size:16px;color:var(--ink)}
+  .notice{background:var(--accent-soft);border:1px solid #ffd2bd;border-left:4px solid var(--accent);border-radius:10px;padding:13px 16px;font-size:14px;color:#9a3b16}
+  .def{background:var(--brand-soft);border:1px solid #cfe0ff;border-left:4px solid var(--brand);border-radius:10px;padding:13px 16px;margin:14px 0}
+  .def .t{font-weight:700;color:var(--brand);margin-bottom:3px}
+  .tip{background:var(--green-soft);border:1px solid #bfe9d4;border-left:4px solid var(--green);border-radius:10px;padding:12px 16px;margin:14px 0;font-size:14.5px}
+  .tip .t{font-weight:700;color:var(--green);margin-bottom:2px}
+  .analogy{background:var(--purple-soft);border:1px solid #ddd2ff;border-left:4px solid var(--purple);border-radius:10px;padding:13px 16px;margin:14px 0}
+  .analogy .t{font-weight:700;color:var(--purple);margin-bottom:3px}
+  /* 产业链流向 */
+  .chain{margin:8px 0}
+  .layer{border-radius:12px;padding:16px 18px;margin:0}
+  .layer .lt{font-weight:800;font-size:15px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+  .layer .lt .badge{background:#fff;color:inherit;border-radius:6px;padding:2px 9px;font-size:12px;font-weight:700}
+  .layer-up{background:var(--teal-soft);border:1px solid #b9e6ec}
+  .layer-mid{background:var(--brand-soft);border:1px solid #cfe0ff}
+  .layer-down{background:var(--accent-soft);border:1px solid #ffd2bd}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{background:#fff;border:1px solid var(--line);border-radius:999px;padding:5px 12px;font-size:13px}
+  .chip b{color:var(--brand)}
+  .arrow{text-align:center;color:var(--ink-soft);font-size:20px;margin:2px 0;font-weight:700}
+  /* 表格 */
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.8px}
+  th,td{border:1px solid var(--line);padding:9px 11px;text-align:left;vertical-align:top}
+  th{background:var(--brand-soft);color:var(--brand);font-weight:700}
+  tr:nth-child(even) td{background:#fafbfd}
+  /* 标的卡片 */
+  .seg{margin:18px 0}
+  .seg .seg-h{font-weight:800;font-size:16px;color:var(--brand);border-bottom:2px solid var(--brand-soft);padding-bottom:6px;margin-bottom:10px}
+  .stock{display:grid;grid-template-columns:170px 1fr;gap:12px;border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:10px 0;background:#fbfcfe}
+  .stock .name{font-weight:800}
+  .stock .code{display:inline-block;background:var(--brand-soft);color:var(--brand);font-size:12px;padding:1px 8px;border-radius:6px;margin-left:6px;font-weight:700}
+  .stock .role{color:var(--accent);font-weight:700;font-size:13.5px;margin-bottom:4px}
+  .stock .kp{font-size:13.5px;color:var(--ink-soft);margin:0}
+  .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin:12px 0}
+  .cell{background:#fbfcfe;border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .cell .h{font-weight:700;color:var(--brand);margin-bottom:5px}
+  .cell p{font-size:13.3px;margin:0;color:var(--ink-soft)}
+  .num-big{font-size:22px;font-weight:800;color:var(--accent)}
+  footer{text-align:center;color:var(--ink-soft);font-size:13px;padding:24px}
+  footer a{color:var(--brand)}
+  @media (max-width:880px){.wrap{flex-direction:column}nav.toc{position:static;width:100%;max-height:none}.stock{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<header class="hero">
+  <div class="hero-inner">
+    <h1>先进封装产业链学习图谱<br>材料 → 封装 → 龙头标的</h1>
+    <p class="sub">一份能反复看的产业链地图：先搞懂「上游材料/设备 → 中游封装测试 → 下游应用」怎么串起来，再认识每个环节的代表性公司与投资逻辑。资料口径以雪球深度文（引用券商研报 / 东方财富 / 万得 / Yole）为主。</p>
+    <div class="tags">
+      <span class="tag">产业链全景</span><span class="tag">上游材料/设备</span>
+      <span class="tag">封测 OSAT</span><span class="tag">龙头标的</span>
+      <span class="tag">国产化率</span><span class="tag">雪球/研报口径</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <nav class="toc" id="toc">
+    <h4>目录</h4>
+    <a href="#c0">阅读指引</a>
+    <a href="#c1">1 · 产业链全景图</a>
+    <a href="#c2">2 · 上游：材料</a>
+    <a href="#c3">3 · 上游：设备</a>
+    <a href="#c4">4 · 中游：封装测试</a>
+    <a href="#c5">5 · 下游：应用</a>
+    <a href="#c6">6 · 市场空间与景气</a>
+    <a href="#c7">7 · 龙头标的梳理</a>
+    <a href="#c8">8 · 国产化率全景</a>
+    <a href="#c9">9 · 学习小结+风险</a>
+    <a href="#src">资料来源</a>
+  </nav>
+
+  <main>
+    <div class="card">
+      <div class="notice">
+        ⚠️ <b>阅读指引与免责</b>：本文目标是<b>帮你学懂先进封装产业链</b>，不是荐股。文中公司、营收、估值等数据来自雪球深度文（数据截至 2026-05-25，引用券商研报/东方财富/万得/Yole）及公开检索，部分估值为机构预测。产业链与公司角色用于学习；据此交易风险自担。
+      </div>
+    </div>
+
+    <!-- 全景图 -->
+    <section class="card" id="c1">
+      <h2 class="chapter"><span class="num">01</span>产业链全景图：一张图看懂上下游</h2>
+      <p class="lead">先进封装产业链是一条「<b>材料 + 设备 → 封装测试 → 终端应用</b>」的链条。记住这个流向，后面每一章都是在拆这一张图。</p>
+      <div class="chain">
+        <div class="layer layer-up">
+          <div class="lt"><span class="badge" style="color:var(--teal)">上游</span>材料 + 设备（芯片封起来要用到的"建材"和"工具"）</div>
+          <div class="chips">
+            <span class="chip"><b>材料</b>：封装基板(ABF/BT)、引线框架、键合金丝、环氧塑封料EMC、底部填充胶、临时键合胶、硅微粉、电镀液/电子化学品</span>
+            <span class="chip"><b>设备</b>：光刻、键合机、电镀、刻蚀/沉积、划片、测试机</span>
+          </div>
+        </div>
+        <div class="arrow">▼</div>
+        <div class="layer layer-mid">
+          <div class="lt"><span class="badge" style="color:var(--brand)">中游</span>封装与测试（把裸片变成能用的芯片）</div>
+          <div class="chips">
+            <span class="chip"><b>OSAT 封测厂</b>：长电科技、通富微电、华天科技、晶方科技、甬矽电子</span>
+            <span class="chip"><b>晶圆厂封装部</b>：台积电(CoWoS/InFO/SoIC)、Intel(EMIB/Foveros)、三星</span>
+            <span class="chip"><b>环节</b>：传统封装 + 先进封装（Flip-Chip/WLP/2.5D/3D/Chiplet）</span>
+          </div>
+        </div>
+        <div class="arrow">▼</div>
+        <div class="layer layer-down">
+          <div class="lt"><span class="badge" style="color:var(--accent)">下游</span>应用场景（芯片最终去哪）</div>
+          <div class="chips">
+            <span class="chip">AI / GPU 算力芯片（HBM + CoWoS）</span>
+            <span class="chip">存储（HBM / 长鑫 / 长存）</span>
+            <span class="chip">手机 SoC / CIS</span>
+            <span class="chip">汽车电子 / 车规</span>
+            <span class="chip">IoT / 工控 / 可穿戴</span>
+          </div>
+        </div>
+      </div>
+      <div class="analogy">
+        <div class="t">🏗️ 类比：盖楼</div>
+        <b>上游材料</b>是钢筋水泥门窗（基板、塑封料、引线…），<b>上游设备</b>是塔吊和施工机械（光刻、键合、测试…）；<b>中游封装</b>是总包施工队，把材料按图纸拼成大楼；<b>下游应用</b>是住进大楼的人（AI、手机、汽车…）。AI 这栋"超高层"一开工，钢筋水泥和施工队全被带旺——这就是先进封装景气的来源。
+      </div>
+    </section>
+
+    <!-- 上游材料 -->
+    <section class="card" id="c2">
+      <h2 class="chapter"><span class="num">02</span>上游·材料：芯片的"建材"</h2>
+      <p>先进封装材料众多、单类市场不大但壁垒高，很多被日系巨头垄断。国产替代空间集中在下面几类。</p>
+      <div class="grid2">
+        <div class="cell"><div class="h">封装基板（ABF / BT 载板）</div><p>芯片与主板之间的"桥梁"。ABF 载板是 AI GPU/CPU/HBM 封装核心材料（FC-BGA），由味之素垄断 ABF 膜、揖斐电等垄断载板；BT 载板用于射频/存储。国产代表：<b>兴森科技</b>（ABF 载板广州基地量产）、深南电路、珠海越亚。</p></div>
+        <div class="cell"><div class="h">环氧塑封料 EMC</div><p>包封保护芯片的"外壳"热固性材料，绝缘/导热/耐湿。国产龙头 <b>华海诚科(688535)</b> 出货量全国第二、全球前列；<b>飞凯材料(300398)</b> 居国内第二。<b>联瑞新材</b> 提供 EMC 上游关键填料硅微粉。</p></div>
+        <div class="cell"><div class="h">引线框架</div><p>传统封装的"骨架"，连接芯片与引脚。细分龙头 <b>康强电子(002119)</b> 满产满销，受益封测产能扩张，正向高端蚀刻框架升级。</p></div>
+        <div class="cell"><div class="h">底部填充胶 / 临时键合胶</div><p>Underfill 保护微凸点、临时键合胶是 3D 堆叠关键耗材，长期被日系（信越/Namics）垄断。<b>德邦科技(688035)</b> 布局 underfill 与临时键合/解键合材料，国产替代窗口打开。</p></div>
+        <div class="cell"><div class="h">键合金丝 / 电镀液 / 电子化学品</div><p>打线键合用金丝/铜丝；先进封装电镀铜、清洗液等电子化学品。属"耗材"，随封测产能稼动率同步放量。</p></div>
+        <div class="cell"><div class="h">硅微粉（填料）</div><p>EMC / 塑封料的关键无机填料，决定导热与膨胀系数。<b>联瑞新材</b> 为国产代表，随 AI 封装用量倍增。</p></div>
+      </div>
+      <div class="tip">
+        <div class="t">✅ 学习要点</div>
+        材料环节的特点是"<b>小而专、日系垄断、国产替代弹性大</b>"。AI 封装越高端，对基板/塑封料/填料/胶水的性能和用量要求越高——这就是材料股景气的上游逻辑。
+      </div>
+    </section>
+
+    <!-- 上游设备 -->
+    <section class="card" id="c3">
+      <h2 class="chapter"><span class="num">03</span>上游·设备：封装的"施工机械"</h2>
+      <p>封装设备国产化率整体偏低（多数环节 &lt;15%），正因如此，设备是产业链里"扩产先行、弹性最大"的环节。</p>
+      <div class="grid2">
+        <div class="cell"><div class="h">光刻（先进封装）</div><p>晶圆级封装需要光刻。国内唯一量产先进封装直写光刻设备的是 <b>芯碁微装(688630)</b>，WLP 系列已进入头部客户量产线，逐步替代日系掩模光刻。</p></div>
+        <div class="cell"><div class="h">薄膜沉积 / 混合键合</div><p>PECVD/ALD 及 3D 封装终极工艺"混合键合"。<b>拓荆科技(688072)</b> 是国内混合键合设备唯一布局者，HBM5 必须采用混合键合，2028 年后需求将爆发。</p></div>
+        <div class="cell"><div class="h">测试机 / 分选机</div><p>芯片量产的"质检关"。<b>华峰测控</b>、<b>长川科技</b> 为国产测试设备第一梯队（长川覆盖测试机+分选机，华峰擅长模拟/功率测试）。</p></div>
+        <div class="cell"><div class="h">划片 / 切割</div><p>把晶圆切成裸片。高端划片机代表 <b>光力科技</b>（通过并购掌握高精密划片机底座技术）。</p></div>
+        <div class="cell"><div class="h">键合 / 电镀 / 刻蚀</div><p>倒装焊、TCB 热压键合、电镀铜、刻蚀等后道设备。设备平台厂 <b>北方华创(002371)</b> 覆盖多类封装相关设备。</p></div>
+        <div class="cell"><div class="h">封装设备整体</div><p>国产在清洗、检测、部分刻蚀已批量出货并进入全球供应链；高端键合/光刻/沉积仍处突破期，是"国产替代最难但空间最大"的环节。</p></div>
+      </div>
+      <div class="tip">
+        <div class="t">✅ 学习要点</div>
+        设备股的节奏：<b>封测厂要先买设备才能扩产</b> → 设备订单往往领先于封测业绩兑现。所以设备弹性通常排在 T0（最强）。
+      </div>
+    </section>
+
+    <!-- 中游封装 -->
+    <section class="card" id="c4">
+      <h2 class="chapter"><span class="num">04</span>中游·封装与测试：产业链主角</h2>
+      <p>中游是把材料+裸片变成成品芯片的环节，分两类玩家：专业封测代工厂（OSAT）和自带封装能力的晶圆厂。</p>
+
+      <h3><span class="bar"></span>全球竞争格局（2025 前后量级，雪球引用 Yole / 财报）</h3>
+      <table>
+        <tr><th>玩家</th><th>类型</th><th>先进封装营收量级</th><th>先进封装占比</th><th>看家技术</th></tr>
+        <tr><td>台积电 TSM</td><td>晶圆厂</td><td>~120 亿美元</td><td>—</td><td>CoWoS / InFO / SoIC</td></tr>
+        <tr><td>日月光 ASE</td><td>OSAT</td><td>~190 亿美元(总)</td><td>~40%</td><td>Fan-out / 2.5D / 3D</td></tr>
+        <tr><td>安靠 Amkor</td><td>OSAT</td><td>~75 亿美元(总)</td><td>~55%</td><td>2.5D / 3D</td></tr>
+        <tr><td><b>长电科技 600584</b></td><td>OSAT</td><td>~55 亿美元(总)</td><td>~50%</td><td>XDFOI / Chiplet / CPO</td></tr>
+        <tr><td>力成 PTI</td><td>OSAT</td><td>~30 亿美元(总)</td><td>~30%</td><td>存储封装</td></tr>
+        <tr><td><b>通富微电 002156</b></td><td>OSAT</td><td>~39 亿美元(总)</td><td>~70%</td><td>AMD / AI 封测</td></tr>
+        <tr><td><b>华天科技 002185</b></td><td>OSAT</td><td>~24 亿美元(总)</td><td>~60%</td><td>CIS WLCSP / 存储</td></tr>
+      </table>
+
+      <h3><span class="bar"></span>三巨头技术平台（雪球对比文）</h3>
+      <div class="grid2">
+        <div class="cell"><div class="h">长电科技 · 全能龙头</div><p><b>XDFOI</b> Chiplet 平台实现 4nm 多芯片封装量产（国内唯一）；前瞻布局 <b>CPO</b> 光电合封；中国大陆+韩国+新加坡三地产能，海外收入占比高、客户最分散。</p></div>
+        <div class="cell"><div class="h">通富微电 · AI 弹性最大</div><p>深度绑定 <b>AMD</b>（占营收 30%+，承接其 80%+ 封测订单）；先进封装占比行业最高之一（~70%）；受益 AMD+OpenAI 大单、MI 系列放量。</p></div>
+        <div class="cell"><div class="h">华天科技 · 稳健低估</div><p><b>CIS 晶圆级封装全球前三</b>；深度绑定长鑫等国产存储，受益存储封测国产替代；南京 2.5D/3D 产线已通线，拓展功率封测。</p></div>
+        <div class="cell"><div class="h">其他 OSAT</div><p><b>晶方科技(603005)</b> 专注 CIS WLCSP 细分；<b>甬矽电子</b> 聚焦高性能计算/射频先进封装，成长型选手。</p></div>
+      </div>
+      <div class="def">
+        <div class="t">📌 OSAT 是什么？</div>
+        Outsourced Semiconductor Assembly and Test，外包封测代工。晶圆厂把做好的晶圆交给 OSAT 完成封装测试。中国大陆 OSAT（长电/通富/华天）全球份额领先，是先进封装"国产突围"的主力。
+      </div>
+    </section>
+
+    <!-- 下游 -->
+    <section class="card" id="c5">
+      <h2 class="chapter"><span class="num">05</span>下游·应用：芯片最终去哪</h2>
+      <div class="grid2">
+        <div class="cell"><div class="h">AI / GPU 算力芯片</div><p>最大拉动项。GPU + HBM 通过 CoWoS 合封，HBM 带宽决定算力上限——直接拉动 2.5D/3D 先进封装与 HBM 专用封装。</p></div>
+        <div class="cell"><div class="h">存储（HBM / 国产存储）</div><p>HBM 是 3D 堆叠封装的标杆；长江存储/长鑫带动国产存储封装需求。</p></div>
+        <div class="cell"><div class="h">手机 SoC / CIS</div><p>手机主芯片用 Fan-out/InFO；多摄与车载摄像头带动 CIS 晶圆级封装（华天、晶方强项）。</p></div>
+        <div class="cell"><div class="h">汽车电子 / 车规</div><p>自动驾驶/智能座舱需高密度集成；新能源车拉动 SiC 功率模块封装，车规高可靠封装渗透率抬升。</p></div>
+        <div class="cell"><div class="h">IoT / 工控 / 可穿戴</div><p>SiP 系统级封装把多芯片封进一颗，用于耳机、手表、工业模组。</p></div>
+        <div class="cell"><div class="h">CPO 光互连</div><p>下一代数据中心用"光电合封"降低功耗，长电等已前瞻布局——封装从电延伸到光。</p></div>
+      </div>
+      <div class="tip">
+        <div class="t">✅ 一句话串起来</div>
+        <b>AI 算力 → 要 HBM → 要 CoWoS → 要先进封装产能 → 拉动设备/材料/封测全链。</b> 看懂这一条因果链，就抓住了先进封装的景气发动机。
+      </div>
+    </section>
+
+    <!-- 市场空间 -->
+    <section class="card" id="c6">
+      <h2 class="chapter"><span class="num">06</span>市场空间与景气：钱从哪来、有多大</h2>
+      <div class="grid2">
+        <div class="cell"><div class="h">全球先进封装市场</div><p>2024 ~420 亿美元（占比 49%）；2025E ~480 亿；<span class="num-big">2026E ~520 亿</span>，<b>首次超过传统封装（占比 54%）</b>；2030E ~900 亿，CAGR 14.5%。</p></div>
+        <div class="cell"><div class="h">中国先进封装市场</div><p>2024 ~1050 亿元；2025E ~1350 亿；2026E ~1700 亿（CAGR 19.2%，高于全球）；2030E &gt;2800 亿，份额升至 ~38%。</p></div>
+        <div class="cell"><div class="h">CoWoS 供需（核心瓶颈）</div><p>需求 2024:37 万片 / 2025:70 万 / 2026E:100 万片；产能 33/60/90 万片，<b>2026E 仍缺 ~10 万片</b>，台积电已涨价约 30%，紧张延续至 2027 年中。</p></div>
+        <div class="cell"><div class="h">HBM 市场</div><p>2026E ~546 亿美元，占 DRAM 市场近 40%，是先进封装需求核心增长极。HBM4(2026-27) 导入混合键合，HBM5(2028+) 必须全混合键合。</p></div>
+      </div>
+    </section>
+
+    <!-- 龙头标的 -->
+    <section class="card" id="c7">
+      <h2 class="chapter"><span class="num">07</span>龙头标的梳理：每个环节谁在玩</h2>
+      <p class="lead">下面按「封测 → 设备 → 材料」分组。代码与经营数据为雪球深度文（截至 2026-05-25）公开信息，<b>仅供学习产业链对应关系，非买卖建议</b>。</p>
+
+      <div class="seg">
+        <div class="seg-h">① 封测 OSAT（产业链主角）</div>
+        <div class="stock"><div><span class="name">长电科技</span><span class="code">600584</span></div><div><div class="role">国内封测绝对龙头 · XDFOI/Chiplet/CPO</div><p class="kp">2025 营收 388.7 亿(+8.1%)，净利 15.65 亿；2026Q1 净利 +42.7%。先进封装占比~50%，海外收入 78%、客户最分散。</p></div></div>
+        <div class="stock"><div><span class="name">通富微电</span><span class="code">002156</span></div><div><div class="role">AI 弹性最大 · 深度绑定 AMD</div><p class="kp">2025 营收 279.2 亿(+16.9%)，净利 12.19 亿(+79.9%)。先进封装占比~70%（行业最高之一），AMD 占营收 30%+。</p></div></div>
+        <div class="stock"><div><span class="name">华天科技</span><span class="code">002185</span></div><div><div class="role">稳健低估 · CIS 封装全球前三 + 存储封测</div><p class="kp">2025 营收 172.1 亿(+19.0%)，净利 7.11 亿(+15.3%)；绑定长鑫，南京 2.5D/3D 产线通线。2026E PE 约 33x。</p></div></div>
+        <div class="stock"><div><span class="name">晶方科技</span><span class="code">603005</span></div><div><div class="role">CIS 晶圆级封装(WLCSP)细分龙头</div><p class="kp">专注影像传感器 WLCSP，受益手机多摄与车载 CIS。</p></div></div>
+        <div class="stock"><div><span class="name">甬矽电子</span><span class="code">688362</span></div><div><div class="role">高性能计算/射频先进封装成长股</div><p class="kp">聚焦先进封装，体量较小、成长性高。</p></div></div>
+      </div>
+
+      <div class="seg">
+        <div class="seg-h">② 设备（扩产先行、弹性最强）</div>
+        <div class="stock"><div><span class="name">芯碁微装</span><span class="code">688630</span></div><div><div class="role">先进封装直写光刻设备唯一量产</div><p class="kp">2025 营收 14.08 亿(+47.6%)，净利 +80.4%；2026Q1 营收 +112%，累计订单破 8 亿。2026E PE 约 37x。</p></div></div>
+        <div class="stock"><div><span class="name">拓荆科技</span><span class="code">688072</span></div><div><div class="role">PECVD/ALD + 混合键合设备国内唯一</div><p class="kp">2026Q1 净利 5.71 亿(+488%)。HBM5 必须混合键合，2028 后设备需求爆发。</p></div></div>
+        <div class="stock"><div><span class="name">华峰测控</span><span class="code">688200</span></div><div><div class="role">模拟/功率测试机龙头</div><p class="kp">国产测试设备第一梯队，封测扩产直接拉动测试需求。</p></div></div>
+        <div class="stock"><div><span class="name">长川科技</span><span class="code">300604</span></div><div><div class="role">测试机 + 分选机龙头</div><p class="kp">覆盖测试机与分选机，国产替代第一梯队。</p></div></div>
+        <div class="stock"><div><span class="name">光力科技</span><span class="code">300480</span></div><div><div class="role">高端划片机</div><p class="kp">通过并购掌握高精密划片机底座技术。</p></div></div>
+        <div class="stock"><div><span class="name">北方华创</span><span class="code">002371</span></div><div><div class="role">半导体设备平台</div><p class="kp">覆盖多类封装相关设备（沉积/刻蚀等）。</p></div></div>
+      </div>
+
+      <div class="seg">
+        <div class="seg-h">③ 材料（小而专、国产替代弹性大）</div>
+        <div class="stock"><div><span class="name">兴森科技</span><span class="code">002436</span></div><div><div class="role">ABF 载板国产突破者</div><p class="kp">广州基地为国内首个具备量产能力的 ABF 载板项目；2026 ABF 涨价 30-35%。</p></div></div>
+        <div class="stock"><div><span class="name">华海诚科</span><span class="code">688535</span></div><div><div class="role">环氧塑封料 EMC 龙头（全球第二）</div><p class="kp">半导体 EMC 出货量全国第二，先进封装材料核心标的。</p></div></div>
+        <div class="stock"><div><span class="name">康强电子</span><span class="code">002119</span></div><div><div class="role">引线框架细分龙头 · 满产满销</div><p class="kp">2025 营收 21.99 亿(+12%)，净利 +40%；2026Q1 扣非 +185%，下游景气极高。</p></div></div>
+        <div class="stock"><div><span class="name">德邦科技</span><span class="code">688035</span></div><div><div class="role">先进封装材料隐形冠军</div><p class="kp">布局底部填充胶、导热材料、临时键合/解键合材料，国产替代窗口。</p></div></div>
+        <div class="stock"><div><span class="name">联瑞新材</span><span class="code">688147</span></div><div><div class="role">硅微粉（EMC 关键填料）</div><p class="kp">随 AI 封装 EMC 用量倍增而受益。</p></div></div>
+        <div class="stock"><div><span class="name">飞凯材料</span><span class="code">300398</span></div><div><div class="role">先进封装材料（国内第二）</div><p class="kp">EMC 等封装材料布局，受益先进封装扩产。</p></div></div>
+      </div>
+      <div class="tip">
+        <div class="t">✅ 标的对应口诀</div>
+        想记产业链→标的映射，背这条：<b>上游材料</b>＝兴森(ABF)+华海诚科(EMC)+康强(框架)+德邦(胶)+联瑞(硅微粉)；<b>上游设备</b>＝芯碁(光刻)+拓荆(混键)+华峰/长川(测试)+光力(划片)；<b>中游封测</b>＝长电+通富+华天+晶方+甬矽。
+      </div>
+    </section>
+
+    <!-- 国产化率 -->
+    <section class="card" id="c8">
+      <h2 class="chapter"><span class="num">08</span>国产化率全景：哪里最卡、哪里最松</h2>
+      <p>下表是雪球引用券商数据的各环节国产化率与替代难度，一眼看出"投资弹性"藏在哪。</p>
+      <table>
+        <tr><th>环节</th><th>国产化率</th><th>替代难度</th><th>含义</th></tr>
+        <tr><td>封装设备-键合机</td><td>&lt;5%</td><td>极高</td><td>最卡脖子，突破后空间最大</td></tr>
+        <tr><td>封装设备-沉积/刻蚀</td><td>5-10%</td><td>极高</td><td>拓荆、北方华创在攻</td></tr>
+        <tr><td>封装设备-电镀</td><td>7-10%</td><td>高</td><td>—</td></tr>
+        <tr><td>临时键合胶</td><td>&lt;15%</td><td>高</td><td>德邦等布局</td></tr>
+        <tr><td>封装设备-光刻 / 封装设计EDA</td><td>10-15%</td><td>高 / 中高</td><td>芯碁微装突破直写光刻</td></tr>
+        <tr><td>底部填充胶</td><td>15-20%</td><td>中高</td><td>德邦等</td></tr>
+        <tr><td>ABF 载板</td><td>18-25%</td><td>中</td><td>兴森科技量产突破</td></tr>
+        <tr><td>封装基板（整体）</td><td>20-30%</td><td>中</td><td>—</td></tr>
+        <tr><td>封测服务</td><td>25-30%</td><td>中</td><td>中国 OSAT 全球领先，相对强项</td></tr>
+      </table>
+      <div class="analogy">
+        <div class="t">🧭 类比：木桶的短板</div>
+        国产化率越低（短板越短）的环节，一旦被国内企业突破，业绩弹性就越大——但也意味着难度最高、风险最大。封测服务是少有的"长板"（中国本就强），材料/设备则是"又短又弹性大"的黄金替代区。
+      </div>
+    </section>
+
+    <!-- 小结 -->
+    <section class="card" id="c9">
+      <h2 class="chapter"><span class="num">09</span>学习小结 + 风险边界</h2>
+      <div class="def">
+        <div class="t">📌 三句话记住整条链</div>
+        ① 上游"建材+机械"（材料/设备）决定封装能做什么；<br>
+        ② 中游封测（OSAT + 晶圆厂）把芯片拼成系统，是后摩尔时代的性能主战场；<br>
+        ③ 下游 AI 算力是发动机——HBM/CoWoS 紧缺拉动全链，国产 OSAT 凭相对强项成为"弯道超车"抓手。
+      </div>
+      <h3><span class="bar"></span>产业链弹性排序（雪球口径，学习用）</h3>
+      <table>
+        <tr><th>梯队</th><th>定位</th><th>代表</th></tr>
+        <tr><td>T0 最强弹性</td><td>设备股：封测扩产→设备先行</td><td>芯碁微装、拓荆科技</td></tr>
+        <tr><td>T1 高弹性</td><td>高 Beta 封测：订单饱满</td><td>通富微电、康强电子</td></tr>
+        <tr><td>T2 稳健弹性</td><td>龙头修复 + 材料突破</td><td>长电科技、兴森科技</td></tr>
+        <tr><td>T3 防御配置</td><td>估值低、波动小</td><td>华天科技</td></tr>
+      </table>
+      <h3><span class="bar"></span>主要风险（务必知道）</h3>
+      <div class="grid2">
+        <div class="cell"><div class="h">地缘政治</div><p>对华设备/材料/技术管制加码，断供风险（影响★★★★★）。</p></div>
+        <div class="cell"><div class="h">AI 需求不及预期</div><p>云厂商资本开支缩减，封测需求放缓。</p></div>
+        <div class="cell"><div class="h">产能过剩</div><p>全球大规模扩产，2027 后或供过于求。</p></div>
+        <div class="cell"><div class="h">客户集中</div><p>通富(AMD&gt;30%)等客户集中度高，单客户波动大。</p></div>
+        <div class="cell"><div class="h">毛利率内卷</div><p>封测价格战压缩利润。</p></div>
+        <div class="cell"><div class="h">技术替代</div><p>面板级/玻璃基板等新技术可能颠覆格局。</p></div>
+      </div>
+      <div class="notice" style="background:var(--yellow);border-color:#e6c200;color:#6b5200">
+        ⚠️ 本文所有公司、营收、估值均来自公开资料整理，<b>仅供学习产业链，不构成任何投资建议</b>。股市有风险，决策需自行核实最新财报与公告。
+      </div>
+    </section>
+
+    <section class="card" id="src">
+      <h2 class="chapter"><span class="num">源</span>资料来源</h2>
+      <p>
+        • 雪球深度文《先进封装产业深度分析 及优质标的梳理》（2026-05-25，引用 券商研报 / 东方财富 / 万得 / Yole Group）：市场规模、CoWoS 供需、国产化率、8 家标的明细、弹性排序与风险。<br>
+        • 雪球《先进封装三巨头深度对比：长电 / 通富 / 华天》（2026-07-07）技术平台与定位。<br>
+        • 前瞻产业研究院《2024 半导体先进封装产业链全景梳理》：上游材料/设备/中游封测/下游应用结构与企业区域分布。<br>
+        • 公开检索补充：华海诚科(688535) EMC、联瑞新材 硅微粉、飞凯材料、华峰测控/长川科技 测试机、光力科技 划片机、北方华创 设备等代表公司角色。<br>
+        • 免责：数据截至 2026-05-25 前后，部分为机构预测值，实际以最新公告为准。
+      </p>
+    </section>
+
+    <footer>先进封装产业链学习图谱 · 由 WorkBuddy AI 整理自雪球深度文与公开资料 · 仅供学习参考，不构成投资建议</footer>
+  </main>
+</div>
+
+<script>
+  const progress=document.getElementById('progress');
+  const links=Array.from(document.querySelectorAll('nav.toc a'));
+  const sections=links.map(a=>document.querySelector(a.getAttribute('href')));
+  function onScroll(){
+    const h=document.documentElement;
+    progress.style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%';
+    let idx=0;const y=h.scrollTop+120;
+    sections.forEach((s,i)=>{if(s&&s.offsetTop<=y)idx=i;});
+    links.forEach((a,i)=>a.classList.toggle('active',i===idx));
+  }
+  document.addEventListener('scroll',onScroll,{passive:true});onScroll();
+</script>
+</body>
+</html>
