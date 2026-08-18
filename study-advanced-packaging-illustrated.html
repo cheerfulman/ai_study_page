@@ -64,8 +64,8 @@ footer a{color:var(--brand)}
 <div class="wrap"><nav class="toc" id="toc"><h4>目录</h4>
 <a href="#c0">阅读指引</a><a href="#c1">1 · 封装在做什么</a><a href="#c2">2 · 封装工艺流程</a>
 <a href="#c3">3 · 每种材料图解</a><a href="#c4">4 · 传统 vs 先进</a><a href="#c5">5 · Flip Chip / Fan-out</a>
-<a href="#c6">6 · CoWoS 详解</a><a href="#c7">7 · HBM 详解</a><a href="#c8">8 · Chiplet / 混合键合</a>
-<a href="#c9">9 · 学习小结</a><a href="#src">资料来源</a>
+<a href="#c6">6 · 底层工艺：抛光/沉积</a><a href="#c7">7 · CoWoS 详解</a><a href="#c8">8 · HBM 详解</a><a href="#c9">9 · Chiplet / 混合键合</a>
+<a href="#c10">10 · 学习小结</a><a href="#src">资料来源</a>
 </nav><main>
 
 <div class="card"><div class="notice">
@@ -101,7 +101,7 @@ footer a{color:var(--brand)}
 <div class="row"><div class="h">④ 键合丝 / 焊球</div><p>打线封装用<b>键合金丝/铜丝</b>把裸片连到框架（图里紫色弧线）；倒装/先进封装改用裸片底部的<b>焊球（bump）</b>直接连基板（图里青色小球）。焊球材料与电镀液直接相关。</p></div>
 <div class="row"><div class="h">⑤ 底部填充胶 Underfill</div><p>填进裸片与基板缝隙、保护微凸点的胶水，决定可靠性。长期被日系（信越/Namics）垄断。<b>德邦科技（688035）</b>布局 underfill 与临时键合/解键合材料。</p></div>
 <div class="row"><div class="h">⑥ 临时键合 / 解键合胶</div><p>3D 堆叠时先把薄晶圆"暂时粘"到载板上加工、做完再"解开"的关键耗材，壁垒高、国产率&lt;15%。德邦科技等正在突破。</p></div>
-<div class="row"><div class="h">⑦ 硅微粉（填料）</div><p>EMC/塑封料里的无机填料，决定导热与膨胀系数。AI 封装越高端用量越大。<b>联瑞新材（688147）</b>为国产代表。</p></div>
+<div class="row"><div class="h">⑦ 硅微粉（填料）</div><p>EMC/塑封料里的无机填料，决定导热与膨胀系数。AI 封装越高端用量越大。<b>联瑞新材（688300）</b>为国产代表。</p></div>
 <div class="row"><div class="h">⑧ 电镀液 / 电子化学品</div><p>先进封装要做铜互连、RDL 重布线，离不开电镀铜与各类清洗/刻蚀液。属"耗材"，随扩产放量。</p></div>
 </div>
 <div class="tip"><div class="t">✅ 记忆口诀</div>材料环节 = <b>基板(兴森) + EMC(华海诚科/飞凯) + 框架(康强) + 胶水(德邦) + 硅微粉(联瑞)</b>。特点是"小而专、日系垄断、国产替代弹性大"。</div></section>
@@ -118,7 +118,115 @@ footer a{color:var(--brand)}
 <div class="figure"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" font-family="PingFang SC,Microsoft YaHei,sans-serif"><rect width="720" height="280" fill="#fbfcfe"/><text x="360" y="26" text-anchor="middle" font-size="16" font-weight="800" fill="#1f2733">Fan-out 扇出（InFO）：把芯片埋进重构晶圆，省掉基板</text><rect x="300" y="70" width="120" height="70" fill="#2f6df6"/><text x="360" y="110" text-anchor="middle" font-size="12" fill="#fff">裸片</text><rect x="270" y="60" width="180" height="90" rx="8" stroke="#ff7a45" fill="#ffe9dd"/><text x="360" y="170" text-anchor="middle" font-size="11" fill="#9a3b16">重构晶圆（包封）</text><line x1="300" y1="150" x2="260" y2="185" stroke="#0aa6b8" stroke-width="1.5"/><line x1="312" y1="150" x2="278" y2="185" stroke="#0aa6b8" stroke-width="1.5"/><line x1="324" y1="150" x2="296" y2="185" stroke="#0aa6b8" stroke-width="1.5"/><line x1="336" y1="150" x2="314" y2="185" stroke="#0aa6b8" stroke-width="1.5"/><line x1="348" y1="150" x2="332" y2="185" stroke="#0aa6b8" stroke-width="1.5"/><line x1="360" y1="150" x2="350" y2="185" stroke="#0aa6b8" stroke-width="1.5"/><line x1="372" y1="150" x2="368" y2="185" stroke="#0aa6b8" stroke-width="1.5"/><line x1="384" y1="150" x2="386" y2="185" stroke="#0aa6b8" stroke-width="1.5"/><line x1="396" y1="150" x2="404" y2="185" stroke="#0aa6b8" stroke-width="1.5"/><line x1="408" y1="150" x2="422" y2="185" stroke="#0aa6b8" stroke-width="1.5"/><line x1="420" y1="150" x2="440" y2="185" stroke="#0aa6b8" stroke-width="1.5"/><circle cx="258" cy="186" r="4" fill="#0aa6b8"/><circle cx="276" cy="186" r="4" fill="#0aa6b8"/><circle cx="294" cy="186" r="4" fill="#0aa6b8"/><circle cx="312" cy="186" r="4" fill="#0aa6b8"/><circle cx="330" cy="186" r="4" fill="#0aa6b8"/><circle cx="348" cy="186" r="4" fill="#0aa6b8"/><circle cx="366" cy="186" r="4" fill="#0aa6b8"/><circle cx="384" cy="186" r="4" fill="#0aa6b8"/><circle cx="402" cy="186" r="4" fill="#0aa6b8"/><circle cx="420" cy="186" r="4" fill="#0aa6b8"/><circle cx="438" cy="186" r="4" fill="#0aa6b8"/><text x="360" y="225" text-anchor="middle" font-size="12.5" fill="#5b6675">引脚“扇出”到比裸片更大的范围 → 更薄、IO 更多、更便宜</text></svg><div class="cap">图：把裸片埋进一块“重构晶圆”包封，再把引脚“扇出”到比裸片更大的范围——省掉基板，更薄、IO 更多、更便宜。台积电 InFO 用于手机 AP</div></div>
 <div class="analogy"><div class="t">🪂 类比：扇出像"摊大饼"</div>裸片是中间的小饼，Fan-out 把它的"接线端子"摊到周围更大的圈上，于是能在不加大芯片的前提下接更多外线——手机里省空间就靠它。</div></section>
 
-<section class="card" id="c6"><h2 class="chapter"><span class="num">06</span>重点概念：CoWoS 到底是什么？</h2>
+<section class="card" id="c6"><h2 class="chapter"><span class="num">06</span>先进封装的底层工艺：制造与封装被打通的墙（抛光 / 沉积 / 电镀）</h2>
+<p class="lead">前面讲了封装在"组队"，但先进封装真正难的不是把芯片拼起来，而是<b>用晶圆厂的薄膜工艺在芯片 / 晶圆层面重新做一遍互连</b>。你学制造时见过的<b>沉积（PVD / CVD / 电镀）</b>与<b>抛光（CMP）</b>，在这里被原样搬了过来——这正是"先进封装"与"传统封测"的分水岭。</p>
+
+<div class="def"><div class="t">一句话定义</div><b>沉积</b>＝在表面"长"出一层材料：PVD（溅射金属种子层）、CVD / PECVD（长介质 / 氮化硅）、电镀（电化学填铜）。<b>CMP（化学机械抛光）</b>＝边喷化学液、边用研磨垫磨，把叠上去的多余材料磨到纳米级平整。</div>
+
+<div class="figure"><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 720 430' font-family='PingFang SC,Microsoft YaHei,sans-serif'>
+<defs><marker id='ah6' markerWidth='10' markerHeight='10' refX='6' refY='3' orient='auto'><path d='M0,0 L6,3 L0,6 Z' fill='#94a3b8'/></marker></defs>
+<rect width='720' height='430' fill='#fbfcfe'/>
+<text x='360' y='26' text-anchor='middle' font-size='17' font-weight='800' fill='#1f2733'>制造与封装的工艺连续性：抛光 / 沉积被原样搬进封装</text>
+<text x='165' y='60' text-anchor='middle' font-size='14' font-weight='700' fill='#2f6df6'>① 晶圆制造 BEOL 后道</text>
+<rect x='40' y='80' width='250' height='44' rx='8' fill='#eaf1ff' stroke='#cfe0ff'/>
+<rect x='40' y='80' width='6' height='44' rx='3' fill='#2f6df6'/>
+<text x='58' y='100' font-size='13' font-weight='700' fill='#2f6df6'>薄膜沉积 PVD / CVD</text>
+<text x='58' y='117' font-size='11' fill='#5b6675'>生长介质层与金属层</text>
+<rect x='40' y='132' width='250' height='44' rx='8' fill='#f0ecff' stroke='#ddd2ff'/>
+<rect x='40' y='132' width='6' height='44' rx='3' fill='#7b5cff'/>
+<text x='58' y='152' font-size='13' font-weight='700' fill='#7b5cff'>光刻 Litho</text>
+<text x='58' y='169' font-size='11' fill='#5b6675'>涂胶 → 曝光 → 显影定义图形</text>
+<rect x='40' y='184' width='250' height='44' rx='8' fill='#e2f6f8' stroke='#bfe9ea'/>
+<rect x='40' y='184' width='6' height='44' rx='3' fill='#0aa6b8'/>
+<text x='58' y='204' font-size='13' font-weight='700' fill='#0aa6b8'>刻蚀 Etch</text>
+<text x='58' y='221' font-size='11' fill='#5b6675'>去除不需要的材料</text>
+<rect x='40' y='236' width='250' height='44' rx='8' fill='#fff1ea' stroke='#ffd2bd'/>
+<rect x='40' y='236' width='6' height='44' rx='3' fill='#ff7a45'/>
+<text x='58' y='256' font-size='13' font-weight='700' fill='#ff7a45'>化学机械抛光 CMP</text>
+<text x='58' y='273' font-size='11' fill='#5b6675'>层间平坦化，准备叠下一层</text>
+<path d='M 54 280 C 20 260, 20 100, 54 80' stroke='#94a3b8' stroke-width='2' fill='none' stroke-dasharray='4 3' marker-end='url(#ah6)'/>
+<text x='555' y='60' text-anchor='middle' font-size='14' font-weight='700' fill='#ff7a45'>② 先进封装（同名工艺复用）</text>
+<rect x='410' y='80' width='270' height='72' rx='10' fill='#fff' stroke='#e6e9ef'/>
+<rect x='410' y='80' width='270' height='5' rx='2' fill='#2f6df6'/>
+<text x='424' y='104' font-size='13' font-weight='700' fill='#2f6df6'>TSV 硅通孔</text>
+<text x='424' y='124' font-size='11' fill='#1f2733'>刻孔 → PVD 种子层 → 电镀 Cu</text>
+<text x='424' y='142' font-size='11' fill='#1f2733'>→ CMP 磨平多余铜</text>
+<rect x='410' y='162' width='270' height='72' rx='10' fill='#fff' stroke='#e6e9ef'/>
+<rect x='410' y='162' width='270' height='5' rx='2' fill='#0aa6b8'/>
+<text x='424' y='186' font-size='13' font-weight='700' fill='#0aa6b8'>RDL 重布线层</text>
+<text x='424' y='206' font-size='11' fill='#1f2733'>PECVD 介质 → 光刻 → 电镀金属</text>
+<text x='424' y='224' font-size='11' fill='#1f2733'>→ CMP / 平坦化</text>
+<rect x='410' y='244' width='270' height='72' rx='10' fill='#fff' stroke='#e6e9ef'/>
+<rect x='410' y='244' width='270' height='5' rx='2' fill='#ff7a45'/>
+<text x='424' y='268' font-size='13' font-weight='700' fill='#ff7a45'>混合键合 Hybrid Bonding</text>
+<text x='424' y='288' font-size='11' fill='#1f2733'>CMP 抛到 &lt;1nm 直接键合</text>
+<text x='424' y='306' font-size='11' fill='#1f2733'>无凸点、万级互连</text>
+<rect x='410' y='326' width='270' height='72' rx='10' fill='#fff' stroke='#e6e9ef'/>
+<rect x='410' y='326' width='270' height='5' rx='2' fill='#7b5cff'/>
+<text x='424' y='350' font-size='13' font-weight='700' fill='#7b5cff'>晶圆减薄</text>
+<text x='424' y='370' font-size='11' fill='#1f2733'>背磨 + CMP 到几十 μm</text>
+<text x='424' y='388' font-size='11' fill='#1f2733'>才能叠第二颗裸片</text>
+<path d='M 300 210 L 405 210' stroke='#94a3b8' stroke-width='2' marker-end='url(#ah6)'/>
+<text x='352' y='202' text-anchor='middle' font-size='10' fill='#64748b'>工艺复用</text>
+<rect x='20' y='400' width='680' height='26' rx='8' fill='#eaf1ff' stroke='#cfe0ff'/>
+<text x='360' y='418' text-anchor='middle' font-size='12.5' fill='#1f3a8a'>沉积(PVD/CVD/电镀) 与 抛光(CMP) 是先进封装的底层工艺；因复用晶圆厂设备，代工厂得以主导 CoWoS</text>
+</svg><div class="cap">图：左为晶圆制造 BEOL 的标准循环（沉积 → 光刻 → 刻蚀 → CMP）；右为先进封装对同一套工艺的复用——TSV 填铜、RDL 布线、混合键合、晶圆减薄全都离不开沉积与 CMP。</div></div>
+
+<h3><span class="bar"></span>一张表看懂"工艺同源"</h3>
+<table><tr><th>制造步骤</th><th>在先进封装里的应用</th></tr>
+<tr><td>薄膜沉积 PVD / CVD</td><td>TSV 阻挡层 + 种子层、RDL 介质层、UBM 凸点下金属</td></tr>
+<tr><td>电镀 ECD</td><td>TSV / RDL 的铜填充、微凸点（bump）成形</td></tr>
+<tr><td>CMP 抛光</td><td>TSV 余铜磨平、RDL 平坦化、混合键合 &lt;1nm 平整、晶圆减薄</td></tr>
+<tr><td>光刻 Litho</td><td>RDL / 凸点图形定义（涂胶 → 曝光 → 显影）</td></tr>
+<tr><td>刻蚀 Etch</td><td>TSV 深硅刻蚀、介质 / 钝化开孔</td></tr></table>
+
+<h3><span class="bar"></span>落到具体结构：TSV / RDL / 混合键合 / 减薄</h3>
+<div class="figure"><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 720 300' font-family='PingFang SC,Microsoft YaHei,sans-serif'>
+<defs><marker id='ah2' markerWidth='10' markerHeight='10' refX='6' refY='3' orient='auto'><path d='M0,0 L6,3 L0,6 Z' fill='#94a3b8'/></marker></defs>
+<rect width='720' height='300' fill='#fbfcfe'/>
+<text x='360' y='26' text-anchor='middle' font-size='16' font-weight='800' fill='#1f2733'>TSV 硅通孔：用"刻蚀 + 沉积 + 电镀 + CMP"在硅里打出垂直互连</text>
+<rect x='30' y='70' width='150' height='150' rx='6' fill='#c9d2de' stroke='#9aa7b8'/>
+<rect x='95' y='85' width='20' height='120' fill='#fbfcfe' stroke='#9aa7b8' stroke-dasharray='3 2'/>
+<rect x='205' y='70' width='150' height='150' rx='6' fill='#c9d2de' stroke='#9aa7b8'/>
+<rect x='270' y='85' width='20' height='120' fill='#fbfcfe'/>
+<rect x='270' y='85' width='4' height='120' fill='#2f6df6'/>
+<rect x='286' y='85' width='4' height='120' fill='#2f6df6'/>
+<rect x='380' y='70' width='150' height='150' rx='6' fill='#c9d2de' stroke='#9aa7b8'/>
+<rect x='445' y='48' width='20' height='157' fill='#ff7a45'/>
+<rect x='555' y='70' width='150' height='150' rx='6' fill='#c9d2de' stroke='#9aa7b8'/>
+<rect x='620' y='85' width='20' height='120' fill='#ff7a45'/>
+<path d='M 188 145 L 203 145' stroke='#94a3b8' stroke-width='2' marker-end='url(#ah2)'/>
+<path d='M 363 145 L 378 145' stroke='#94a3b8' stroke-width='2' marker-end='url(#ah2)'/>
+<path d='M 538 145 L 553 145' stroke='#94a3b8' stroke-width='2' marker-end='url(#ah2)'/>
+<text x='105' y='238' text-anchor='middle' font-size='12' fill='#5b6675'>① 刻蚀深孔</text>
+<text x='280' y='238' text-anchor='middle' font-size='12' fill='#5b6675'>② PVD 种子层</text>
+<text x='455' y='238' text-anchor='middle' font-size='12' fill='#5b6675'>③ 电镀填 Cu</text>
+<text x='630' y='238' text-anchor='middle' font-size='12' fill='#5b6675'>④ CMP 磨平</text>
+<text x='360' y='272' text-anchor='middle' font-size='12' fill='#1f2733'>TSV 是 2.5D 硅中介层 / 3D 堆叠的命脉：用沉积 + 抛光在硅里打通垂直通道</text>
+</svg><div class="cap">图：TSV 四步——刻蚀深硅孔 → PVD 沉积阻挡/种子层 → 电镀 Cu 填充（含余料）→ CMP 磨平多余铜。这正是先进封装里"沉积 + 抛光"最典型的配合。</div></div>
+<p>把上面这套工艺落到具体结构上：</p>
+<p><b>TSV（硅通孔）</b>：在硅里刻出垂直深孔，先 <b>PVD 沉积</b>一层阻挡层 + 铜种子层，再 <b>电镀</b>把铜填进去，最后 <b>CMP</b> 把孔外多余铜磨平。它是 2.5D 硅中介层（CoWoS 的核心）和 3D 堆叠的"垂直电梯"。</p>
+<p><b>RDL（重布线层）</b>：Fan-out / CoWoS 用它把芯片密引脚"扇出"到更大间距。流程是 <b>PECVD 沉积</b>介质 → 光刻 → <b>电镀</b>金属线 → <b>CMP</b> 平坦化后再叠下一层。</p>
+<p><b>混合键合（Hybrid Bonding）</b>：铜 - 铜 + 介质在<b>无凸点</b>情况下直接"焊"在一起，互连密度比微凸点高一个数量级，是 3D 堆叠的终极形态。<b>前提是 CMP 把表面抛到原子级平整</b>（见下框）。</p>
+<p><b>晶圆减薄</b>：3D 堆叠前要把晶圆从背面<b>研磨 + CMP 抛光</b>到几十微米，才能往上叠第二颗裸片；减薄机（中电科 45 所等）正加速验证。</p>
+
+<div class="def"><div class="t">为什么 CMP 这么关键</div>混合键合要求界面平整度到 <b>&lt;1nm（原子级）</b>、表面粗糙度 &lt;0.5nm，两块晶圆在无凸点情况下直接"焊"在一起，互连密度比微凸点高一个数量级。没有 CMP 就做不到——所以华海清科（688120）的 CMP 减薄机因此成为先进封装"卖铲人"里的关键卡位点。</div>
+
+<h3><span class="bar"></span>设备与材料：谁在卖铲子（韭研公社口径）</h3>
+<p>韭研公社多篇产业链文指出：<b>先进封装产线设备投资占总投资 70% 以上，高端设备国产化率此前不足 25%</b>，正随扩产加速突破；而<b>沉积 / CMP / 电镀</b>恰是国产设备弹性最大的环节。</p>
+<table><tr><th>环节 / 工艺</th><th>代表公司（代码）</th><th>备注</th></tr>
+<tr><td>薄膜沉积 PECVD / CVD</td><td>拓荆科技（688072）、北方华创（002371）</td><td>RDL / TSV 介质层沉积；北方华创 PVD/CVD 多品类</td></tr>
+<tr><td>CMP 抛光 / 减薄</td><td>华海清科（688120）、北方华创（002371）</td><td>CMP 减薄机龙头；先进封装晶圆薄化关键设备</td></tr>
+<tr><td>电镀</td><td>盛美上海（688082）、北方华创（002371）</td><td>盛美电镀设备国内唯一量产，客户长电 / 通富</td></tr>
+<tr><td>刻蚀</td><td>北方华创（002371）、中微公司（688012）</td><td>TSV 深硅刻蚀</td></tr>
+<tr><td>涂胶显影</td><td>芯源微（688037）</td><td>先进封装光刻配套</td></tr>
+<tr><td>测试</td><td>华峰测控（688200）、长川科技（300604）</td><td>华峰模拟测试机市占 &gt;60%；长川数字测试机 + 分选机</td></tr>
+<tr><td>激光划片 / TGV</td><td>大族激光（002008）、帝尔激光（300776）</td><td>玻璃基板 TGV 激光通孔设备国产突破</td></tr>
+<tr><td>载板 / 材料</td><td>兴森科技（002436）、深南电路（002916）、华海诚科（688535）、德邦科技（688035）、联瑞新材（688300）、飞凯材料（300398）</td><td>ABF 载板唯一量产 / FCBGA / EMC / underfill / 硅微粉 / 电子化学品</td></tr></table>
+<div class="tip"><div class="t">✅ 记忆要点</div>先进封装＝制造工艺下沉到封装；<b>沉积(PVD/CVD/电镀)+抛光(CMP)</b> 贯穿 TSV / RDL / 混合键合 / 减薄。国产设备里 <b>拓荆科技(沉积)、华海清科(CMP)、盛美上海(电镀)、北方华创(全能)</b> 是这条线最核心的"卖铲人"。</div>
+<div class="notice">⚠️ 资料口径：本节产业链 / 标的来自韭研公社《半导体封测全产业链核心个股汇总》《国产先进封装产业前景与产业链潜力标的分析》及公开检索（2026.5–7），非投资建议。</div>
+</section>
+<section class="card" id="c7"><h2 class="chapter"><span class="num">07</span>重点概念：CoWoS 到底是什么？</h2>
 <p class="lead">CoWoS（Chip on Wafer on Substrate，台积电的 2.5D 封装）是这一轮 AI 行情的"兵家必争之地"。它干的事：把 <b>GPU 逻辑芯片</b> 和 <b>多颗 HBM</b> 并排放在一块<b>硅中介层</b>上，用中介层里密密麻麻的走线把它们"贴身"互连，再整体坐到基板上。</p>
 <div class="figure"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" font-family="PingFang SC,Microsoft YaHei,sans-serif"><rect width="720" height="360" fill="#fbfcfe"/><text x="360" y="26" text-anchor="middle" font-size="17" font-weight="800" fill="#1f2733">CoWoS（2.5D 封装）详解：AI 芯片的“贴身合封”</text><rect x="90" y="300" width="540" height="34" rx="6" stroke="#2f6df6" fill="#d7e3f7"/><text x="360" y="322" text-anchor="middle" font-size="13" fill="#1f3a8a">封装基板 Substrate</text><rect x="150" y="235" width="420" height="50" rx="4" stroke="#2f6df6" fill="#bcd0ff"/><text x="360" y="264" text-anchor="middle" font-size="13" fill="#1f3a8a">硅中介层 Silicon Interposer（密集走线 + TSV 垂直通孔）</text><rect x="180" y="150" width="140" height="70" stroke="#1f3a8a" fill="#2f6df6"/><text x="250" y="190" text-anchor="middle" font-size="13" fill="#fff">GPU/逻辑芯片</text><rect x="330" y="150" width="64" height="70" stroke="#c44a1c" fill="#ff7a45"/><text x="362" y="190" text-anchor="middle" font-size="12" fill="#fff">HBM1</text><line x1="362" y1="220" x2="362" y2="235" stroke="#ff7a45" stroke-width="2"/><rect x="408" y="150" width="64" height="70" stroke="#c44a1c" fill="#ff7a45"/><text x="440" y="190" text-anchor="middle" font-size="12" fill="#fff">HBM2</text><line x1="440" y1="220" x2="440" y2="235" stroke="#ff7a45" stroke-width="2"/><rect x="486" y="150" width="64" height="70" stroke="#c44a1c" fill="#ff7a45"/><text x="518" y="190" text-anchor="middle" font-size="12" fill="#fff">HBM3</text><line x1="518" y1="220" x2="518" y2="235" stroke="#ff7a45" stroke-width="2"/><rect x="564" y="150" width="64" height="70" stroke="#c44a1c" fill="#ff7a45"/><text x="596" y="190" text-anchor="middle" font-size="12" fill="#fff">HBM4</text><line x1="596" y1="220" x2="596" y2="235" stroke="#ff7a45" stroke-width="2"/><line x1="250" y1="220" x2="250" y2="235" stroke="#2f6df6" stroke-width="2"/><line x1="200" y1="285" x2="200" y2="300" stroke="#0aa6b8" stroke-width="2"/><line x1="520" y1="285" x2="520" y2="300" stroke="#0aa6b8" stroke-width="2"/><text x="360" y="345" text-anchor="middle" font-size="12.5" fill="#5b6675">逻辑芯片与 4 颗 HBM 并排坐在硅中介层上“贴身”互连 → 带宽极高，是 AI 芯片必用方案</text></svg><div class="cap">图：GPU/逻辑芯片 + 4 颗 HBM 并排坐在“硅中介层”上，中介层里有密集走线并通过 TSV 垂直通孔连到下方基板</div></div>
 <div class="def"><div class="t">📌 CoWoS 三种变体</div>
@@ -130,7 +238,7 @@ footer a{color:var(--brand)}
 2024 全球 CoWoS 需求 37 万片 / 产能 33 万；2025 需求 70 万 / 产能 60 万；<b>2026E 需求 100 万 / 产能 90 万，仍缺约 10 万片</b>，台积电已涨价约 30%，紧张延续至 2027 年中。英伟达+博通+AMD 已锁定台积电 CoWoS 总产能 85%+。谁拿到 CoWoS 产能，谁就拿到 AI 芯片入场券——这正是先进封装成为战略赛道的核心原因。
 </div></section>
 
-<section class="card" id="c7"><h2 class="chapter"><span class="num">07</span>重点概念：HBM 到底是什么？</h2>
+<section class="card" id="c8"><h2 class="chapter"><span class="num">08</span>重点概念：HBM 到底是什么？</h2>
 <p>HBM（High Bandwidth Memory，高带宽存储器）是 AI 芯片的"贴身高速仓库"。它把多颗 DRAM 裸片用 <b>TSV（硅通孔）</b> 垂直堆叠，再紧挨 GPU 摆放，通过极短极宽的通道供数。</p>
 <div class="figure"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" font-family="PingFang SC,Microsoft YaHei,sans-serif"><rect width="720" height="340" fill="#fbfcfe"/><text x="360" y="26" text-anchor="middle" font-size="17" font-weight="800" fill="#1f2733">HBM（3D 堆叠）：DRAM 裸片用 TSV 垂直“叠罗汉”</text><rect x="270" y="60" width="180" height="36" stroke="#c44a1c" fill="#ffb894"/><text x="360" y="82" text-anchor="middle" font-size="12" fill="#7a2f12">DRAM 裸片 ×1</text><line x1="290" y1="60" x2="290" y2="96" stroke="#2f6df6" stroke-width="3"/><line x1="430" y1="60" x2="430" y2="96" stroke="#2f6df6" stroke-width="3"/><circle cx="290" cy="60" r="4" fill="#2f6df6"/><circle cx="430" cy="60" r="4" fill="#2f6df6"/><rect x="270" y="102" width="180" height="36" stroke="#c44a1c" fill="#ffd2bd"/><text x="360" y="124" text-anchor="middle" font-size="12" fill="#7a2f12">DRAM 裸片 ×2</text><line x1="290" y1="102" x2="290" y2="138" stroke="#2f6df6" stroke-width="3"/><line x1="430" y1="102" x2="430" y2="138" stroke="#2f6df6" stroke-width="3"/><circle cx="290" cy="102" r="4" fill="#2f6df6"/><circle cx="430" cy="102" r="4" fill="#2f6df6"/><rect x="270" y="144" width="180" height="36" stroke="#c44a1c" fill="#ffb894"/><text x="360" y="166" text-anchor="middle" font-size="12" fill="#7a2f12">DRAM 裸片 ×3</text><line x1="290" y1="144" x2="290" y2="180" stroke="#2f6df6" stroke-width="3"/><line x1="430" y1="144" x2="430" y2="180" stroke="#2f6df6" stroke-width="3"/><circle cx="290" cy="144" r="4" fill="#2f6df6"/><circle cx="430" cy="144" r="4" fill="#2f6df6"/><rect x="270" y="186" width="180" height="36" stroke="#c44a1c" fill="#ffd2bd"/><text x="360" y="208" text-anchor="middle" font-size="12" fill="#7a2f12">DRAM 裸片 ×4</text><line x1="290" y1="186" x2="290" y2="222" stroke="#2f6df6" stroke-width="3"/><line x1="430" y1="186" x2="430" y2="222" stroke="#2f6df6" stroke-width="3"/><circle cx="290" cy="186" r="4" fill="#2f6df6"/><circle cx="430" cy="186" r="4" fill="#2f6df6"/><rect x="270" y="228" width="180" height="36" stroke="#c44a1c" fill="#ffb894"/><text x="360" y="250" text-anchor="middle" font-size="12" fill="#7a2f12">DRAM 裸片 ×5</text><line x1="290" y1="228" x2="290" y2="264" stroke="#2f6df6" stroke-width="3"/><line x1="430" y1="228" x2="430" y2="264" stroke="#2f6df6" stroke-width="3"/><circle cx="290" cy="228" r="4" fill="#2f6df6"/><circle cx="430" cy="228" r="4" fill="#2f6df6"/><rect x="250" y="280" width="220" height="34" rx="6" stroke="#2f6df6" fill="#d7e3f7"/><text x="360" y="302" text-anchor="middle" font-size="12.5" fill="#1f3a8a">逻辑底座 / 与 GPU 合封</text><text x="600" y="150" text-anchor="middle" font-size="12" fill="#2f6df6">TSV</text><text x="600" y="166" text-anchor="middle" font-size="11" fill="#5b6675">垂直互连</text><text x="360" y="330" text-anchor="middle" font-size="12.5" fill="#5b6675">叠得越紧 → 通信越短、带宽越高、功耗越低（HBM3E/4/5 层数 8→12→16→20）</text></svg><div class="cap">图：多颗 DRAM 裸片用 TSV 垂直“叠罗汉”，叠得越紧通信越短、带宽越高；底部与 GPU 合封</div></div>
 <table><tr><th>代际</th><th>堆叠</th><th>带宽</th><th>状态</th></tr>
@@ -141,7 +249,7 @@ footer a{color:var(--brand)}
 </table>
 <div class="analogy"><div class="t">📚 类比：仓库紧贴工作台</div>GPU 是拼命计算的工人，HBM 是紧贴他手的货架。货架离得越近（堆叠越紧）、通道越宽（TSV 越多），工人取料越快——AI 训练要喂海量数据，所以"贴身高速仓库"缺一不可。HBM 市场 2026E 约 546 亿美元，占 DRAM 近 40%。</div></section>
 
-<section class="card" id="c8"><h2 class="chapter"><span class="num">08</span>Chiplet 与混合键合</h2>
+<section class="card" id="c9"><h2 class="chapter"><span class="num">09</span>Chiplet 与混合键合</h2>
 <h3><span class="bar"></span>Chiplet 异构集成</h3>
 <div class="figure"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" font-family="PingFang SC,Microsoft YaHei,sans-serif"><rect width="720" height="300" fill="#fbfcfe"/><text x="360" y="26" text-anchor="middle" font-size="17" font-weight="800" fill="#1f2733">Chiplet 异构集成：把大芯片拆成“乐歌小芯片”再拼起来</text><rect x="120" y="70" width="480" height="160" rx="10" stroke="#2f6df6" fill="#eef3ff"/><text x="360" y="92" text-anchor="middle" font-size="13" fill="#1f3a8a">硅中介层 / 封装基板（把小芯片拼成一颗“超级芯片”）</text><rect x="150" y="110" width="80" height="48" rx="5" fill="#2f6df6"/><text x="190" y="138" text-anchor="middle" font-size="12" fill="#fff">计算</text><rect x="250" y="110" width="80" height="48" rx="5" fill="#ff7a45"/><text x="290" y="138" text-anchor="middle" font-size="12" fill="#fff">存储</text><rect x="350" y="110" width="80" height="48" rx="5" fill="#1faa6b"/><text x="390" y="138" text-anchor="middle" font-size="12" fill="#fff">IO</text><rect x="450" y="110" width="80" height="48" rx="5" fill="#7b5cff"/><text x="490" y="138" text-anchor="middle" font-size="12" fill="#fff">模拟</text><rect x="200" y="180" width="80" height="48" rx="5" fill="#2f6df6"/><text x="240" y="208" text-anchor="middle" font-size="12" fill="#fff">计算</text><rect x="320" y="180" width="80" height="48" rx="5" fill="#ff7a45"/><text x="360" y="208" text-anchor="middle" font-size="12" fill="#fff">存储</text><text x="360" y="262" text-anchor="middle" font-size="12.5" fill="#5b6675">各小芯片用最合适工艺分别制造 → 良率高、可混搭、能复用（计算/存储/IO 各一块）</text></svg><div class="cap">图：把大 SoC 拆成多个小芯片（计算/存储/IO/模拟），各自用最合适的工艺制造，再用硅中介层拼成一颗“超级芯片”</div></div>
 <div class="def"><div class="t">📌 Chiplet 为什么火</div>大芯片良率随面积指数下降；拆成小芯片分别制造再封装，可把研发周期缩短约 50%、成本降约 30%。华为"韬(τ)定律"也属此类"时间缩微"思路。生态标准有 UCIe（Intel/AMD/ARM/台积电/三星）、BoW、XSR。</div>
@@ -149,7 +257,7 @@ footer a{color:var(--brand)}
 <div class="figure"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" font-family="PingFang SC,Microsoft YaHei,sans-serif"><rect width="720" height="300" fill="#fbfcfe"/><text x="360" y="26" text-anchor="middle" font-size="16" font-weight="800" fill="#1f2733">混合键合 Hybrid Bonding：3D 互连的“终极形态”</text><rect x="70" y="60" width="260" height="190" rx="10" stroke="#cfd8e6" fill="#fff"/><text x="200" y="84" text-anchor="middle" font-size="13" font-weight="700" fill="#5b6675">传统：微凸点 μbump</text><rect x="120" y="110" width="80" height="50" fill="#2f6df6"/><rect x="230" y="110" width="80" height="50" fill="#2f6df6"/><circle cx="135" cy="165" r="6" fill="#0aa6b8"/><circle cx="150" cy="165" r="6" fill="#0aa6b8"/><circle cx="165" cy="165" r="6" fill="#0aa6b8"/><circle cx="180" cy="165" r="6" fill="#0aa6b8"/><circle cx="195" cy="165" r="6" fill="#0aa6b8"/><circle cx="245" cy="165" r="6" fill="#0aa6b8"/><circle cx="260" cy="165" r="6" fill="#0aa6b8"/><circle cx="275" cy="165" r="6" fill="#0aa6b8"/><circle cx="290" cy="165" r="6" fill="#0aa6b8"/><circle cx="305" cy="165" r="6" fill="#0aa6b8"/><text x="200" y="235" text-anchor="middle" font-size="12" fill="#5b6675">间距 40–50μm，密度有限</text><rect x="390" y="60" width="260" height="190" rx="10" stroke="#cfd8e6" fill="#fff"/><text x="520" y="84" text-anchor="middle" font-size="13" font-weight="700" fill="#2f6df6">混合键合：铜-铜直接键合</text><rect x="440" y="110" width="80" height="50" fill="#2f6df6"/><rect x="550" y="110" width="80" height="50" fill="#2f6df6"/><rect x="448" y="158" width="4" height="6" fill="#ff7a45"/><rect x="454" y="158" width="4" height="6" fill="#ff7a45"/><rect x="460" y="158" width="4" height="6" fill="#ff7a45"/><rect x="466" y="158" width="4" height="6" fill="#ff7a45"/><rect x="472" y="158" width="4" height="6" fill="#ff7a45"/><rect x="478" y="158" width="4" height="6" fill="#ff7a45"/><rect x="484" y="158" width="4" height="6" fill="#ff7a45"/><rect x="490" y="158" width="4" height="6" fill="#ff7a45"/><rect x="496" y="158" width="4" height="6" fill="#ff7a45"/><rect x="502" y="158" width="4" height="6" fill="#ff7a45"/><rect x="508" y="158" width="4" height="6" fill="#ff7a45"/><rect x="514" y="158" width="4" height="6" fill="#ff7a45"/><rect x="558" y="158" width="4" height="6" fill="#ff7a45"/><rect x="564" y="158" width="4" height="6" fill="#ff7a45"/><rect x="570" y="158" width="4" height="6" fill="#ff7a45"/><rect x="576" y="158" width="4" height="6" fill="#ff7a45"/><rect x="582" y="158" width="4" height="6" fill="#ff7a45"/><rect x="588" y="158" width="4" height="6" fill="#ff7a45"/><rect x="594" y="158" width="4" height="6" fill="#ff7a45"/><rect x="600" y="158" width="4" height="6" fill="#ff7a45"/><rect x="606" y="158" width="4" height="6" fill="#ff7a45"/><rect x="612" y="158" width="4" height="6" fill="#ff7a45"/><rect x="618" y="158" width="4" height="6" fill="#ff7a45"/><rect x="624" y="158" width="4" height="6" fill="#ff7a45"/><text x="520" y="235" text-anchor="middle" font-size="12" fill="#5b6675">间距 &lt;1μm，密度高一个数量级</text><text x="360" y="282" text-anchor="middle" font-size="12.5" fill="#1faa6b">HBM5（20 层）必须采用混合键合</text></svg><div class="cap">图：左=传统微凸点 μbump（间距 40-50μm）；右=混合键合铜-铜直接键合（间距&lt;1μm，密度高一个数量级）</div></div>
 <div class="tip"><div class="t">✅ 关键节点</div>混合键合通过铜-铜直接键合实现亚微米级互连，是 3D 封装的终极工艺。<b>HBM5（20 层）必须采用混合键合</b>。拓荆科技（688072）是国内混合键合设备唯一布局者，2028 年后该环节需求将爆发。</div></section>
 
-<section class="card" id="c9"><h2 class="chapter"><span class="num">09</span>学习小结</h2>
+<section class="card" id="c10"><h2 class="chapter"><span class="num">10</span>学习小结</h2>
 <div class="def"><div class="t">📌 三句话串起全篇</div>
 ① <b>封装在做什么</b>：给裸片穿盔甲(EMC)+接外线(键合丝/焊球/基板)+散热，先进封装还"帮芯片组队"；<br>
 ② <b>每种材料</b>：基板/EMC/引线框架/键合丝/焊球/胶水/硅微粉，各有角色、多被日系垄断、国产替代弹性大；<br>
