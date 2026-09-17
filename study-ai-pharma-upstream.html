@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 制药上游八模块：内部逻辑与龙头拆解</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #f5f6f8; color: #1a1d24; line-height: 1.75; -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 32px 24px 80px; }
+
+  .hero {
+    background: linear-gradient(135deg, #ffffff 0%, #f4f7fb 100%);
+    border: 1px solid #e6e9ee; border-radius: 14px; padding: 34px 36px 30px; margin-bottom: 22px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.04);
+  }
+  .kicker { font-size: 12.5px; letter-spacing: .14em; color: #7f8896; font-weight: 600; margin-bottom: 10px; }
+  h1 { font-size: 28px; line-height: 1.35; margin: 0 0 12px; font-weight: 700; letter-spacing: -.01em; }
+  .sub { font-size: 14.5px; color: #5b6270; margin: 0; }
+  .meta { margin-top: 18px; padding-top: 16px; border-top: 1px dashed #e3e6ea; font-size: 12.5px; color: #8b919c; }
+  .meta b { color: #5b6270; font-weight: 600; }
+
+  section { margin-bottom: 34px; }
+  .sec-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 6px; }
+  .sec-num { font-size: 12px; font-weight: 700; color: #fff; background: #185FA5; border-radius: 5px; padding: 2px 9px; letter-spacing: .06em; flex: none; }
+  h2 { font-size: 21px; margin: 0; font-weight: 700; letter-spacing: -.01em; }
+  .sec-desc { font-size: 13.5px; color: #7a808b; margin: 0 0 16px 0; }
+
+  .card { background: #fff; border: 1px solid #e8eaee; border-radius: 12px; padding: 22px 24px; box-shadow: 0 1px 2px rgba(0,0,0,.03); }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .tablewrap { overflow-x: auto; }
+  .sumtable { table-layout: fixed; }
+  .sumtable col.c1 { width: 11%; }
+  .sumtable col.c2 { width: 17%; }
+  .sumtable col.c3 { width: 41%; }
+  .sumtable col.c4 { width: 31%; }
+  .sumtable th, .sumtable td { white-space: normal; overflow-wrap: anywhere; word-break: break-word; text-align: left; vertical-align: top; }
+  .sumtable thead th { background: #f7f8fa; color: #5b6270; font-weight: 600; font-size: 12px; padding: 11px 12px; border-bottom: 1px solid #e4e7eb; line-height: 1.5; }
+  .sumtable tbody td { padding: 14px 12px; border-bottom: 1px solid #f0f1f4; line-height: 1.75; }
+  .sumtable tbody tr:hover { background: #fafbfc; }
+  .sumtable tbody tr:last-child td { border-bottom: none; }
+  .modcell b { display: block; font-size: 13.5px; margin-bottom: 6px; }
+  .mtag { display: inline-block; font-size: 10.5px; padding: 1px 8px; border-radius: 20px; font-weight: 600; white-space: nowrap; }
+  .mtag.bio { background: #e8f1fb; color: #185FA5; }
+  .mtag.chem { background: #faf0dd; color: #854F0B; }
+  .leadcell { font-weight: 600; color: #185FA5; }
+  .leadcell .code { font-weight: 400; }
+  .altlist > span { display: block; }
+  .altlist > span + span { margin-top: 7px; padding-top: 7px; border-top: 1px dashed #eef0f3; }
+  .code { font-family: ui-monospace, Consolas, monospace; font-size: 11.5px; color: #8b919c; white-space: nowrap; }
+  .up { color: #c0392b; } .down { color: #1a9e6a; } .neu { color: #1a1d24; }
+  .tnote { font-size: 11.5px; color: #9aa0aa; margin-top: 10px; line-height: 1.7; }
+
+  /* ---- relation blocks ---- */
+  .subh { font-size: 14.5px; font-weight: 700; margin-bottom: 6px; }
+  .subd { font-size: 13px; color: #7a808b; margin: 0 0 14px 0; }
+  .twocol { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .branchbox { border: 1px solid #e8eaee; border-radius: 10px; padding: 14px 16px; }
+  .branchbox.bio { border-color: #cfe2f5; background: #f7fbfe; }
+  .branchbox.chem { border-color: #f0dfc0; background: #fffdf7; }
+  .branchbox .bt { font-size: 13.5px; font-weight: 700; margin-bottom: 10px; }
+  .branchbox.bio .bt { color: #185FA5; }
+  .branchbox.chem .bt { color: #854F0B; }
+  .branchbox ul { margin: 0; padding: 0; list-style: none; }
+  .branchbox li { font-size: 13px; padding: 6px 0; border-bottom: 1px dashed #eef0f3; display: flex; justify-content: space-between; gap: 10px; line-height: 1.6; }
+  .branchbox li:last-child { border-bottom: none; }
+  .branchbox li em { font-style: normal; color: #9aa0aa; font-size: 11.5px; flex: none; }
+
+  .flowstep { display: grid; grid-template-columns: 128px 1fr; gap: 16px; align-items: start; padding: 14px 0; }
+  .flowstep + .flowstep { border-top: 1px solid #f0f1f4; }
+  .flowstep .fs-n { font-size: 13px; font-weight: 700; color: #185FA5; line-height: 1.5; }
+  .flowstep .fs-n small { display: block; font-weight: 400; color: #9aa0aa; font-size: 11.5px; margin-top: 3px; }
+  .flowstep .fs-b { font-size: 13.5px; color: #3d434d; line-height: 1.75; }
+  .flowstep .fs-b b { color: #1a1d24; }
+  .flowstep .fs-b .fstag { display: block; color: #8b919c; font-size: 12.5px; margin-top: 5px; }
+
+  .mustrow { display: grid; grid-template-columns: 108px 1fr; gap: 16px; padding: 14px 0; border-top: 1px solid #f0f1f4; }
+  .mustrow:first-child { border-top: none; }
+  .mustq { font-size: 13.5px; font-weight: 700; color: #185FA5; }
+  .musta { font-size: 13.5px; color: #3d434d; line-height: 1.75; }
+  .musta b { color: #1a1d24; }
+
+  /* ---- matrix table ---- */
+  .sumtable.matrix th, .sumtable.matrix td { text-align: center; }
+  .sumtable.matrix th:first-child, .sumtable.matrix td:first-child { text-align: left; }
+  .sumtable.matrix td.dot { color: #185FA5; font-weight: 700; font-size: 14px; }
+  .sumtable.matrix td.dash { color: #d3d1c7; }
+  .sumtable.matrix thead th { font-size: 11.5px; padding: 10px 6px; }
+  .sumtable.matrix tbody td { padding: 11px 6px; font-size: 12.5px; }
+
+  /* ---- background section ---- */
+  .bgsvg { width: 100%; display: block; }
+  .chartbox { background: #fff; border: 1px solid #e8eaee; border-radius: 12px; padding: 18px 20px 12px; }
+  .chart-title { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+  .chart-sub { font-size: 12px; color: #9aa0aa; margin-bottom: 10px; }
+  .chart { width: 100%; height: 340px; }
+
+  /* ---- module card ---- */
+  .mod { background:#fff; border:1px solid #e8eaee; border-radius:12px; padding:22px 24px 20px; margin-bottom:16px; box-shadow:0 1px 2px rgba(0,0,0,.03); }
+  .mod-head { display:flex; align-items:center; gap:10px; margin-bottom:4px; flex-wrap:wrap; }
+  .mod-name { font-size:18px; font-weight:700; letter-spacing:-.01em; }
+  .mod-branch { font-size:11px; padding:2px 9px; border-radius:20px; font-weight:600; letter-spacing:.03em; }
+  .mod-branch.bio { background:#e8f1fb; color:#185FA5; }
+  .mod-branch.chem { background:#faf0dd; color:#854F0B; }
+  .mod-func { font-size:12px; color:#9aa0aa; }
+
+  .chain { display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:14px 0 18px; }
+  .chain span { background:#eef4fa; color:#185FA5; border-radius:6px; padding:4px 10px; font-size:12.5px; line-height:1.5; }
+  .chain i { color:#b4b2a9; font-style:normal; font-size:13px; }
+  .chain.chem span { background:#faf4e9; color:#854F0B; }
+
+  .mrow { display:flex; gap:12px; padding:11px 0; border-top:1px solid #f0f1f4; font-size:13.5px; }
+  .mrow .mk { flex:none; width:78px; color:#8b919c; font-size:12.5px; padding-top:2px; }
+  .mrow .mv { flex:1; color:#3d434d; }
+  .mrow .mv b { color:#1a1d24; }
+  .mrow.lead .mv { font-size:14px; }
+  .lead-name { font-weight:700; color:#185FA5; }
+
+  .callout { border-radius:12px; padding:18px 22px; font-size:13.5px; margin-top:14px; }
+  .callout .ct { font-weight:700; font-size:12.5px; letter-spacing: .06em; margin-bottom:8px; }
+  .callout p { margin:0; }
+  .callout.warn { background:#fffaf5; border:1px solid #f2e0c9; } .callout.warn .ct { color:#b8730a; }
+  .callout.info { background:#f7fafd; border:1px solid #d6e8f8; } .callout.info .ct { color:#185FA5; }
+
+  .oneliner { background:#1a1d24; color:#f3f4f6; border-radius:13px; padding:26px 30px; }
+  .oneliner .ol-t { font-size:12px; letter-spacing:.14em; color:#8d94a0; font-weight:700; margin-bottom:12px; }
+  .oneliner .ol-b { font-size:16.5px; line-height:1.85; font-weight:500; }
+  .oneliner .ol-b em { font-style:normal; color:#ff9a86; font-weight:700; }
+
+  .ask { background:#fff; border:1px solid #d6e8f8; border-radius:12px; padding:20px 24px; font-size:13.5px; }
+  .ask b { color:#185FA5; }
+
+  footer { margin-top:44px; padding-top:22px; border-top:1px solid #e4e7eb; font-size:12px; color:#8b919c; line-height:1.8; }
+  footer .disc { background:#f7f8fa; border-radius:9px; padding:15px 17px; color:#5b6270; font-size:12.5px; }
+  @media (max-width: 820px) { h1 { font-size: 23px; } .wrap { padding: 20px 14px 60px; } .mrow { flex-direction:column; gap:2px; } .mrow .mk { width:auto; } .sumtable { min-width: 640px; } .twocol { grid-template-columns: 1fr; } .flowstep { grid-template-columns: 1fr; gap: 4px; } .mustrow { grid-template-columns: 1fr; gap: 4px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <div class="kicker">模块内部逻辑 · 龙头拆解</div>
+    <h1>八个模块，每个模块内部的钱是怎么流的</h1>
+    <p class="sub">上一份把八个模块横向比了一遍。这一份往下一层：每个模块内部的传导逻辑是什么、壁垒建在哪一环、谁按量化指标能算作龙头。</p>
+    <div class="meta">
+      <b>财务口径</b> 各公司 2026 年半年报 &nbsp;·&nbsp;
+      <b>行情口径</b> 2026-09-17 收盘 &nbsp;·&nbsp;
+      <b>龙头判定依据</b> 市占率 / 营收规模 / 增速 / 毛利率 / 海外占比（非"市场地位"类定性词）
+    </div>
+  </div>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">00</span><h2>背景：化学药与生物药到底怎么区分</h2></div>
+    <p class="sec-desc">后面所有模块都被切成"生物药 / 化学药"两条线。为什么必须这么切？因为这是两个<b>物理上不兼容</b>的领域，而差异全部源自一个数字——分子量。</p>
+
+    <div class="card" style="margin-bottom:16px">
+      <div class="subh">① 根源：分子量差了 100—1000 倍</div>
+      <p class="subd">一个单克隆抗体（约 15 万 Da）比一个阿司匹林（180 Da）重 800 多倍。这个量级差是后面一切差异的源头。</p>
+      <svg class="bgsvg" viewBox="0 0 680 270" role="img" xmlns="http://www.w3.org/2000/svg" aria-label="化学药与生物药的分子量尺度对比：阿司匹林 180 道尔顿，阿托伐他汀 558 道尔顿，胰岛素 5808 道尔顿，单克隆抗体约 15 万道尔顿">
+        <title>化学药与生物药的分子量尺度对比</title>
+        <text x="190" y="54" text-anchor="middle" font-size="12" font-weight="600" fill="#185FA5">化学药 · 小分子</text>
+        <text x="490" y="54" text-anchor="middle" font-size="12" font-weight="600" fill="#854F0B">生物药 · 大分子</text>
+        <line x1="340" y1="66" x2="340" y2="196" stroke="#e4e7eb" stroke-width="0.5" stroke-dasharray="3 4"/>
+        <line x1="40" y1="190" x2="640" y2="190" stroke="#e4e7eb" stroke-width="0.5"/>
+        <circle cx="100" cy="184" r="6" fill="#B5D4F4" stroke="#185FA5" stroke-width="0.5"/>
+        <text x="100" y="212" text-anchor="middle" font-size="13" fill="#1a1d24">阿司匹林</text>
+        <text x="100" y="231" text-anchor="middle" font-size="11.5" fill="#5b6270">180 Da</text>
+        <circle cx="260" cy="181" r="9" fill="#85B7EB" stroke="#185FA5" stroke-width="0.5"/>
+        <text x="260" y="212" text-anchor="middle" font-size="13" fill="#1a1d24">阿托伐他汀</text>
+        <text x="260" y="231" text-anchor="middle" font-size="11.5" fill="#5b6270">558 Da</text>
+        <circle cx="420" cy="171" r="19" fill="#EF9F27" stroke="#854F0B" stroke-width="0.5"/>
+        <text x="420" y="212" text-anchor="middle" font-size="13" fill="#1a1d24">胰岛素</text>
+        <text x="420" y="231" text-anchor="middle" font-size="11.5" fill="#5b6270">5,808 Da</text>
+        <circle cx="580" cy="134" r="56" fill="#FAC775" stroke="#854F0B" stroke-width="0.5"/>
+        <text x="580" y="212" text-anchor="middle" font-size="13" fill="#1a1d24">单克隆抗体</text>
+        <text x="580" y="231" text-anchor="middle" font-size="11.5" fill="#5b6270">约 150,000 Da</text>
+      </svg>
+      <div class="tnote">圆的大小按分子量比例示意（半径 ∝ 分子量的立方根，即体积与分子量成正比）。</div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+      <div class="subh">② 分水岭：怎么"造"出来的</div>
+      <p class="subd">化学药是<b>化学合成</b>——在反应釜里一步步拼出来，结构完全确定；生物药是<b>生物表达</b>——把基因转入宿主细胞，让细胞自己"长"出来，结构复杂且异质。由此直接推出一个产业后果：<b>化学药能被精确复刻（有仿制药），生物药不能（只有生物类似药）。</b></p>
+      <svg class="bgsvg" viewBox="0 0 680 334" role="img" xmlns="http://www.w3.org/2000/svg" aria-label="化学药与生物药的制备路径对比：化学合成结构完全确定可精确复刻所以有仿制药；生物表达结构异质无法复刻所以只有生物类似药">
+        <title>化学药与生物药的制备路径对比</title>
+        <defs>
+          <marker id="bgar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+        </defs>
+        <text x="180" y="54" text-anchor="middle" font-size="12.5" font-weight="600" fill="#185FA5">化学药 · 小分子</text>
+        <text x="500" y="54" text-anchor="middle" font-size="12.5" font-weight="600" fill="#854F0B">生物药 · 大分子</text>
+
+        <rect x="40" y="68" width="280" height="62" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+        <text x="180" y="90" text-anchor="middle" dominant-baseline="central" font-size="13" font-weight="600" fill="#0C447C">化学合成</text>
+        <text x="180" y="110" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#185FA5">在反应釜里一步步拼出来</text>
+
+        <rect x="360" y="68" width="280" height="62" rx="8" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
+        <text x="500" y="90" text-anchor="middle" dominant-baseline="central" font-size="13" font-weight="600" fill="#633806">生物表达</text>
+        <text x="500" y="110" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#854F0B">把基因转入细胞，让细胞自己产</text>
+
+        <path d="M180 130 L180 146" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#bgar)"/>
+        <path d="M500 130 L500 146" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#bgar)"/>
+
+        <rect x="40" y="150" width="280" height="62" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+        <text x="180" y="172" text-anchor="middle" dominant-baseline="central" font-size="13" font-weight="600" fill="#0C447C">产物结构完全确定</text>
+        <text x="180" y="192" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#185FA5">能画出精确的结构式</text>
+
+        <rect x="360" y="150" width="280" height="62" rx="8" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
+        <text x="500" y="172" text-anchor="middle" dominant-baseline="central" font-size="13" font-weight="600" fill="#633806">结构复杂且异质</text>
+        <text x="500" y="192" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#854F0B">糖基化等修饰，只能定义范围</text>
+
+        <path d="M180 212 L180 228" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#bgar)"/>
+        <path d="M500 212 L500 228" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#bgar)"/>
+
+        <rect x="40" y="232" width="280" height="62" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+        <text x="180" y="254" text-anchor="middle" dominant-baseline="central" font-size="13" font-weight="600" fill="#0C447C">可精确复刻 → 仿制药</text>
+        <text x="180" y="274" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#185FA5">专利到期后价格降 80%—90%</text>
+
+        <rect x="360" y="232" width="280" height="62" rx="8" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
+        <text x="500" y="254" text-anchor="middle" dominant-baseline="central" font-size="13" font-weight="600" fill="#633806">不可复刻 → 生物类似药</text>
+        <text x="500" y="274" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#854F0B">一般只降 20%—30%，上量需 3—5 年</text>
+      </svg>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+      <div class="subh">③ 六个连锁差异（一张表看全）</div>
+      <div class="tablewrap">
+      <table class="sumtable">
+        <colgroup><col style="width:18%"><col style="width:41%"><col style="width:41%"></colgroup>
+        <thead><tr><th>维度</th><th>化学药（小分子）</th><th>生物药（大分子）</th></tr></thead>
+        <tbody>
+          <tr><td>分子量</td><td>约 200—600 Da</td><td>约 5,000—150,000 Da</td></tr>
+          <tr><td>怎么造</td><td>化学合成（反应釜）</td><td>生物表达（宿主细胞）</td></tr>
+          <tr><td>结构可控性</td><td>完全确定，能画出精确结构式</td><td>复杂异质（糖基化等修饰），只能定义范围</td></tr>
+          <tr><td>能否仿制</td><td>有<b>仿制药</b>（bioequivalent）</td><td>只有<b>生物类似药</b>（biosimilar），需做临床对比</td></tr>
+          <tr><td>给药方式</td><td>多数可口服</td><td>几乎全部注射（口服会被消化降解），依赖冷链</td></tr>
+          <tr><td>专利悬崖</td><td>陡峭——仿制药上市后价格降 80%—90%</td><td>平缓——一般只降 20%—30%，上量还需 3—5 年</td></tr>
+          <tr><td>生产壁垒</td><td>中等，产能可快速复制</td><td>极高，细胞株 + 工艺 + GMP，建设周期 2—3 年</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <div class="tnote">这就是为什么化药企业怕集采、生物药企业相对抗跌——<b>不是政策偏心，是分子结构决定的</b>。</div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+      <div class="subh">④ 这些差异直接决定了两条上游供应链</div>
+      <p class="subd">这是整份报告的分类基础——<b>不是分类习惯，而是两套物理上不兼容的工艺流程。</b></p>
+      <div class="tablewrap">
+      <table class="sumtable">
+        <colgroup><col style="width:16%"><col style="width:42%"><col style="width:42%"></colgroup>
+        <thead><tr><th>环节</th><th>化学药需要</th><th>生物药需要</th></tr></thead>
+        <tbody>
+          <tr><td>起始</td><td><b>分子砌块</b>（合成原料）</td><td><b>蛋白试剂 + 分子酶</b>（基因克隆、载体构建）</td></tr>
+          <tr><td>筛选</td><td><b>化合物库</b></td><td>蛋白试剂（靶点蛋白、抗原）</td></tr>
+          <tr><td>生产</td><td>反应釜化学合成</td><td><b>细胞培养基</b>（活细胞表达）</td></tr>
+          <tr><td>纯化</td><td>结晶、萃取、色谱</td><td><b>层析填料</b>（亲和 / 离子交换 / 分子筛）</td></tr>
+          <tr><td>检测</td><td>色谱（HPLC、LC-MS）</td><td>色谱 + 生物活性检测</td></tr>
+          <tr><td>动物试验</td><td>多用啮齿类（小鼠、大鼠）</td><td>约 70% 以上生物大分子必须用<b>非人灵长类</b></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <div class="tnote">
+        最后一行顺便解释一个常见疑点：<b>为什么"老鼠和猴子"被放在生物药那一侧</b>——不是小分子不做动物试验，而是<b>大分子对灵长类的依赖度明显更高</b>（化学药多用啮齿类即可）。<br>
+        另外一个关键数字：<b>生物药上游物料（培养基、层析填料）成本占生物药生产成本的 40%—70%</b>，远高于化药，且国产化率不足 30%——这是"层析填料、细胞培养基逻辑最硬"的产业依据。
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="subh">⑤ 市场结构：化学药是体量主体，生物药是利润引擎</div>
+      <p class="subd">宽口径（含中药、含院外市场）下的份额演变，是"仿制药驱动"转向"创新驱动"最直观的映射。</p>
+      <div class="chartbox" style="margin-bottom:16px">
+        <div class="chart-title">生物药 vs 化学药份额演变（宽口径，含中药）</div>
+        <div class="chart-sub">单位：%　·　2026E 及以后为预测值　·　预计 2030 年前后交叉</div>
+        <div id="bgTrend" class="chart"></div>
+      </div>
+      <div class="tablewrap" style="margin-bottom:16px">
+      <table class="sumtable">
+        <colgroup><col style="width:22%"><col style="width:26%"><col style="width:26%"><col style="width:26%"></colgroup>
+        <thead><tr><th>口径 / 子行业</th><th>规模或份额</th><th>增速</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>医院端处方药（2025）</td><td>化学药 8,181 亿元（62.2%）<br>生物药 2,228 亿元（17.0%）</td><td>化学药较 2021 年 <span class="down">-6.3pct</span><br>生物药较 2021 年 <span class="up">+4.1pct</span></td><td>摩熵医药口径，医院端药品市场 13,143 亿元</td></tr>
+          <tr><td>生物制品子行业（2025）</td><td>—</td><td>营收 <span class="up">+7.5%</span>／利润 <span class="up">+37.9%</span></td><td>医药工业中<b>唯一双增长</b>的子行业</td></tr>
+          <tr><td>化学制剂子行业（2025）</td><td>—</td><td>营收 <span class="down">-2.1%</span>／利润 <span class="down">-0.1%</span></td><td>集采承压，双降</td></tr>
+          <tr><td>化学原料药子行业（2025）</td><td>—</td><td>营收 <span class="down">-0.6%</span>／利润 <span class="down">-4.5%</span></td><td>产能过剩，价格下行</td></tr>
+          <tr><td>创新药获批（2025，NMPA）</td><td>化学药 47 个<br>生物制品 23 个</td><td>国产占比 80.9%<br>国产占比 <span class="up">91.3%</span></td><td>全年共 76 个，创历史新高</td></tr>
+          <tr><td>出海 BD（2025，License-out）</td><td>150+ 笔，总额超 1,300 亿美元</td><td>较 2024 年接近翻倍</td><td>标的大多为双抗 / ADC / GLP-1 / CGT 等<b>生物药前沿品类</b>，化学小分子存在感明显偏弱</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <svg class="bgsvg" viewBox="0 0 680 285" role="img" xmlns="http://www.w3.org/2000/svg" aria-label="化学药上游的真实驱动来源：误读是把中国化学药市场萎缩推成化学药上游没机会；实际驱动来自全球新分子研发投入，2025 年获批化学创新药数量仍是生物药两倍，PROTAC 等新分子都是小分子，三家分子砌块公司海外收入占比四到七成" style="margin-bottom:14px">
+        <title>化学药上游的真实驱动来源</title>
+        <defs>
+          <marker id="cau2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+        </defs>
+        <text x="40" y="34" font-size="11.5" font-weight="700" fill="#A32D2D">误读的因果链</text>
+        <rect x="40" y="44" width="230" height="46" rx="8" fill="#FCEBEB" stroke="#A32D2D" stroke-width="0.5"/>
+        <text x="155" y="67" text-anchor="middle" dominant-baseline="central" font-size="12.5" fill="#791F1F">中国化学药市场在萎缩</text>
+        <path d="M274 67 L306 67" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#cau2)"/>
+        <rect x="310" y="44" width="330" height="46" rx="8" fill="#FCEBEB" stroke="#A32D2D" stroke-width="0.5"/>
+        <text x="475" y="67" text-anchor="middle" dominant-baseline="central" font-size="12.5" fill="#791F1F">化学药上游（分子砌块）没机会</text>
+
+        <text x="40" y="114" font-size="11.5" font-weight="700" fill="#185FA5">实际的驱动来源</text>
+        <rect x="40" y="124" width="230" height="46" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+        <text x="155" y="147" text-anchor="middle" dominant-baseline="central" font-size="12.5" font-weight="600" fill="#0C447C">全球新分子研发投入</text>
+        <path d="M274 147 L306 147" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#cau2)"/>
+        <rect x="310" y="124" width="330" height="46" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+        <text x="475" y="147" text-anchor="middle" dominant-baseline="central" font-size="12.5" font-weight="600" fill="#0C447C">化学药上游（分子砌块／化合物库）</text>
+
+        <text x="40" y="196" font-size="12" fill="#3d434d">·　2025 年 NMPA 批准创新药：化学药 47 个 vs 生物制品 23 个——数量上化学药仍是两倍</text>
+        <text x="40" y="220" font-size="12" fill="#3d434d">·　PROTAC、分子胶、ADC payload、口服 GLP-1——这些新分子全都是小分子</text>
+        <text x="40" y="244" font-size="12" fill="#3d434d">·　三家分子砌块公司海外收入占比 42%—70%（药石 69.5%／毕得 58.0%／皓元 42.0%）</text>
+        <text x="40" y="272" font-size="11.5" fill="#9aa0aa">上排＝容易得出的推论　·　下排＝实际的数据支撑</text>
+      </svg>
+      <div class="tnote">
+        <b>⚠ 口径提醒（最容易被误用的一点）：</b>你会经常看到两组数字——<b>"化学药 47% / 生物药 28%"</b> 和 <b>"化学药 62% / 生物药 17%"</b>。两者都对，但口径不同：前者是<b>宽口径</b>（含中药、含院外市场），后者是<b>医院端处方药终端口径</b>。<b>混用会得出完全错误的结论</b>（例如误判生物药只有 17% 空间）。<br>
+        <b>补充第三类：</b>CGT（细胞与基因治疗）严格说既非传统化学药也非传统生物药——它是"活的细胞 / 病毒载体"作为药物。2025 年国内累计 8 款 CAR-T 获批，首个干细胞治疗产品、首个基因治疗产品获批。上游耗材更特殊（质粒、病毒载体、培养基、层析填料），通常归入"生物药"这个大筐。<br>
+        <b>⚠ 别把这个结论直接套到上游（最容易犯的推理错误）：</b>"化学药终端市场萎缩"<b>不等于</b>"化学药上游（分子砌块、化合物库）没机会"——两者的驱动来源不同。① 上游公司的客户是<b>全球</b>新分子研发投入，不是中国化学药销售额（三家分子砌块公司海外收入占比 42%—70%：药石科技 69.5%、毕得医药 58.0%、皓元医药 42.0%）；② 2025 年 NMPA 批准的创新药中，化学药 47 个 vs 生物制品 23 个，<b>数量上化学药仍是两倍</b>；③ PROTAC、分子胶、ADC 的 payload、口服 GLP-1 这些"新分子"<b>全都是小分子</b>（2026 年首款 PROTAC 药物已获批）。<b>但也要承认反面：</b>化学药上游的收入增速确实结构性偏低（2026H1 为 +8.8%—+25.7%，同期层析填料 +37%—+53%），因为需求来自<b>线性增长</b>的研发投入，而非<b>指数增长</b>的商业化放量——所以它们的估值折价有其合理性，不完全是错杀。<br>
+        <b>数据来源：</b>弗若斯特沙利文（份额趋势）、摩熵医药（终端结构）、国家统计局与中国医药企业管理协会（子行业增速）、国家药监局（创新药获批）。<b>均为非一手来源，不同机构口径存在差异，需核实原文。</b>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">01</span><h2>这八个模块之间是什么关系</h2></div>
+    <p class="sec-desc">八个模块不是一张平铺的清单。它们同时存在两种关系：<b>左右是两条并列主线（互不替代）</b>，<b>上下是一条串联链（前后依赖）</b>。先把关系理清，再谈谁是龙头才有意义。</p>
+
+    <div class="card" style="margin-bottom:16px;border-color:#f0dfc0;background:#fffdf8">
+      <div class="subh">⓪ 先纠正一个最容易犯的读法错误</div>
+      <p class="subd">很容易把这八格读成一条流水线（"做完 A 才能做 B，然后出药"）。实际上它们是<b>不同研发阶段各自消耗的耗材品类</b>——同一格会横跨多个阶段被反复采购，且每次的量级完全不同。所以正确的心智模型是<b>矩阵</b>，不是链条。</p>
+      <div class="tablewrap">
+      <table class="sumtable matrix">
+        <colgroup><col style="width:20%"><col><col><col><col><col><col><col><col></colgroup>
+        <thead>
+          <tr><th>研发阶段</th><th>分子砌块</th><th>化合物库</th><th>蛋白试剂</th><th>分子酶</th><th>细胞培养基</th><th>层析填料</th><th>色谱</th><th>老鼠和猴子</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>① 靶点发现与验证</td><td class="dash">—</td><td class="dash">—</td><td class="dot">●</td><td class="dot">●</td><td class="dash">—</td><td class="dash">—</td><td class="dot">●</td><td class="dash">—</td></tr>
+          <tr><td>② 苗头筛选</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="dash">—</td><td class="dash">—</td><td class="dot">●</td><td class="dash">—</td></tr>
+          <tr><td>③ 先导优化</td><td class="dot">●</td><td class="dash">—</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="dash">—</td><td class="dot">●</td><td class="dash">—</td></tr>
+          <tr><td>④ 临床前研究</td><td class="dash">—</td><td class="dash">—</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="dash">—</td><td class="dot">●</td><td class="dot">●</td></tr>
+          <tr><td>⑤ 临床试验 I—III 期</td><td class="dash">—</td><td class="dash">—</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="dash">—</td></tr>
+          <tr><td>⑥ 上市与商业化生产</td><td class="dot">●</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="dash">—</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <div class="tnote">
+        <b>竖着看</b>＝某一阶段要买哪些耗材；<b>横着看</b>＝某一格在哪些阶段被反复买——后者才是关键。读出来三件事：<br>
+        ① <b>细胞培养基与层析填料</b>在 ③ 用一次（实验室规模做出样品给动物试），在 ⑤⑥ 还要再用（中试到商业化规模），<b>量级差 1000 倍以上</b>——这才是它们"粘性最强、复利最久"的真正来源；<br>
+        ② <b>色谱</b>几乎贯穿全部六个阶段，因为每一批都要检测放行，它是唯一"不产出产品、但决定产品能否上市"的环节；<br>
+        ③ <b>蛋白试剂与分子酶</b>集中在 ①②③④，是典型的"研发期耗材"，收入与下游研发投入强度直接挂钩——这也解释了它们为什么增速平缓（研发投入是线性增长，不是指数放量）。<br>
+        <b>另需注意：</b>上表是"大分子与小分子合并"的简表。化学药同样要做 ④ 动物试验（多用啮齿类），生产环节还要反应釜、结晶、萃取（不在本框架内）；生物药同样要做 ⑥ 质量放行（色谱）。<br>
+        <b>阶段释义：</b>① <b>靶点发现与验证</b>——确认哪个蛋白／基因值得做成药；② <b>苗头筛选</b>——从化合物库或抗体库里筛出能结合靶点的分子（数量级 10⁵）；③ <b>先导优化</b>——把"能结合的分子"改造成"能成药的分子"，需同时优化活性、选择性、代谢稳定性、溶解度、心脏／肝毒性等多项指标，常要合成数百至数千个类似物逐一测试，<b>是整个发现阶段分子砌块消耗最密集、耗时最长（1—3 年）的一段</b>；④ <b>临床前研究</b>——体外细胞实验 + 体内动物实验，为 IND 申报准备数据；⑤ <b>临床试验 I—III 期</b>——在人体上验证安全性、有效性；⑥ <b>上市与商业化生产</b>。
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+      <div class="subh">① 左右关系：两条并列主线，耗材不共用</div>
+      <p class="subd">"AI 生物药"和"AI 化学药"是<b>并列</b>关系，不是上下游。大分子（抗体、ADC、细胞基因治疗、核酸药物）和小分子（化学药）的研发生产流程完全不重叠，消耗的耗材品类也不共用——所以"AI 制药"这个标签下，实际是两套独立的供应链。</p>
+      <div class="twocol">
+        <div class="branchbox bio">
+          <div class="bt">AI 生物药 · 大分子（5 格）</div>
+          <ul>
+            <li><span>蛋白试剂</span><em>测 · 表达与检测</em></li>
+            <li><span>分子酶</span><em>测 · 分子操作</em></li>
+            <li><span>细胞培养基</span><em>养 · 细胞扩增</em></li>
+            <li><span>层析填料</span><em>纯 · 分离纯化</em></li>
+            <li><span>老鼠和猴子</span><em>验 · 体内验证</em></li>
+          </ul>
+        </div>
+        <div class="branchbox chem">
+          <div class="bt">AI 化学药 · 小分子（3 格）</div>
+          <ul>
+            <li><span>分子砌块</span><em>造 · 合成起始</em></li>
+            <li><span>化合物库</span><em>筛 · 苗头筛选</em></li>
+            <li><span>色谱</span><em>分 · 分析纯化</em></li>
+          </ul>
+        </div>
+      </div>
+      <div class="tnote">
+        <b>同一条主线内部还有三种关系，不要混：</b><br>
+        · <b>互补（并列）</b>——蛋白试剂与分子酶：前者是"被测的靶标"（靶点蛋白、抗原、抗体），后者是"操作的试剂"（克隆酶、文库酶、转录酶），品类不重叠，客户通常同时采购。<br>
+        · <b>串联（上下游）</b>——分子砌块 → 化合物库：砌块是合成化合物库的原料，先有砌块才造得出库。<br>
+        · <b>同环节、不同规模</b>——层析填料与色谱：填料对应生产规模（公斤级），色谱对应检测分析（毫克级），常是同一批公司做，但客户采购部门不同。<br>
+        <b>跨主线的共用节点只有两个：</b>① <b>老鼠和猴子</b>——无论大分子小分子都必须做动物试验，但生物药对灵长类依赖度更高（约 70% 以上生物大分子必须用非人灵长类），小分子多用啮齿类；② <b>色谱</b>——无论什么药，每一批都要做质量检测。这也是这两格容易被误归类的原因。
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+      <div class="subh">② 上下游关系：四个环节串成一条链</div>
+      <p class="subd">按药物从"无"到"能上市"的实际顺序，八个模块落在四个环节上。箭头方向就是钱的传导方向。</p>
+      <div class="flowstep">
+        <div class="fs-n">① 造<small>合成与构建</small></div>
+        <div class="fs-b"><b>分子砌块</b>（化学药：合成起始原料）· <b>化合物库</b>（化学药：可筛选的实体库）· <b>蛋白试剂</b>（生物药：靶点蛋白、抗原、抗体）· <b>分子酶</b>（生物药：克隆、文库、体外转录的工具酶）
+          <span class="fstag">消耗逻辑：按"实验次数"计。客户多、单笔小，与下游研发投入强度直接挂钩。</span></div>
+      </div>
+      <div class="flowstep">
+        <div class="fs-n">② 验<small>体内验证</small></div>
+        <div class="fs-b"><b>老鼠和猴子</b>　候选分子必须过动物试验这一关，才能申报临床。
+          <span class="fstag">消耗逻辑：按"批次"计，但受<b>供给刚性</b>约束（食蟹猴繁育周期 6—7 年，短期无法扩产），所以价格会周期性暴涨——这是八个模块里唯一的周期属性。</span></div>
+      </div>
+      <div class="flowstep">
+        <div class="fs-n">③ 产<small>规模生产</small></div>
+        <div class="fs-b"><b>细胞培养基</b>（生物药：大分子必须在活细胞里表达）· <b>层析填料</b>（生物药：把宿主蛋白、DNA 残留等杂质去掉）
+          <span class="fstag">消耗逻辑：按"产能规模"计。一旦被验证进客户工艺，就<b>终身复购</b>——换供应商要重做工艺验证并重新向药监申报。</span></div>
+      </div>
+      <div class="flowstep">
+        <div class="fs-n">④ 检<small>质量放行</small></div>
+        <div class="fs-b"><b>色谱</b>　从 IND 申报、临床、上市到商业化生产，每一批都要检测。
+          <span class="fstag">消耗逻辑：按"批次"计。一旦被写进客户的正式分析方法，就会持续复购，壁垒在"方法学锁定"。</span></div>
+      </div>
+      <div class="callout info" style="margin-top:16px"><div class="ct">关键分水岭：前端卖"次数"，后端卖"产能"</div><p>① 环节按<b>实验次数</b>消耗 → 与研发投入强度挂钩 → 客户多、单笔小，像流量生意，<b>增速平缓但估值高</b>；② 环节受<b>供给刚性</b>约束 → 价格驱动 → <b>周期性爆发极值利润</b>；③④ 环节按<b>产能规模</b>消耗 → 与商业化放量挂钩 → <b>粘性最强、复利最久</b>。同一个"AI 制药上游"框架里，这三类的行为模式完全不同——这就是为什么不能用一个估值标准去看八个模块。</p></div>
+    </div>
+
+    <div class="card">
+      <div class="subh">③ 为什么需要这些模块：每一格都在回答一道必答题</div>
+      <p class="subd">判断一个上游环节有没有长期价值，最简单的办法是问：<b>去掉它，药物还能不能做出来？</b> 下面八格，全部是"去不掉"的。</p>
+      <div class="mustrow"><div class="mustq">分子砌块</div><div class="musta"><b>分子怎么造出来？</b>没有合成起始原料，任何新分子都造不出来。它同时是专利布局的切入点——改一个砌块就可能绕开专利。</div></div>
+      <div class="mustrow"><div class="mustq">化合物库</div><div class="musta"><b>拿什么去筛？</b>AI 虚拟筛选跑得再快，也需要一个实体库去验证。库的规模与结构多样性，直接决定筛选能不能出苗头化合物。</div></div>
+      <div class="mustrow"><div class="mustq">蛋白试剂</div><div class="musta"><b>拿什么去测？</b>没有靶点蛋白和抗原，就建不了筛选模型、做不了结合实验、也做不出检测方法。它是所有大分子研发的"标准件"。</div></div>
+      <div class="mustrow"><div class="mustq">分子酶</div><div class="musta"><b>用什么工具操作分子？</b>分子克隆、文库构建、体外转录，每一步都依赖特定酶。制药级还要 GMP 资质 + FDA DMF 备案，门槛在注册而不在配方。</div></div>
+      <div class="mustrow"><div class="mustq">老鼠和猴子</div><div class="musta"><b>怎么证明安全有效？</b>法规强制要求动物试验，没有数据无法申报临床。灵长类与人类遗传同源性最高，在全身毒性、免疫、慢性毒性试验中<b>目前不可替代</b>。</div></div>
+      <div class="mustrow"><div class="mustq">细胞培养基</div><div class="musta"><b>生物药在哪里生产？</b>抗体、ADC、细胞基因治疗都必须在活细胞里表达，没有培养基就没有产能。它占生物药生产成本约 10%~15%，但一旦断供整条产线停摆。</div></div>
+      <div class="mustrow"><div class="mustq">层析填料</div><div class="musta"><b>怎么把杂质去掉？</b>生物药的纯度要求极高（宿主蛋白、DNA 残留、聚体都要控到 ppm 级），纯化占单抗生产成本 65% 以上，其中填料占药物生产成本 30% 以上。</div></div>
+      <div class="mustrow"><div class="mustq">色谱</div><div class="musta"><b>怎么证明它合格？</b>药品必须通过质量标准检测才能申报与放行，每一批都要做。它不产生"产品"，但决定了产品能不能上市。</div></div>
+      <div class="callout warn" style="margin-top:16px"><div class="ct">⚠ 为什么这八格会同时受益于 AI</div><p>因为它们全在<b>湿实验</b>环节。AI 只压缩了"设计"这一段的成本——分子生成、蛋白结构预测、虚拟筛选都可以在算力里完成；但设计出来的东西必须在真实世界里被<b>造、测、验、纯、检</b>。所以传导链是：<b>AI 越强 → 候选分子与靶点数量越多 → 湿实验需求越大 → 上游耗材消耗越大。</b>这就是这张图真正的逻辑内核。</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">02</span><h2>龙头总表（先看结论）</h2></div>
+    <p class="sec-desc">每一行的"龙头依据"都是可查证的量化指标，你可以据此自行复核。</p>
+    <div class="card">
+      <div class="tablewrap">
+      <table class="sumtable">
+        <colgroup><col class="c1"><col class="c2"><col class="c3"><col class="c4"></colgroup>
+        <thead>
+          <tr><th>模块</th><th>龙头（代码）</th><th>龙头依据（量化）</th><th>次龙头 / 弹性标的</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="modcell"><b>蛋白试剂</b><span class="mtag bio">生物药</span></td>
+            <td class="leadcell">百普赛斯 <span class="code">301080.SZ</span></td>
+            <td>重组蛋白占营收 80.37%｜海外 62.26%｜毛利率 90.27%（三项模块第一）</td>
+            <td class="altlist">
+              <span>义翘神州 <span class="code">301047.SZ</span>（品类 9800+ 种、股息率 4.81%）</span>
+              <span>近岸蛋白 <span class="code">688137.SH</span>（靶点及因子类蛋白占其营收 57.89%）</span>
+            </td>
+          </tr>
+          <tr>
+            <td class="modcell"><b>分子酶</b><span class="mtag bio">生物药</span></td>
+            <td class="leadcell">诺唯赞 <span class="code">688105.SH</span></td>
+            <td>分子酶原料国内市占率 20.52%（国产第一）｜IVT 试剂份额约 24.7%（第一）</td>
+            <td class="altlist">
+              <span>近岸蛋白 <span class="code">688137.SH</span>（mRNA 原料酶标签最强，但酶及试剂仅占其营收 22.12%）</span>
+            </td>
+          </tr>
+          <tr>
+            <td class="modcell"><b>细胞培养基</b><span class="mtag bio">生物药</span></td>
+            <td class="leadcell">奥浦迈 <span class="code">688293.SH</span></td>
+            <td>A 股唯一纯正标的｜培养基主业营收 +34.00%｜381 个在研管线（含 18 个商业化）</td>
+            <td class="altlist">
+              <span>澳斯康（<b>未上市</b>，商业化培养基供应占比约 60%）</span>
+            </td>
+          </tr>
+          <tr>
+            <td class="modcell"><b>层析填料</b><span class="mtag bio">生物药</span></td>
+            <td class="leadcell">纳微科技 <span class="code">688690.SH</span></td>
+            <td>国内层析介质市占率约 19.7%（国产第一）｜营收 +37.28%｜扣非 +130.47%</td>
+            <td class="altlist">
+              <span>赛分科技 <span class="code">688758.SH</span>（毛利率 75.32% 最高）</span>
+              <span>蓝晓科技 <span class="code">300487.SZ</span>（PE 39.4 最低）</span>
+            </td>
+          </tr>
+          <tr>
+            <td class="modcell"><b>老鼠和猴子</b><span class="mtag bio">生物药</span></td>
+            <td class="leadcell">昭衍新药 <span class="code">603127.SH</span>（猴）<br>药康生物 <span class="code">688046.SH</span>（鼠）</td>
+            <td>猴存栏约 5 万只、自给率 90%+（A 股第一）｜小鼠 29 万笼、品系超 2.2 万种（A 股第一）</td>
+            <td class="altlist">
+              <span>百奥赛图 <span class="code">688796.SH</span>（技术平台 + 抗体授权）</span>
+              <span>南模生物 <span class="code">688265.SH</span>（扣非已亏）</span>
+            </td>
+          </tr>
+          <tr>
+            <td class="modcell"><b>分子砌块</b><span class="mtag chem">化学药</span></td>
+            <td class="leadcell">皓元医药 <span class="code">688131.SH</span></td>
+            <td>前端营收 12.12 亿元（+34.03%，模块最大）｜砌块约 11.3 万种 + 工具化合物约 6.9 万种</td>
+            <td class="altlist">
+              <span>药石科技 <span class="code">300725.SZ</span>（海外 69.54%）</span>
+              <span>毕得医药 <span class="code">688073.SH</span>（PE 32.4 最低）</span>
+            </td>
+          </tr>
+          <tr>
+            <td class="modcell"><b>化合物库</b><span class="mtag chem">化学药</span></td>
+            <td class="leadcell">成都先导 <span class="code">688222.SH</span></td>
+            <td>A 股稀缺 DEL 库｜营收 +52.41%｜净利率 22.95%（模块最高）</td>
+            <td class="altlist">
+              <span>皓元医药 <span class="code">688131.SH</span>（300 种集成化化合物库）</span>
+            </td>
+          </tr>
+          <tr>
+            <td class="modcell"><b>色谱</b><span class="mtag chem">化学药</span></td>
+            <td class="leadcell">赛分科技 <span class="code">688758.SH</span></td>
+            <td>分析色谱毛利率 78.42%（全图最高）｜179+ 项目纳入正式分析方法｜8 大系列 DMF 备案</td>
+            <td class="altlist">
+              <span>汉邦科技 <span class="code">688755.SH</span>（色谱纯化设备，营收 +19.75%）</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      </div>
+      <div class="tnote">来源：各公司 2026 年半年报、券商研报引用的市占率数据（<b>市占率为非一手来源，需核实原文</b>）。同一家公司可能出现在多个模块，因其业务横跨（如赛分科技同时是层析填料与色谱标的）。<br><b>修订说明（2026-09-18）：</b>近岸蛋白（688137.SH）原列于"分子酶"次龙头，经核对其 2026H1 收入结构（靶点及因子类蛋白 57.89%、重组抗体 2.25%、酶及试剂 22.12%、CRO 服务 17.68%），其主业实为<b>蛋白试剂</b>（蛋白类合计约 60%），已在"蛋白试剂"模块补入细分标的、并在"分子酶"模块改标为"标签标的"。</div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">03</span><h2>AI 生物药 · 五个模块</h2></div>
+    <p class="sec-desc">这五个模块服务于大分子药物（抗体、ADC、细胞基因治疗、核酸药物），共同点是"原料贵、验证周期长、切换成本高"。</p>
+
+    <div class="mod">
+      <div class="mod-head"><span class="mod-name">蛋白试剂</span><span class="mod-branch bio">AI 生物药</span><span class="mod-func">功能：测 · 表达与检测</span></div>
+      <div class="chain">
+        <span>AI 设计出的蛋白数量暴增</span><i>→</i><span>必须真实表达、纯化、验证</span><i>→</i><span>品类覆盖度成为壁垒</span><i>→</i><span>国产以"现货次日达"替代进口</span>
+      </div>
+      <div class="mrow"><div class="mk">竞争格局</div><div class="mv">全球由 R&amp;D Systems、Thermo Fisher、Abcam 等主导。国产的突破口不是价格，而是<b>交付速度</b>——进口货期通常 3—8 周，国产可做到现货次日达。义翘神州重组蛋白现货 9800+ 种，品类覆盖度已超过 R&amp;D Systems。</div></div>
+      <div class="mrow lead"><div class="mk">龙头</div><div class="mv"><span class="lead-name">百普赛斯（301080.SZ）</span>　2026H1 营收 5.00 亿元（+28.97%），归母 0.98 亿元（+17.36%）；重组蛋白占营收 <b>80.37%</b>（+26.0%），<b>境外占 62.26%</b>，毛利率 <b>90.27%</b>。按营收规模、海外占比、毛利率三项均为模块第一，业务纯度也最高。</div></div>
+      <div class="mrow"><div class="mk">次龙头</div><div class="mv">义翘神州（301047.SZ）　营收 3.93 亿元（+21.09%），归母 0.85 亿元（+25.87%）；重组蛋白 1.76 亿元（+20.22%）、CRO 服务 1.25 亿元（+25.58%）、抗体 0.60 亿元（+34.94%）。<b>股息率 4.81%、PB 2.51 倍均为板块最低/最高性价比端</b>。</div></div>
+      <div class="mrow"><div class="mk">细分标的</div><div class="mv">近岸蛋白（688137.SH）　<b>按收入结构应归入本模块</b>——靶点及因子类蛋白占其营收 <b>57.89%</b>、重组抗体 2.25%，蛋白类合计约 60%。但市场是按 mRNA 原料酶给它定价的，属于"收入结构与估值标签错配"的典型。体量远小于上述两家（2026H1 靶点及因子类蛋白收入 4544 万元，同期百普赛斯 5.00 亿元）。</div></div>
+      <div class="callout warn"><div class="ct">⚠ 这个模块最需要警惕的一点</div><p>AI 叙事最直接，但业绩弹性最弱——两家增速只有 +21%~+29%，而 PE(TTM) 已达 79.6~92.4 倍。<b>估值已经把 AI 预期打进去了，收入还没跟上。</b></p></div>
+    </div>
+
+    <div class="mod">
+      <div class="mod-head"><span class="mod-name">分子酶</span><span class="mod-branch bio">AI 生物药</span><span class="mod-func">功能：测 · 分子操作</span></div>
+      <div class="chain">
+        <span>分子生物学操作的基础工具</span><i>→</i><span>三类下游：科研 / IVD / 制药原料</span><i>→</i><span>制药级需 GMP + FDA DMF 备案</span><i>→</i><span>壁垒在注册资质与客户审计</span>
+      </div>
+      <div class="mrow"><div class="mk">竞争格局</div><div class="mv">国内分子生物学酶市场，赛默飞、罗氏、凯杰三家合计约 <b>65%</b>。国产阵营格局清晰：诺唯赞 20.52%（第一）、菲鹏生物 10.81%（第二）、翌圣生物 4.17%（第三）。<b>翌圣生物尚未上市，是模块内最大的稀缺性变量。</b></div></div>
+      <div class="mrow lead"><div class="mk">龙头</div><div class="mv"><span class="lead-name">诺唯赞（688105.SH）</span>　分子酶原料国内市占率 <b>20.52%（国产第一）</b>，体外转录（IVT）试剂国内份额约 <b>24.7%（行业第一）</b>。自研 T7CapMax 绕开 TriLink 加帽专利，帽子类似物用量节省 90% 以上，dsRNA 副产物控制在 2 ppm 以下。2026H1 营收 7.01 亿元（+15.54%），归母净利扭亏为盈。<b>但扣非仍亏 2494 万元。</b></div></div>
+      <div class="mrow"><div class="mk">标签标的</div><div class="mv">近岸蛋白（688137.SH）　mRNA 原料酶标签最强，19 个产品获 FDA DMF 备案，覆盖 mRNA 体外转录全套 GMP 级酶。<b>但按收入结构它其实不是分子酶公司——酶及试剂仅占其营收 22.12%，靶点及因子类蛋白占 57.89%。</b>2026H1 归母净利 -2920 万元（同比增亏 20.56%），"酶及试剂"收入同比 -6.03%。</div></div>
+      <div class="callout warn"><div class="ct">⚠ 全图"叙事最强、兑现最弱"的模块</div><p>近岸蛋白 YTD +149.1%，是八个模块里股价涨幅最高的；但它 2026H1 营收只有 +8.88%。公司自己在公告里写明：2025 年 RNA 疫苗药物相关产品收入仅占产品总收入的 <b>11.38%</b>。<b>这个模块定价的是远期期权，不是当期订单。</b></p></div>
+    </div>
+
+    <div class="mod">
+      <div class="mod-head"><span class="mod-name">细胞培养基</span><span class="mod-branch bio">AI 生物药</span><span class="mod-func">功能：养 · 细胞扩增</span></div>
+      <div class="chain">
+        <span>生物药生产的"奶粉"</span><i>→</i><span>临床阶段验证后基本不换供应商</span><i>→</i><span>进入商业化 = 永续复购</span><i>→</i><span>壁垒是 GMP 级干粉产能 + 配方</span>
+      </div>
+      <div class="mrow"><div class="mk">竞争格局</div><div class="mv">赛默飞（Gibco）、丹纳赫（Cytiva）、默克三家占中国 <b>60%+</b>；高端无血清／化学成分限定培养基进口占比更高（部分口径 70%~80%）。国产化率从 2020 年不足 30% 升至 2025 年约 <b>40.2%</b>，但<b>商业化生产端仅约 28.9%</b>（临床前及早期临床端已超 60%）。<b>这个结构性落差就是这个模块的空间。</b></div></div>
+      <div class="mrow lead"><div class="mk">龙头</div><div class="mv"><span class="lead-name">奥浦迈（688293.SH）</span>　A 股唯一纯正标的，国产 CHO 无血清培养基第一。2026H1 培养基主业营收 <b>2.08 亿元（+34.00%）</b>，毛利率 67.81%；扣非归母 0.494 亿元（<b>+66.87%</b>）。截至 2026-06-30 有 <b>381 个</b>已确定中试工艺的管线使用其培养基（临床 III 期 38 个、<b>商业化生产 18 个</b>），较 2025 年末净增 54 个。境外收入 1.66 亿元（占 36.63%），已进入 Lonza、三星生物供应商名录。</div></div>
+      <div class="mrow"><div class="mk">关键变量</div><div class="mv"><b>澳斯康（未上市）</b>　国内商业化生物药领域培养基供应占比约 <b>60%</b>，旗下健顺生物建有全球最大单线干粉培养基产线（单批次产能 6 吨），正在冲刺科创板 IPO。<b>一旦上市，它将成为该模块体量最大的 A 股标的，也会重新定义这个模块的定价锚。</b></div></div>
+      <div class="callout warn"><div class="ct">⚠ 表观增速有"水分"，必须穿透</div><p>奥浦迈表观营收 +155.24%、归母 +230.34%，含 2026 年 1 月并表的澎立生物（贡献收入 2.22 亿元、占总收入 48.85%）。剔除后本体归母 4462.98 万元、同比 +18.86%。另外：<b>商誉 5.84 亿元</b>存在减值风险；<b>CDMO 板块毛利率为 -49.51%</b>（产能爬坡亏损期）。</p></div>
+    </div>
+
+    <div class="mod">
+      <div class="mod-head"><span class="mod-name">层析填料</span><span class="mod-branch bio">AI 生物药</span><span class="mod-func">功能：纯 · 分离纯化</span></div>
+      <div class="chain">
+        <span>纯化占单抗生产成本 65%+</span><i>→</i><span>填料占药物生产成本 30%+</span><i>→</i><span>临床验证后终身复购</span><i>→</i><span>商业化放量 = 指数级增长</span>
+      </div>
+      <div class="mrow"><div class="mk">竞争格局</div><div class="mv">Cytiva、Tosoh、Bio-Rad、Merck、Thermo Fisher 五家合计占全球 54%~71%。国内临床研发端国产选型率已达 <b>68.5%</b>，但<b>GMP 大规模商业化生产端国产占比仅约 28.9%</b>——高端耐碱亲和配基仍高度依赖进口。这是全图"临床端已替代、商业化端刚开始"落差最大的环节。</div></div>
+      <div class="mrow"><div class="mk">子赛道分化</div><div class="mv">2026H1 纳微科技分项：大分子层析介质 <b>+42%</b>｜中小分子色谱填料 <b>+55%</b>｜<b>小核酸药物填料 +170%</b>。赛分科技：<b>抗体药物填料 +122.59%</b>，双抗/ADC 等复杂抗体新增合作项目 35 个。</div></div>
+      <div class="mrow lead"><div class="mk">龙头</div><div class="mv"><span class="lead-name">纳微科技（688690.SH）</span>　国内层析介质市占率约 <b>19.7%（国产第一）</b>。2026H1 营收 5.68 亿元（+37.28%），归母 1.37 亿元（<b>+116.11%</b>），扣非 +130.47%，毛利率 71.45%，经营现金流 +351.88%；客户数 534 家（同比 +101 家），超 60 个抗体项目处临床 III 期或注册阶段，超 20 个抗体药物转入商业化生产。主导制定全球首个液相色谱硅胶填料 ISO 国际标准。</div></div>
+      <div class="mrow"><div class="mk">次龙头</div><div class="mv"><b>赛分科技（688758.SH）</b>　唯一完成 FDA DMF 备案的国产 Protein A 亲和填料供应商（8 大系列）。2026H1 营收 2.80 亿元（<b>+53.17%</b>，模块最高），归母 1.11 亿元（+106.19%），扣非 +131.54%，<b>毛利率 75.32%（模块最高）</b>、净利率 39.68%；三期临床及商业化阶段产品占工业纯化收入 66.93%，百万级以上核心客户贡献工业纯化收入 92.04%。</div></div>
+      <div class="mrow"><div class="mk">平台型</div><div class="mv"><b>蓝晓科技（300487.SZ）</b>　多肽固相合成载体全球约 <b>7 成份额</b>。2026H1 生命科学板块收入 4.04 亿元（+26.28%），<b>首次成为第一大业务板块</b>；毛利率 53.28%（历史新高），<b>PE(TTM) 39.41 倍（模块最低）</b>。<b>注意：其申万行业分类是"基础化工—塑料—合成树脂"，不是医药生物</b>，估值体系与纯医药标的不可直接比。</div></div>
+      <div class="callout info"><div class="ct">为什么这个模块的逻辑最硬</div><p>填料在临床阶段一旦被验证进工艺，商业化生产会持续采购；更换供应商需要重做工艺验证并重新向药监申报，<b>转换成本极高</b>。而且需求端结构性受益——ADC／双抗的纯化步骤是单抗的 1.5—3 倍，小核酸药物市场预计从 2026 年 95 亿美元增至 2030 年 251 亿美元。<b>它不依赖单一管线成败。</b></p></div>
+    </div>
+
+    <div class="mod">
+      <div class="mod-head"><span class="mod-name">老鼠和猴子</span><span class="mod-branch bio">AI 生物药</span><span class="mod-func">功能：验 · 体内验证</span></div>
+      <div class="chain">
+        <span>猴：繁育周期 6—7 年</span><i>→</i><span>供给刚性、年缺口 1.5—2 万只</span><i>→</i><span>猴价一年翻倍</span><i>→</i><span>自有猴群资产重估（可逆）</span>
+      </div>
+      <div class="chain">
+        <span>鼠：基因编辑技术积累</span><i>→</i><span>品系数量 = 技术壁垒</span><i>→</i><span>人源化小鼠随抗体/ADC 放量</span><i>→</i><span>出海溢价（境外毛利率 71.77%）</span>
+      </div>
+      <div class="mrow"><div class="mk">必须拆开</div><div class="mv"><b>这一格藏着两种完全不同的逻辑，不能当一个模块看。</b>猴线是<b>周期 + 资源壁垒</b>，利润来自生物资产公允价值变动，一次性、可逆、不进经营现金流；鼠线是<b>成长 + 技术壁垒</b>，靠品系积累、出海和平台授权。市场已经用脚投票：靠猴价重估的昭衍新药 YTD 仅 +26.5%，而鼠线+平台线的百奥赛图 +140.7%、药康生物 +127.8%。</div></div>
+      <div class="mrow lead"><div class="mk">猴线龙头</div><div class="mv"><span class="lead-name">昭衍新药（603127.SH）</span>　实验猴存栏约 <b>5 万只、自给率 90%+（A 股第一）</b>，另有 3000 只基因编辑模型猴。2026H1 营收 7.04 亿元（+5.27%），归母净利 7.48 亿元（<b>+1126.8%</b>），其中 <b>7.35 亿元来自生物资产公允价值变动</b>；剔除后实验室服务及其他业务仍亏约 3661 万元。但订单端是真改善：新签订单 20.2 亿元（+98%），在手约 37 亿元（+61%）。PE(TTM) 33.58 倍。</div></div>
+      <div class="mrow lead"><div class="mk">鼠线龙头</div><div class="mv"><span class="lead-name">药康生物（688046.SH）</span>　<b>29 万笼</b>产能、品系超 <b>22000 种</b>（全球最大基因工程小鼠资源库），A 股第一。2026H1 营收 4.60 亿元（+22.6%），归母 1.11 亿元（+56.3%），毛利率 65.1%；功能药效业务 1.57 亿元（+78.2%）；<b>海外收入 1.10 亿元（+64.5%），占比从 17.9% 升至 24.0%</b>。</div></div>
+      <div class="mrow"><div class="mk">平台弹性</div><div class="mv"><b>百奥赛图（688796.SH）</b>　RenMice 全人源抗体平台累计 <b>100 万+ 抗体序列库</b>，"千鼠万抗"已签署 61 个转让/授权项目，<b>全球前十大药企全部为客户</b>，海外收入占比近 70%。2026H1 营收 9.41 亿元（+51.6%），归母 2.41 亿元（+402.3%），毛利率 79.3%。PE(TTM) 154.43 倍（模块最高，反映平台溢价）。</div></div>
+      <div class="callout warn"><div class="ct">⚠ 猴线的关键风险（公司自己说的）</div><p>昭衍新药在业绩说明中明确提示：<b>"上半年猴价上涨是增值，下半年也不一定，有可能是减值，价格会波动的。"</b>猴价已从 2025 年 5 月约 9.2 万元/只升至 2026 年 9 月现货 20 万元+/只，逼近 2022 年 18.4 万元的历史高位区间，继续上行空间在收窄。另外南模生物 2026H1 扣非已亏损 384 万元，是同模块内唯一主业失血的公司。</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">04</span><h2>AI 化学药 · 三个模块</h2></div>
+    <p class="sec-desc">这三个模块服务于小分子药物，共同点是"上游最靠前、最先感知景气变化，但单笔金额小、增长平缓"。</p>
+
+    <div class="mod">
+      <div class="mod-head"><span class="mod-name">分子砌块</span><span class="mod-branch chem">AI 化学药</span><span class="mod-func">功能：造 · 合成起始</span></div>
+      <div class="chain">
+        <span>构建药物分子的"乐高积木"</span><i>→</i><span>前端卡位引流客户</span><i>→</i><span>随管线推进：种类收窄、用量放大</span><i>→</i><span>后端 CDMO 变现（漏斗模式）</span>
+      </div>
+      <div class="mrow"><div class="mk">竞争格局</div><div class="mv">Sigma-Aldrich、Enamine、Combi-Blocks 等国际巨头主导。国产优势在<b>交付周期</b>（国内 1—2 周 vs 进口 3—8 周）与<b>价格</b>（约为进口的 40%~70%）。常规杂环砌块国产化率从 2024 年约 45% 升至 2026 年约 60%、硼酸酯 50%→68%、手性砌块 35%→50%（<b>均为研报预测值，非官方统计</b>）。</div></div>
+      <div class="mrow lead"><div class="mk">龙头</div><div class="mv"><span class="lead-name">皓元医药（688131.SH）</span>　2026H1 前端生命科学试剂收入 <b>12.12 亿元（+34.03%）</b>，模块内规模最大；其中分子砌块 3.53 亿元（+37.1%，储备约 <b>11.3 万种</b>）、工具化合物及生化试剂 8.58 亿元（+32.8%，储备约 <b>6.9 万种</b>，构建 300 种集成化化合物库）；前端毛利率 62.0%。后端在手订单突破 10 亿元（+72.6%），连续 7 个季度环比正增长；ADC 承接项目超 100 个。</div></div>
+      <div class="mrow"><div class="mk">次龙头</div><div class="mv"><b>药石科技（300725.SZ）</b>　高端新型砌块龙头，走"砌块引流→CDMO 变现"路线。常备约 4 万种、可定制超 16 万种；<b>海外收入占 69.54%</b>（模块最高）；资产负债率仅 15.19%，经营现金流 1.92 亿元（净利润现金含量 193%），财务最稳健。</div></div>
+      <div class="mrow"><div class="mk">性价比</div><div class="mv"><b>毕得医药（688073.SH）</b>　<b>PE(TTM) 32.39 倍（模块最低）</b>、PB 2.85 倍、股息率 1.70%（模块最高）。2026H1 营收仅 +8.81%，但归母 +40.73%——靠<b>毛利率提升 6.17pct 至 50.42%</b>（营业成本仅 +2.52%）；境外收入占 58.03% 且境外毛利率达 59.61%。</div></div>
+      <div class="callout warn"><div class="ct">⚠ 这个模块的短板</div><p>增速最平缓（+8.8%~+25.7%），且两家有明确的财务瑕疵：<b>皓元医药资产负债率 50.01%（模块最高）、存货周转天数 304 天</b>，归母增速（+12.81%）反低于营收增速；<b>药石科技毛利率仅 32.49%</b>（业务重心已后移到开发/商业化阶段，占收入 84.47%）；毕得医药存货周转天数 504 天，库存跌价风险最大。</p></div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px;border-color:#f0dfc0;background:#fffdf8">
+      <div class="subh">补充：先导优化在做什么——以及它为什么决定分子砌块的毛利结构</div>
+      <p class="subd">"先导优化"是分子砌块消耗最密集的阶段。理解它，才能理解为什么砌块厂商的<b>高毛利在前端、规模收入在后端</b>。</p>
+
+      <svg class="bgsvg" viewBox="0 0 680 170" role="img" xmlns="http://www.w3.org/2000/svg" aria-label="先导优化在药物发现流程中的位置：靶点发现一到两年，苗头筛选零点五到一年，先导优化一到三年且化合物数量达到峰值，候选确定零点五年，临床前研究一到两年">
+        <title>先导优化在药物发现流程中的位置</title>
+        <rect x="40" y="50" width="110" height="76" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+        <text x="95" y="70" text-anchor="middle" dominant-baseline="central" font-size="12" font-weight="600" fill="#0C447C">靶点发现</text>
+        <text x="95" y="90" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#185FA5">1—2 年</text>
+        <text x="95" y="110" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#9aa0aa">—</text>
+        <text x="152" y="88" text-anchor="middle" dominant-baseline="central" font-size="14" fill="#c9ccd2">›</text>
+        <rect x="162" y="50" width="110" height="76" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+        <text x="217" y="70" text-anchor="middle" dominant-baseline="central" font-size="12" font-weight="600" fill="#0C447C">苗头筛选</text>
+        <text x="217" y="90" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#185FA5">0.5—1 年</text>
+        <text x="217" y="110" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#9aa0aa">10⁵ 级</text>
+        <text x="274" y="88" text-anchor="middle" dominant-baseline="central" font-size="14" fill="#c9ccd2">›</text>
+        <rect x="284" y="50" width="110" height="76" rx="8" fill="#FAEEDA" stroke="#854F0B" stroke-width="1"/>
+        <text x="339" y="70" text-anchor="middle" dominant-baseline="central" font-size="12" font-weight="700" fill="#633806">先导优化</text>
+        <text x="339" y="90" text-anchor="middle" dominant-baseline="central" font-size="11" font-weight="600" fill="#854F0B">1—3 年</text>
+        <text x="339" y="110" text-anchor="middle" dominant-baseline="central" font-size="11" font-weight="600" fill="#854F0B">10²—10³ 级</text>
+        <text x="396" y="88" text-anchor="middle" dominant-baseline="central" font-size="14" fill="#c9ccd2">›</text>
+        <rect x="406" y="50" width="110" height="76" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+        <text x="461" y="70" text-anchor="middle" dominant-baseline="central" font-size="12" font-weight="600" fill="#0C447C">候选确定</text>
+        <text x="461" y="90" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#185FA5">0.5 年</text>
+        <text x="461" y="110" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#9aa0aa">1 个</text>
+        <text x="518" y="88" text-anchor="middle" dominant-baseline="central" font-size="14" fill="#c9ccd2">›</text>
+        <rect x="528" y="50" width="110" height="76" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+        <text x="583" y="70" text-anchor="middle" dominant-baseline="central" font-size="12" font-weight="600" fill="#0C447C">临床前研究</text>
+        <text x="583" y="90" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#185FA5">1—2 年</text>
+        <text x="583" y="110" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#9aa0aa">—</text>
+        <text x="40" y="146" font-size="11.5" fill="#9aa0aa">中排＝该阶段典型耗时　·　下排＝该阶段合成或筛选的化合物数量级（行业典型值，示意）</text>
+      </svg>
+
+      <p style="font-size:13.5px;color:#3d434d;margin:16px 0 4px">先导优化的任务，是<b>把"能结合靶点的分子"改造成"能成药的分子"</b>。从库里筛出来的苗头化合物通常<b>根本不是药</b>——活性不够强、选择性差、代谢不稳定、口服吸收差、有心脏毒性（hERG）或肝毒性、水溶性差。要同时优化的指标包括：靶点活性、选择性、代谢稳定性、口服吸收、水溶性、hERG、肝毒性、可合成性。<b>而这些指标互相打架：</b></p>
+
+      <svg class="bgsvg" viewBox="0 0 680 250" role="img" xmlns="http://www.w3.org/2000/svg" aria-label="先导优化中的多参数权衡冲突：提升水溶性会牺牲膜渗透性，增强靶点活性会削弱选择性，延长半衰期会带来组织蓄积与毒性风险">
+        <title>先导优化中常见的多参数权衡冲突</title>
+        <defs>
+          <marker id="tro2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+        </defs>
+        <rect x="40" y="40" width="210" height="46" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+        <text x="145" y="63" text-anchor="middle" dominant-baseline="central" font-size="12.5" font-weight="600" fill="#0C447C">想把水溶性提上去</text>
+        <path d="M254 63 L284 63" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#tro2)"/>
+        <rect x="290" y="40" width="350" height="46" rx="8" fill="#FCEBEB" stroke="#A32D2D" stroke-width="0.5"/>
+        <text x="465" y="63" text-anchor="middle" dominant-baseline="central" font-size="12.5" fill="#791F1F">膜渗透性往往下降 → 口服吸收变差</text>
+        <rect x="40" y="102" width="210" height="46" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+        <text x="145" y="125" text-anchor="middle" dominant-baseline="central" font-size="12.5" font-weight="600" fill="#0C447C">想把靶点活性做强</text>
+        <path d="M254 125 L284 125" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#tro2)"/>
+        <rect x="290" y="102" width="350" height="46" rx="8" fill="#FCEBEB" stroke="#A32D2D" stroke-width="0.5"/>
+        <text x="465" y="125" text-anchor="middle" dominant-baseline="central" font-size="12.5" fill="#791F1F">对同类靶点选择性变差 → 副作用风险上升</text>
+        <rect x="40" y="164" width="210" height="46" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+        <text x="145" y="187" text-anchor="middle" dominant-baseline="central" font-size="12.5" font-weight="600" fill="#0C447C">想把半衰期拉长</text>
+        <path d="M254 187 L284 187" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#tro2)"/>
+        <rect x="290" y="164" width="350" height="46" rx="8" fill="#FCEBEB" stroke="#A32D2D" stroke-width="0.5"/>
+        <text x="465" y="187" text-anchor="middle" dominant-baseline="central" font-size="12.5" fill="#791F1F">组织蓄积 → 长期毒性风险上升</text>
+        <text x="40" y="234" font-size="11.5" fill="#9aa0aa">左＝优化目标　·　右＝常见的连带代价（示意，非特定化合物）</text>
+      </svg>
+
+      <p style="font-size:13.5px;color:#3d434d;margin:16px 0 8px"><b>生物药的对应环节名字不同，本质一样：</b></p>
+      <div class="tablewrap">
+      <table class="sumtable">
+        <colgroup><col style="width:26%"><col style="width:44%"><col style="width:30%"></colgroup>
+        <thead><tr><th>要解决的问题</th><th>生物药的对应做法</th><th>目标</th></tr></thead>
+        <tbody>
+          <tr><td>结合力不够强</td><td><b>亲和力成熟</b>（定向突变筛选）</td><td>KD 从 nM 降到 pM</td></tr>
+          <tr><td>免疫原性</td><td><b>人源化</b></td><td>降低排异与副作用</td></tr>
+          <tr><td>半衰期短</td><td><b>Fc 工程</b></td><td>延长给药间隔，同时调节 ADCC／CDC 效应</td></tr>
+          <tr><td>表达量低、易聚集</td><td><b>可开发性优化</b></td><td>解决聚集、粘度、稳定性，让工艺可放大</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <div class="tnote">
+        <b>投研含义（这一段才是重点）：</b>先导优化是化学家"不断试新砌块"的阶段——需要海量、新颖、能快速到货的分子砌块，所以<br>
+        · <b>前端（先导优化阶段）</b>：砌块<b>种类多、单项目用量少、单价高、毛利率高</b>；<br>
+        · <b>后端（商业化生产）</b>：种类收窄、用量放大、单价下降。<br>
+        也就是说，<b>分子砌块厂商的高毛利来自前端，规模收入来自后端——两端是完全不同的生意模式。</b>这能直接解释一个数据：皓元医药 2026H1 <b>前端毛利率 62.0%</b>，但整体毛利率只有 <b>50.76%</b>，因为后端原料药／中间体把整体拉低了。<b>看这类公司时，前端和后端要分开估值，不能只看整体毛利率。</b><br>
+        口径说明：各阶段耗时与化合物数量级为行业典型值（示意），非精确统计；"前端毛利率 62.0%"取自公司 2026 年半年报披露口径。
+      </div>
+    </div>
+
+    <div class="mod">
+      <div class="mod-head"><span class="mod-name">化合物库</span><span class="mod-branch chem">AI 化学药</span><span class="mod-func">功能：筛 · 苗头筛选</span></div>
+      <div class="chain">
+        <span>AI 虚拟筛选需要一个实体库可筛</span><i>→</i><span>筛完必须买真实化合物做湿实验验证</span><i>→</i><span>库从"自用资产"变成"可售资源"</span><i>→</i><span>DEL 是稀缺技术路径</span>
+      </div>
+      <div class="mrow"><div class="mk">这个模块的特殊性</div><div class="mv">它和 AI 的关系是<b>全图最直接的一环</b>——没有实体化合物库，AI 虚拟筛选的结果就无从验证。但也正因为如此，它的商业模式是"卖库"和"卖筛选服务"，而不是卖耗材，所以收入弹性取决于客户的筛选预算，波动比填料、培养基大。</div></div>
+      <div class="mrow lead"><div class="mk">龙头</div><div class="mv"><span class="lead-name">成都先导（688222.SH）</span>　A 股稀缺的 DNA 编码化合物库（DEL）玩家。2026H1 营收 3.46 亿元（<b>+52.41%</b>），归母 0.81 亿元（+61.22%），毛利率 54.72%，<b>净利率 22.95%（全图最高）</b>；客户定制服务 2.02 亿元（+48.26%）、全时当量服务 0.86 亿元（+38.91%）；资产负债率 23.28%，研发费用率约 13%。</div></div>
+      <div class="mrow"><div class="mk">补充</div><div class="mv">皓元医药（688131.SH）已构建 <b>300 种集成化化合物库</b>，以化学小分子、蛋白大分子、化合物库为核心特色，是该模块内体量最大的参与者，但化合物库仅是其前端业务的一部分，纯度不如成都先导。</div></div>
+      <div class="callout warn"><div class="ct">⚠ 小体量 + 高估值</div><p>成都先导营收仅 3.46 亿元（八模块中最小），但 <b>PE(TTM) 107.73 倍、PB 9.90 倍</b>，是"稀缺性溢价"最典型的标的。客户集中度高，单一大客户预算波动会直接反映在收入上。</p></div>
+    </div>
+
+    <div class="mod">
+      <div class="mod-head"><span class="mod-name">色谱</span><span class="mod-branch chem">AI 化学药</span><span class="mod-func">功能：分 · 分析纯化</span></div>
+      <div class="chain">
+        <span>用于研发全流程的检测与放行</span><i>→</i><span>IND、临床、上市、商业化都要用</span><i>→</i><span>写入正式分析方法后持续复购</span><i>→</i><span>壁垒在"方法学锁定"</span>
+      </div>
+      <div class="mrow"><div class="mk">逻辑要点</div><div class="mv">分析色谱和层析填料的商业逻辑是同一套——<b>一旦被写进客户的正式分析方法或生产工艺，就不会轻易更换</b>。区别在于：分析色谱对应的是"检测"环节，单次金额小但频次高；层析填料对应"生产"环节，单次金额大、随产能放大。所以色谱是"稳定低增"，填料是"商业化放量后的高弹性"。</div></div>
+      <div class="mrow lead"><div class="mk">龙头</div><div class="mv"><span class="lead-name">赛分科技（688758.SH）</span>　分析色谱板块 2026H1 收入 6702.9 万元（+10.03%），<b>毛利率 78.42%（全图最高）</b>。截至报告期末已有超 <b>179 个项目</b>将公司色谱柱纳入正式分析方法；境内年度采购超 50 万元的核心客户收入同比 +22.06%。已与 <b>安捷伦（Agilent）、默克（Merck）、赛默飞世尔（Thermo Fisher）</b>等国际巨头建立长期合作；新品 SRT-C SEC-300 Plus 在单抗、双抗、ADC 领域实现与国际标杆产品性能等效对标。</div></div>
+      <div class="mrow"><div class="mk">设备端</div><div class="mv"><b>汉邦科技（688755.SH）</b>　色谱分离纯化工艺整体解决方案（以设备为主，非耗材）。2026H1 营收 4.176 亿元（+19.75%），归母 0.444 亿元（+59.72%）。<b>注意：设备是一次性收入，不具备耗材的复购属性，逻辑强度弱于填料与色谱柱。</b></div></div>
+      <div class="callout warn"><div class="ct">⚠ 这个模块的性质</div><p>增速仅 +10.03%，是全图最慢的一格。它更适合作为"<b>验证下游研发景气度的先导指标</b>"来看，而不是作为弹性来源。<b>但它的毛利率（78.42%）是全图最高，说明壁垒确实存在。</b></p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">05</span><h2>增量最大的环节，与"长线"的筛选标准</h2></div>
+    <p class="sec-desc">前面把八个模块拆完了。这里回答两个收口问题：<b>哪个环节的增量最大</b>，以及<b>什么样的公司才具备走长的特征</b>。</p>
+
+    <div class="card" style="margin-bottom:16px">
+      <div class="subh">① 增量大小由三个条件共同决定，不是单看增速</div>
+      <p class="subd">只挑"增速最快"会挑错。真正的增量 = <b>市场空间 × 国产替代落差 × 客户粘性</b>——三个条件同时满足的环节只有一个。</p>
+      <svg class="bgsvg" viewBox="0 0 680 255" role="img" xmlns="http://www.w3.org/2000/svg" aria-label="增量最大的环节推导：市场空间够大、国产替代落差大、客户粘性够高三个条件汇聚，指向层析填料即分离纯化环节" style="margin-bottom:14px">
+        <title>增量最大的环节是怎么推导出来的</title>
+        <defs>
+          <marker id="inc2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+        </defs>
+        <rect x="40" y="40" width="186" height="62" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+        <text x="133" y="62" text-anchor="middle" dominant-baseline="central" font-size="12.5" font-weight="600" fill="#0C447C">市场空间够大</text>
+        <text x="133" y="84" text-anchor="middle" dominant-baseline="central" font-size="11.5" fill="#185FA5">2026E 约 203 亿元</text>
+        <rect x="246" y="40" width="186" height="62" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+        <text x="339" y="62" text-anchor="middle" dominant-baseline="central" font-size="12.5" font-weight="600" fill="#0C447C">国产替代落差大</text>
+        <text x="339" y="84" text-anchor="middle" dominant-baseline="central" font-size="11.5" fill="#185FA5">商业化端仅约 29%</text>
+        <rect x="452" y="40" width="186" height="62" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+        <text x="545" y="62" text-anchor="middle" dominant-baseline="central" font-size="12.5" font-weight="600" fill="#0C447C">客户粘性够高</text>
+        <text x="545" y="84" text-anchor="middle" dominant-baseline="central" font-size="11.5" fill="#185FA5">进工艺就换不掉</text>
+        <path d="M133 102 L133 116 L339 116" fill="none" stroke="#888780" stroke-width="1.5"/>
+        <path d="M545 102 L545 116 L339 116" fill="none" stroke="#888780" stroke-width="1.5"/>
+        <path d="M339 102 L339 126" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#inc2)"/>
+        <rect x="170" y="130" width="340" height="60" rx="10" fill="#FAEEDA" stroke="#854F0B" stroke-width="1"/>
+        <text x="340" y="152" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="700" fill="#633806">增量最大的环节：层析填料</text>
+        <text x="340" y="173" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#854F0B">分离纯化 · 唯一同时满足三个条件</text>
+        <text x="40" y="216" font-size="11.5" fill="#9aa0aa">注：国产化率口径为 GMP 商业化生产端；市场空间为中国色谱介质市场规模，详见下方表格</text>
+      </svg>
+      <div class="tablewrap">
+      <table class="sumtable">
+        <colgroup><col style="width:20%"><col style="width:20%"><col style="width:20%"><col style="width:20%"><col style="width:20%"></colgroup>
+        <thead><tr><th>条件</th><th>层析填料</th><th>细胞培养基</th><th>蛋白试剂</th><th>分子砌块</th></tr></thead>
+        <tbody>
+          <tr><td>市场空间</td><td>中国色谱介质 2026E 约 <b>203 亿元</b>（其中生物药约 132 亿元）</td><td>约 38—46 亿元（2025，口径差异大）</td><td>全球广义约 546 亿美元（含试剂，口径宽）</td><td>全球广义约 546 亿美元（同上）</td></tr>
+          <tr><td>2026H1 增速</td><td class="up">+37%—+53%</td><td class="up">主业 +34.0%</td><td class="up">+21%—+29%</td><td class="up">+8.8%—+25.7%</td></tr>
+          <tr><td>商业化端国产化率</td><td><b>约 29%</b>（临床端已 68.5%）</td><td><b>约 29%</b>（临床端已超 60%）</td><td>高端外资仍占约 90%</td><td>常规杂环约 60%</td></tr>
+          <tr><td>客户粘性</td><td><b>极高</b>——进工艺即终身复购</td><td><b>极高</b>——管线漏斗 + 永续复购</td><td>中</td><td>中</td></tr>
+          <tr><td>增量结论</td><td class="up"><b>最大</b></td><td>次之（空间偏小）</td><td>大但慢</td><td>大但慢</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <div class="tnote">
+        <b>为什么层析填料排第一（四条理由）：</b>① 绝对空间大——中国色谱介质 2026E 约 203 亿元，是八模块里最大的单一耗材市场之一；② <b>国产替代落差最大</b>——商业化生产端国产化率仅约 29%，而临床研发端已达 68.5%，中间这约 40 个百分点的落差是最确定的增量；③ 需求端结构性放大——ADC／双抗的纯化步骤是单抗的 1.5—3 倍，小核酸填料 2026H1 同比 <b>+170%</b>、抗体药物填料 <b>+122.59%</b>；④ <b>不依赖单一管线成败</b>——填料是"卖水人"，谁的管线跑出来都要买。<br>
+        <b>⚠ 口径说明：</b>"商业化端国产化率约 29%"在层析填料与细胞培养基两个模块数值巧合相同，且来自券商研报引用，<b>属非一手来源，需核实原文</b>；市场空间口径不统一（部分为中国、部分为全球广义），<b>不可直接横向比较绝对值</b>，只用于判断量级。
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+      <div class="subh">② 具备"走长"特征的公司，要过五道筛子</div>
+      <div class="mustrow"><div class="mustq">① 需求可持续</div><div class="musta">增长来自下游管线放量，而不是价格波动或一次性主题（这一条直接排除猴价驱动的标的）</div></div>
+      <div class="mustrow"><div class="mustq">② 客户粘性高</div><div class="musta">耗材被验证进客户工艺后换不掉——复购，而不是重新获客</div></div>
+      <div class="mustrow"><div class="mustq">③ 替代空间大</div><div class="musta">国产化率越低，成长天花板越高</div></div>
+      <div class="mustrow"><div class="mustq">④ 已在赚钱</div><div class="musta">有正向经营现金流，不依赖持续融资——扣非仍亏的公司直接出局</div></div>
+      <div class="mustrow"><div class="mustq">⑤ 估值与增速匹配</div><div class="musta">不是纯预期定价，PE 与利润增速大致相称</div></div>
+      <div class="tablewrap" style="margin-top:18px">
+      <table class="sumtable">
+        <colgroup><col style="width:26%"><col style="width:16%"><col style="width:13%"><col style="width:20%"><col style="width:11%"><col style="width:14%"></colgroup>
+        <thead><tr><th>公司</th><th>需求可持续</th><th>客户粘性</th><th>已在赚钱</th><th>PE(TTM)</th><th>筛选结论</th></tr></thead>
+        <tbody>
+          <tr><td>赛分科技 <span class="code">688758.SH</span></td><td>强（三期及商业化阶段产品占工业纯化收入 66.93%）</td><td>极高</td><td>是（净利率 39.68%）</td><td>70.8</td><td class="up"><b>最符合</b></td></tr>
+          <tr><td>纳微科技 <span class="code">688690.SH</span></td><td>强（超 20 个抗体药物转入商业化）</td><td>极高</td><td>是（净利率 24.83%）</td><td>86.5</td><td class="up"><b>符合</b></td></tr>
+          <tr><td>奥浦迈 <span class="code">688293.SH</span></td><td>强（381 个在研管线，含 18 个商业化）</td><td>极高</td><td>是（扣非 +66.87%）</td><td>77.8</td><td class="up"><b>符合</b></td></tr>
+          <tr><td>蓝晓科技 <span class="code">300487.SZ</span></td><td>中强（生命科学首成第一大板块）</td><td>中</td><td>是（净利率 30.57%）</td><td class="up">39.4</td><td>估值最优<br><span style="color:#9aa0aa">（但行业分类为化工，非医药）</span></td></tr>
+          <tr><td>百普赛斯 <span class="code">301080.SZ</span></td><td>中（研发期耗材）</td><td>中</td><td>是（净利率 19.7%）</td><td>92.4</td><td>部分符合</td></tr>
+          <tr><td>药康生物 <span class="code">688046.SH</span></td><td>中强（海外 +64.5%）</td><td>中</td><td>是（净利率 24.1%）</td><td>77.6</td><td>部分符合</td></tr>
+          <tr><td>诺唯赞 <span class="code">688105.SH</span></td><td>中</td><td>高</td><td class="down">否（扣非仍亏 2494 万）</td><td class="down">负</td><td class="down">不符合</td></tr>
+          <tr><td>近岸蛋白 <span class="code">688137.SH</span></td><td class="down">弱（酶及试剂 -6.03%）</td><td>高</td><td class="down">否（增亏 20.56%）</td><td class="down">负</td><td class="down">不符合</td></tr>
+          <tr><td>昭衍新药 <span class="code">603127.SH</span></td><td class="down">弱（利润来自公允价值变动）</td><td>中</td><td class="down">否（剔除后主业亏约 3661 万）</td><td>33.6</td><td class="down">不符合</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <div class="tnote">
+        来源：各公司 2026 年半年报；PE 为 2026-09-17 收盘 TTM 口径。<b>本表是"是否具备长线特征"的筛选，不是买入建议。</b>通过筛选不等于未来会上涨，只是说明"结构上更耐得住时间"；反之被排除也不等于没有交易性机会（例如昭衍新药的猴价弹性、近岸蛋白的标签博弈，都是另一种逻辑）。
+      </div>
+    </div>
+
+    <div class="callout warn" style="margin-bottom:16px">
+      <div class="ct">⚠ 必须说的反向声音：这个板块"长线"的难度被低估了</div>
+      <p><b>① 估值已经把高预期打进去了。</b>上面通过的标的多在 PE 70—92 倍区间。高估值下的"长线"是有前提的——业绩必须持续兑现；一旦商业化放量不及预期，会面临<b>估值与业绩双杀</b>，而不是温和回调。</p>
+      <p><b>② A 股医药上游历史上"长线牛"并不多。</b>这个板块的特点是周期性强、政策敏感（集采、医保控费）、且高度依赖下游创新药融资环境。它的钱往往来自"景气度波段"，而不是十年复利。</p>
+      <p><b>③ 真正的难点不在选对环节，而在拿住。</b>这类标的的中间回撤幅度经常在 30%—50%。如果按"长线"买入但拿不住波动，结果往往比短线更差。</p>
+    </div>
+
+    <div class="oneliner">
+      <div class="ol-t">一句话本质</div>
+      <div class="ol-b">
+        增量最大的环节是<em>层析填料（分离纯化）</em>——它是唯一同时满足"市场空间够大、国产替代落差最大、客户粘性最高、不依赖单一管线"四个条件的一格。<br>
+        但"长线"的关键不在选对环节，而在<em>能不能拿住</em>：这个板块的估值已经把高预期定价进去了，中间必然有大幅回撤；<em>把标签博弈误当行业景气，是这个板块最贵的错误</em>。
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">06</span><h2>跟踪清单：如果只看三个指标</h2></div>
+    <p class="sec-desc">关系与结构已在第 00 节讲完，这里收敛到三个<b>可证伪</b>的观察点上，避免停留在"受益于行业景气"这类无法验证的判断。</p>
+    <div class="oneliner">
+      <div class="ol-t">可证伪的观察点</div>
+      <div class="ol-b">
+        ① <em>层析填料的"商业化阶段项目收入占比"</em>——这是"进工艺就换不掉"有没有真正兑现的直接证据（赛分科技当前 66.93%、纳微科技约 25%）；<br>
+        ② <em>实验动物里"鼠线"的海外收入增速</em>——这是"技术平台 + 出海"逻辑成立与否的试金石（药康生物当前 +64.5%）；<br>
+        ③ <em>近岸蛋白"酶及试剂"收入增速</em>——如果三季报仍是负增长（当前 -6.03%），说明"分子酶"这一格给它的估值是空转的。<br>
+        其余模块，看增速与估值的匹配度即可。
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">07</span><h2>需要你确认的前提</h2></div>
+    <div class="ask">
+      <p style="margin:0 0 10px">上面给的是<b>产业逻辑梳理与龙头识别</b>——每一条都附了可查证的量化依据（市占率、营收结构、增速、毛利率、海外占比），你可以自行复核。</p>
+      <p style="margin:0">但<b>我没有给任何买卖判断</b>。因为要把它变成可执行的操作框架，缺三个前提：<b>① 你的风险偏好</b>（能不能承受高波动小盘标的）；<b>② 资金量级</b>（这决定了能否参与科创板、流动性是否够）；<b>③ 持有期限</b>（猴线是周期逻辑、填料是成长逻辑，两者的持有周期完全不同）。<b>把这三点告诉我，我可以给"条件 → 操作 → 风险提示"的框架。</b></p>
+    </div>
+  </section>
+
+  <footer>
+    <div class="disc">
+      <b>数据来源与口径说明</b><br>
+      ① 财务数据：各公司 2026 年半年度报告（2026 年 8 月披露），货币单位为人民币。<br>
+      ② 行情与估值：交易所行情接口，截至 2026-09-17 收盘；PE/PB 为 TTM 口径，YTD 以 2025-12-30 收盘价为基准。<br>
+      ③ 市占率数据（诺唯赞分子酶 20.52%、纳微科技层析介质 19.7%、国产化率 28.9%／40.2%／68.5% 等）：来自券商研报及第三方数据平台转述，<b>属非一手来源，不同机构口径存在差异，需核实原文</b>。其中"国内分子酶市场外资三家合计约 65%""常规杂环砌块国产化率 60%"为研报预测值，非官方统计。<br>
+      ④ 猴价数据：中国政府采购网招投标公示（2026-08-05 中检院食蟹猴采购中标价 18.8 万元/只）、西部证券与东北证券研究报告引用；2026 年 9 月现货报价来自媒体采访。<b>均需核实原文。</b><br>
+      ⑤ 澳斯康（未上市）相关数据来自其公开披露的 IPO 材料及媒体报道，<b>非上市公司年报口径，需核实原文</b>。<br>
+      ⑥ 蓝晓科技的申万行业分类为"基础化工—塑料—合成树脂"，其估值体系与医药生物板块不可直接横向比较，已在正文标注。<br><br>
+      <b>免责声明</b><br>
+      以上内容基于公开数据和量化分析，仅供参考，不构成投资建议。市场有风险，投资需谨慎。任何投资决策应结合个人风险承受能力、资金状况和投资目标独立判断，必要时咨询持牌专业机构。过往表现不预示未来收益。
+    </div>
+  </footer>
+</div>
+<script>
+(function () {
+  if (typeof echarts === 'undefined') return;
+  var el = document.getElementById('bgTrend');
+  if (!el) return;
+  var c1 = echarts.init(el);
+  c1.setOption({
+    tooltip: { trigger: 'axis', valueFormatter: function (v) { return v + '%'; } },
+    legend: { data: ['生物药', '化学药'], top: 0, textStyle: { fontSize: 12 } },
+    grid: { left: 52, right: 26, top: 46, bottom: 34 },
+    xAxis: {
+      type: 'category',
+      boundaryGap: false,
+      data: ['2020', '2021', '2022', '2023', '2024', '2025E', '2026E', '2027E', '2028E', '2029E', '2030E', '2031E', '2032E', '2033E', '2034E', '2035E'],
+      axisLabel: { fontSize: 10.5, color: '#8b919c', interval: 1 },
+      axisLine: { lineStyle: { color: '#e4e7eb' } },
+      axisTick: { show: false }
+    },
+    yAxis: {
+      type: 'value',
+      axisLabel: { fontSize: 11, color: '#8b919c', formatter: '{value}%' },
+      splitLine: { lineStyle: { color: '#f0f1f4' } },
+      axisLine: { show: false }
+    },
+    series: [
+      {
+        name: '生物药',
+        type: 'line',
+        smooth: true,
+        symbolSize: 5,
+        itemStyle: { color: '#854F0B' },
+        lineStyle: { width: 3 },
+        areaStyle: { color: 'rgba(239,159,39,0.10)' },
+        data: [23.9, 25.8, 27.1, 28.7, 30.3, 33.3, 36.2, 39.0, 42.0, 45.1, 48.1, 50.9, 53.4, 55.8, 57.8, 59.4]
+      },
+      {
+        name: '化学药',
+        type: 'line',
+        smooth: true,
+        symbolSize: 5,
+        itemStyle: { color: '#185FA5' },
+        lineStyle: { width: 3 },
+        areaStyle: { color: 'rgba(24,95,165,0.08)' },
+        data: [48.9, 47.2, 45.7, 43.4, 43.2, 41.2, 38.8, 36.4, 33.8, 31.1, 28.8, 26.8, 25.2, 23.7, 22.5, 21.6]
+      }
+    ]
+  });
+  window.addEventListener('resize', function () { c1.resize(); });
+})();
+</script>
+</body>
+</html>
