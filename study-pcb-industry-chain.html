@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PCB 上下游产业链全景梳理</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 48px 24px 80px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #ffffff; color: #1f2328; line-height: 1.8; font-size: 14px;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; }
+  h1 { font-size: 26px; font-weight: 500; margin: 0 0 8px; }
+  .sub { color: #6b7280; font-size: 13px; margin: 0 0 32px; }
+  h2 { font-size: 18px; font-weight: 500; margin: 48px 0 16px; padding-left: 12px; border-left: 3px solid #185FA5; }
+  h3 { font-size: 15px; font-weight: 500; margin: 24px 0 10px; }
+  p { margin: 0 0 14px; }
+  .lead { background: #f6f8fa; border-radius: 12px; padding: 20px 24px; margin-bottom: 8px; }
+  .lead p:last-child { margin-bottom: 0; }
+  .formula { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 13px; background: #eef2f7; padding: 10px 14px; border-radius: 8px; display: block; margin: 12px 0; color: #0c447c; }
+  .tier { margin-bottom: 10px; }
+  .tier-label { font-size: 12px; color: #6b7280; margin-bottom: 8px; letter-spacing: .04em; }
+  .cols { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; }
+  .cols.one { grid-template-columns: 1fr; }
+  .card {
+    border: 0.5px solid #d9dee5; border-radius: 12px; padding: 14px 16px; background: #fff;
+  }
+  .card.blue { background: #f2f8fe; border-color: #9dc6ee; }
+  .card.purple { background: #f7f6fe; border-color: #b9b4ee; border-style: dashed; }
+  .card .name { font-weight: 500; font-size: 14px; margin-bottom: 4px; }
+  .card.blue .name { color: #0c447c; }
+  .card.purple .name { color: #3c3489; }
+  .card .comp { font-size: 12.5px; color: #4b5563; margin-bottom: 6px; }
+  .card .pos { font-size: 12.5px; color: #4b5563; margin-bottom: 6px; }
+  .card .firm { font-size: 12.5px; color: #1f2328; }
+  .card .firm b { font-weight: 500; }
+  .arrowdown { text-align: center; color: #185FA5; font-size: 16px; line-height: 1; margin: 6px 0; }
+  .tag { display: inline-block; font-size: 11.5px; padding: 2px 8px; border-radius: 6px; margin-right: 6px; }
+  .tag.now { background: #e6f1fb; color: #0c447c; }
+  .tag.fut { background: #eeedfe; color: #3c3489; }
+  .tag.mid { background: #f1efe8; color: #5f5e5a; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 8px 0 4px; }
+  th, td { border: 0.5px solid #e3e7ec; padding: 8px 10px; text-align: left; vertical-align: top; }
+  th { background: #f6f8fa; font-weight: 500; }
+  .grid2 { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
+  .box { border: 0.5px solid #d9dee5; border-radius: 12px; padding: 16px 18px; }
+  .box h4 { margin: 0 0 8px; font-size: 14px; font-weight: 500; }
+  ul { margin: 6px 0 12px; padding-left: 20px; }
+  li { margin-bottom: 5px; }
+  .note { font-size: 12.5px; color: #6b7280; }
+  @media (max-width: 760px) { .cols, .grid2 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>PCB 上下游产业链全景梳理</h1>
+<p class="sub">材料 · 板材 · 工艺 · 载板 · 玻璃基板 —— 一条主干、两条支线，以及每个模块在"现在 / 未来"坐标系里的位置</p>
+
+<h2>一、总纲：这条链为什么在重构</h2>
+<div class="lead">
+  <p>PCB 原本是个偏加工的制造业，AI 算力把它变成了<strong>材料科学 + 半导体工艺</strong>。整条链上所有的升级，本质上只被两个指标拽着走：<strong>信号频率</strong>和<strong>线宽</strong>。</p>
+  <span class="formula">频率↑ → 损耗 Df 必须↓ → 树脂 / 布 / 铜箔三件套全套换代（M6→M7→M8→M9）<br>线宽↓ → 起点铜必须越薄 → 工艺从减成法走向半加成法（mSAP / SAP）<br>载体做到极限 → 有机树脂（ABF）触顶 → 换成玻璃（TGV）</span>
+  <p>所以判断任何一个模块值不值得看，只需要三个问题：</p>
+  <ul>
+    <li><strong>是不是卡脖子</strong>——供给刚性有多强，扩产周期多长；</li>
+    <li><strong>有没有认证壁垒</strong>——拿到英伟达 / 头部客户认证的有几家，会不会被快速替代；</li>
+    <li><strong>放量落在哪一年</strong>——2026 兑现、2027 兑现，还是 2029 的期权。</li>
+  </ul>
+  <p class="note">对应的一条通用规律：<strong>上游稀缺材料 &gt; 中游覆铜板 &gt; 下游 PCB 加工 &gt; 设备</strong>（弹性从大到小，确定性从低到高）。这轮周期利润明显在向上游材料转移。</p>
+</div>
+
+<h2>二、主链路思维导图</h2>
+
+<div class="tier">
+  <div class="tier-label">第 1 层 · 上游主材（决定天花板）</div>
+  <div class="cols">
+    <div class="card blue">
+      <div class="name">玻纤 → 电子布</div>
+      <div class="comp">矿物池窑拉丝成玻纤纱 → 织造成电子布（7628 / 2116 / 1080 为厚度规格）。CCL 的"骨架"，管尺寸稳定与强度。</div>
+      <div class="pos"><span class="tag mid">大宗存量</span>普通 E 布是周期品，本轮涨价是高端挤占织机产能后的外溢</div>
+      <div class="firm"><b>宏和科技</b>（薄布/超薄布）、<b>林州光远</b>（低介电）、中材科技、中国巨石、国际复材；海外日东纺</div>
+    </div>
+    <div class="card blue">
+      <div class="name">Q 布（石英布）</div>
+      <div class="comp">高纯石英拉丝织布。Dk≈2.8–3.1、Df 极低、CTE 极低。</div>
+      <div class="pos"><span class="tag now">现在 · 最缺</span>M9 唯一解：Df≤0.0009、78 层不变形，普通玻纤物理做不到</div>
+      <div class="firm"><b>菲利华</b>（国内独家量产 AI 级）、石英股份（石英砂原料）、中材科技（偏 M8.5 档）</div>
+    </div>
+    <div class="card blue">
+      <div class="name">树脂</div>
+      <div class="comp">CCL 的胶粘剂兼绝缘体，<strong>Df 主要由它决定</strong>。溴化环氧 → PPO / 碳氢 / BMI → 加 PTFE。</div>
+      <div class="pos"><span class="tag now">现在 · 最缺</span><span class="tag fut">PTFE 是下一棒</span>M8→M9 碳氢:PTFE 由 1:2 提到 2:1</div>
+      <div class="firm"><b>东材科技</b>（全球唯二、国内唯一通过英伟达 M9 碳氢认证）、<b>圣泉集团</b>（PPO）、同宇新材、宏昌电子、联瑞新材（填料）</div>
+    </div>
+  </div>
+</div>
+
+<div class="tier">
+  <div class="cols">
+    <div class="card blue">
+      <div class="name">铜箔 → HVLP</div>
+      <div class="comp">电解/压延成箔，按表面粗糙度分级 HTE → RTF → VLP → <strong>HVLP（Rz≤0.4μm）</strong>。趋肤效应下表面越糙损耗越大。</div>
+      <div class="pos"><span class="tag now">现在 · 缺口 20%+</span>HVLP4 是当前主力，HVLP5 对应 2027 超高层</div>
+      <div class="firm"><b>铜冠铜箔</b>（HVLP4 进 M9 链）、<b>德福科技</b>、隆扬电子（HVLP5）、中一科技、诺德股份</div>
+    </div>
+    <div class="card blue">
+      <div class="name">可剥铜（载体铜箔）</div>
+      <div class="comp">载体层 + 剥离层 + <strong>1.5–3μm 超薄铜层</strong>。压合后撕掉载体，留超薄铜作为 mSAP 的起点铜。</div>
+      <div class="pos"><span class="tag now">国产替代 0→1</span>工艺门票级耗材，此前几乎由三井金属垄断</div>
+      <div class="firm">德福科技、华威铜箔（安徽）、中一科技、铜冠铜箔；海外三井金属、福田金属</div>
+    </div>
+    <div class="card" style="background:#f6f8fa;display:flex;align-items:center;">
+      <div style="font-size:13px;color:#4b5563;">三大主材必须<strong>同步升级</strong>才能做出 M9 —— 任一块短板都会卡住整条链的产出，这就是"木桶效应"。</div>
+    </div>
+  </div>
+</div>
+
+<div class="arrowdown">▼</div>
+
+<div class="tier">
+  <div class="tier-label">第 2 层 · 覆铜板 CCL（利润中枢）</div>
+  <div class="cols one">
+    <div class="card blue">
+      <div class="name">覆铜板 CCL　＝　树脂 + 玻纤布 + 铜箔 + 球形硅微粉填料，高温压合</div>
+      <div class="comp">等级沿用松下 MEGTRON 代号：FR-4 → M6/M7 → M8 → M9 → M10。M9 单价比 M8 高 2.8–3.5 倍，毛利率 40%–48%（普通 FR-4 仅 18%–25%）。</div>
+      <div class="pos"><span class="tag now">量价齐升最确定</span>壁垒：英伟达全链路认证 12–18 个月，全球仅 4 家拿到 Rubin 正式资质；单线资本开支 20 亿+、建设 2 年</div>
+      <div class="firm"><b>生益科技</b>（大陆唯一英伟达 M9 批量认证）、<b>南亚新材</b>（昇腾全系认证，弹性大）、华正新材、金安国纪、建滔积层板；海外台光电（M9 份额约 40%）、松下、斗山</div>
+    </div>
+  </div>
+</div>
+
+<div class="arrowdown">▼</div>
+
+<div class="tier">
+  <div class="tier-label">第 3 层 · 线路成形工艺（决定线宽）</div>
+  <div class="cols one">
+    <div class="card blue">
+      <div class="name">减成法（&gt;30μm） → HDI → mSAP（15–25μm） → SAP（&lt;15μm，载板标准）</div>
+      <div class="comp">核心原理一句话：<strong>起点铜越薄，闪蚀的侧蚀越小，线宽就能越细</strong>。mSAP 用 2–3μm 可剥铜替代溅射种子层，在精度与成本间取平衡。</div>
+      <div class="pos"><span class="tag now">渗透率快速爬坡</span>800G 渗透率已近一半，1.6T / 3.2T 是 100% 采用；层数 14→24 层，增层越多 mSAP 工序重复越多。门槛：每万平方米设备投资 6–7 亿，是传统 HDI 的 4–5 倍</div>
+      <div class="firm">能做 mSAP：<b>鹏鼎控股</b>（苹果 SLP 经验可复刻）、<b>深南电路</b>（国内第一大 BT 载板厂 + 第一大 mSAP 光模块厂）、东山精密（索尔思）、沪电、胜宏；海外欣兴、AT&amp;S、美维。配套设备：激光钻孔、LDI 曝光、VCP 电镀、AOI</div>
+    </div>
+  </div>
+</div>
+
+<div class="arrowdown">▼</div>
+
+<div class="tier">
+  <div class="tier-label">第 4 层 · 成品与载体</div>
+  <div class="cols">
+    <div class="card blue">
+      <div class="name">PCB 厂商</div>
+      <div class="comp">CCL + 半固化片 PP → 压合 / 钻孔 / 电镀 / 蚀刻 → 成品板。形态：高多层板、背板、HDI、SLP。</div>
+      <div class="pos"><span class="tag now">需求验证环节</span>单机柜 PCB 价值由约 3.5 万美元升至约 11.7 万美元（Rubin），但利润正向上游转移</div>
+      <div class="firm"><b>胜宏科技</b>（M9 最大消耗端，计算托盘份额高）、<b>沪电股份</b>（78 层背板 / 谷歌交换机）、深南电路、生益电子、广合科技、东山精密、鹏鼎控股、景旺电子</div>
+    </div>
+    <div class="card blue">
+      <div class="name">IC 载板：ABF · BT</div>
+      <div class="comp">芯片与 PCB 之间的中介层，线宽 10–20μm，必须 SAP/mSAP。<b>ABF</b> 用味之素堆积膜做介质，服务 CPU/GPU；<b>BT</b> 用三菱瓦斯化学 BT 树脂 + 玻纤布，服务存储 / 手机 / 射频。</div>
+      <div class="pos"><span class="tag now">当前最高端 · 缺口最大</span>2026–2028 供需缺口持续扩大，国产替代加速</div>
+      <div class="firm"><b>深南电路</b>（国内第一大 BT 载板厂，ABF 同步放量）、<b>兴森科技</b>（ABF + 存储）、珠海越亚、科睿斯（FCBGA 高端 ABF）；海外欣兴、Ibiden、Shinko、三星电机、景硕</div>
+    </div>
+    <div class="card purple">
+      <div class="name">玻璃基板（未来）</div>
+      <div class="comp">玻璃原片 → 激光改质 → 湿法蚀刻成 TGV 通孔 → PVD 种子层 + 电镀填孔 → CMP + RDL 多层布线 → AOI。</div>
+      <div class="pos"><span class="tag fut">未来 · 2027 起量</span>2026 商业化元年，2028 规模量产，CPO 相关 2029–2030。当前良率约 70%，比 ABF 低 20–30pct</div>
+      <div class="firm"><b>沃格光电</b>（TGV 领先，约 1 万片/月，1.6T CPO 已量产供货）、<b>蓝思科技</b>（英特尔 MOU，最小孔径 10μm）、美迪凯、京东方 / TCL 华星 / 深天马（面板厂跨界）；原片：力诺药包、康宁、AGC</div>
+    </div>
+  </div>
+</div>
+
+<div class="arrowdown">▼</div>
+
+<div class="tier">
+  <div class="tier-label">第 5 层 · 需求端（拉动源）</div>
+  <div class="cols one">
+    <div class="card blue">
+      <div class="name">AI 服务器（Rubin / GB 系列） · 1.6T / 3.2T 光模块 · 高速交换机 · HBM / 存储 · CPO / NPO</div>
+      <div class="comp">AI 是唯一的核心变量。行业规模 2024 约 800 亿美元 → 2025 约 840–850 亿 → 2026 预计 940–980 亿美元。扩产周期 1.5 年，2024 下半年启动的产能 2026 下半年才有效释放，因此全年高稼动率确定性高。</div>
+    </div>
+  </div>
+</div>
+
+<h2>三、定位矩阵：高端 / 大宗 × 存量 / 现在 / 未来</h2>
+<table>
+  <tr><th style="width:14%"></th><th style="width:24%">存量 / 上一代</th><th style="width:33%">2026–27 现在放量</th><th style="width:29%">2028+ 未来期权</th></tr>
+  <tr>
+    <th>高端 · 卡脖子</th>
+    <td>M6/M7 板材、Low-Dk 一代布、HVLP2-3 铜箔、成熟 HDI</td>
+    <td>Q 布、碳氢/PPO 树脂、HVLP4 铜箔、可剥铜、M8/M9 CCL、78 层背板与 5 阶 HDI、mSAP 工艺、ABF 载板、BT 载板</td>
+    <td>玻璃基板、TGV 激光设备、PTFE 树脂、HVLP5、CPO / NPO</td>
+  </tr>
+  <tr>
+    <th>大宗 · 周期品</th>
+    <td>普通玻纤纱、7628 电子布、FR-4 环氧树脂、普通电解铜箔、减成法</td>
+    <td>普通电子布涨价外溢、铜箔加工费上行、中低层 PCB 提价</td>
+    <td class="note">大宗品没有"未来溢价"，只有周期波动</td>
+  </tr>
+</table>
+
+<h2>四、玻璃基板：为什么它"里面长出"了激光设备</h2>
+<p>玻璃基板不是一个单点产品，而是一整套全新制造流程，其中第 2 步"激光改质"是整条线的设备核心——这就是激光设备会成为独立子模块的原因。</p>
+<svg viewBox="0 0 680 276" width="100%" role="img" xmlns="http://www.w3.org/2000/svg" style="margin:8px 0 4px;">
+<title>玻璃基板 TGV 制造流程</title>
+<defs>
+<marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+<path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</marker>
+</defs>
+<rect x="40" y="48" width="180" height="56" rx="10" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
+<text x="56" y="70" style="font-size:13px;font-weight:500;fill:#3C3489">① 玻璃原片</text>
+<text x="56" y="90" style="font-size:12px;fill:#534AB7">无碱 · 硼硅 · 高纯石英</text>
+<path d="M220 76L246 76" fill="none" stroke="#534AB7" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="250" y="48" width="180" height="56" rx="10" fill="#CECBF6" stroke="#534AB7" stroke-width="0.5"/>
+<text x="266" y="70" style="font-size:13px;font-weight:500;fill:#26215C">② 激光改质</text>
+<text x="266" y="90" style="font-size:12px;fill:#3C3489">超快激光改质层 · 设备核心</text>
+<path d="M430 76L456 76" fill="none" stroke="#534AB7" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="460" y="48" width="180" height="56" rx="10" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
+<text x="476" y="70" style="font-size:13px;font-weight:500;fill:#3C3489">③ 湿法蚀刻</text>
+<text x="476" y="90" style="font-size:12px;fill:#534AB7">TGV 通孔成型 · 孔径 3–10μm</text>
+<path d="M550 104L550 134L130 134L130 172" fill="none" stroke="#534AB7" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="40" y="176" width="180" height="56" rx="10" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
+<text x="56" y="198" style="font-size:13px;font-weight:500;fill:#3C3489">④ 孔金属化</text>
+<text x="56" y="218" style="font-size:12px;fill:#534AB7">PVD 种子层 + 电镀填孔</text>
+<path d="M220 204L246 204" fill="none" stroke="#534AB7" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="250" y="176" width="180" height="56" rx="10" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
+<text x="266" y="198" style="font-size:13px;font-weight:500;fill:#3C3489">⑤ 多层布线</text>
+<text x="266" y="218" style="font-size:12px;fill:#534AB7">CMP 减薄 + RDL 重布线</text>
+<path d="M430 204L456 204" fill="none" stroke="#534AB7" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="460" y="176" width="180" height="56" rx="10" fill="#CECBF6" stroke="#534AB7" stroke-width="0.5"/>
+<text x="476" y="198" style="font-size:13px;font-weight:500;fill:#26215C">⑥ 检测出货</text>
+<text x="476" y="218" style="font-size:12px;fill:#3C3489">AOI · 当前良率约 70%</text>
+<text x="40" y="256" style="font-size:12px;fill:#5F5E5A">三处卡点：TGV 打孔 · 多层布线 · AOI 检测（ABF 良率 90%+，玻璃基板仍差 20–30pct）</text>
+</svg>
+<p><strong>激光设备的双重落点</strong>——它是唯一横跨"现在"与"未来"的环节：</p>
+<ul>
+  <li><strong>现在的落点</strong>：AI PCB 的激光钻孔、CCD 背钻、超快激光（1.6T 光模块已订单突破）→ 大族数控（钻孔机）、鼎泰高科（钻针）、大族激光</li>
+  <li><strong>未来的落点</strong>：TGV 激光改质 / 成孔设备 → 帝尔激光（已出货并有复购）、大族激光、德龙激光、英诺激光</li>
+  <li><strong>配套</strong>：鼎龙股份（CMP 抛光垫）、艾森股份（电镀液 / 光刻胶）、路维光电（TGV 掩膜版）、奥来德（PSPI / 介质膜）、三孚新科（PLP 镀铜设备）</li>
+</ul>
+<p class="note">设备的确定性高于材料（只要行业扩产就受益，不承担认证失败风险），但弹性小于材料——这是两者最本质的区别。</p>
+
+<h2>五、收总：三条主线与排序</h2>
+<div class="grid2">
+  <div class="box">
+    <h4>主线一 · 现在最硬（2026–27 兑现业绩）</h4>
+    <p class="note">M9 材料升级链条，逻辑最硬、可跟踪性最强</p>
+    <ul>
+      <li>上游稀缺材料：<b>东材科技</b>（碳氢树脂）、<b>菲利华</b>（Q 布）、<b>铜冠铜箔</b>（HVLP4）</li>
+      <li>中游覆铜板：<b>生益科技</b>（首选底仓）、<b>南亚新材</b>（昇腾弹性）</li>
+      <li>下游验证：胜宏科技、沪电股份（看订单与稼动率）</li>
+    </ul>
+  </div>
+  <div class="box">
+    <h4>主线二 · 国产替代 0→1（现在）</h4>
+    <p class="note">供给被海外垄断、正在突破的环节</p>
+    <ul>
+      <li>载板：深南电路、兴森科技、科睿斯</li>
+      <li>可剥铜：德福科技、华威铜箔、中一科技</li>
+      <li>mSAP 产能：鹏鼎控股、深南电路、东山精密</li>
+    </ul>
+  </div>
+  <div class="box">
+    <h4>主线三 · 未来期权（2027–2030）</h4>
+    <p class="note">尚未贡献利润，看的是产业进展与验证节奏</p>
+    <ul>
+      <li>玻璃基板：沃格光电、蓝思科技、美迪凯</li>
+      <li>TGV 设备：帝尔激光、大族激光</li>
+      <li>配套材料：鼎龙股份、艾森股份、奥来德、路维光电</li>
+    </ul>
+  </div>
+  <div class="box">
+    <h4>需要盯住的几个观测指标</h4>
+    <ul>
+      <li>CCL 涨价函与传导是否持续（成本推动 vs 供需推动）</li>
+      <li>Q 布 / 碳氢树脂 / HVLP 铜箔的扩产节奏（2027 后是否集中释放）</li>
+      <li>英伟达 Rubin 量产节奏与云厂商资本开支</li>
+      <li>玻璃基板良率从 70% 向 90% 爬升的速度</li>
+      <li>ABF / BT 载板缺口比例、价格与交期变化</li>
+    </ul>
+  </div>
+</div>
+
+<h3>风险</h3>
+<ul>
+  <li><strong>需求侧</strong>：AI 芯片出货与云厂商资本开支若不及预期，M9 订单会被整体下调</li>
+  <li><strong>供给侧</strong>：2027 年后碳氢树脂、石英布、HVLP 铜箔新增产能集中释放，高端溢价收窄，压缩 CCL 毛利率</li>
+  <li><strong>格局侧</strong>：更多内资 CCL 厂拿到 M9 资质后行业内卷降价</li>
+  <li><strong>技术路线</strong>：PTFE 氟树脂路线若提前大规模商用，会分流碳氢路线需求</li>
+  <li><strong>估值侧</strong>：上游材料标的短期涨幅过高，业绩未必同步匹配</li>
+</ul>
+
+<p class="note" style="margin-top:32px;border-top:0.5px solid #e3e7ec;padding-top:16px;">本文为产业链结构与公司梳理，基于公开产业资料与研报整理，仅供研究交流，不构成任何投资建议。涉及认证进展、产能与份额的数据以公司公告为准。</p>
+
+</div>
+</body>
+</html>
