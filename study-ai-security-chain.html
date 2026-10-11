@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>AI 安全产业链全景：八大环节核心标的核查</title>
+<style>
+  :root{
+    --brand:#2f6df6; --brand-soft:#eaf1ff;
+    --teal:#0f9b8e; --teal-soft:#e3f6f4;
+    --purple:#7c5cbf; --purple-soft:#f0ecfa;
+    --green:#1f9d55; --green-soft:#e6f6ec;
+    --orange:#d9822b; --orange-soft:#fdf0e1;
+    --red:#c0392b; --red-soft:#fdecea;
+    --ink:#1f2733; --soft:#5b6675; --mute:#8b95a3;
+    --bg:#f7f8fa; --card:#fff; --line:#e6e9ef;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink);line-height:1.75;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1000px;margin:0 auto;padding:0 20px}
+
+  header{background:linear-gradient(135deg,#0f2a5a,#2f6df6 60%,#13b6c9);color:#fff;padding:48px 0 42px}
+  h1{margin:0 0 10px;font-size:30px;letter-spacing:-.01em;line-height:1.3}
+  .sub{opacity:.93;font-size:15px;max-width:720px;margin:0}
+  .meta{display:flex;flex-wrap:wrap;gap:18px;margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,.22);font-size:12.5px;opacity:.92}
+  .meta b{color:#ffe27a}
+
+  /* 目录 */
+  .toc{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 20px;margin:24px 0;box-shadow:0 4px 18px rgba(31,39,51,.05)}
+  .toc .t{font-size:13px;color:var(--mute);margin-bottom:10px;font-weight:600}
+  .toc a{display:inline-block;font-size:13px;color:var(--brand);text-decoration:none;background:var(--brand-soft);padding:4px 11px;border-radius:999px;margin:4px 6px 4px 0}
+  .toc a:hover{background:#d6e3ff}
+
+  main{padding:8px 0 40px}
+  section{margin-bottom:38px;scroll-margin-top:20px}
+  .sec-head{display:flex;align-items:baseline;gap:10px;margin:0 0 6px;flex-wrap:wrap}
+  h2{font-size:21px;margin:0;letter-spacing:-.01em}
+  h2 .no{display:inline-block;background:var(--brand);color:#fff;font-size:14px;width:26px;height:26px;line-height:26px;text-align:center;border-radius:7px;margin-right:8px;vertical-align:2px}
+  .sec-head .tag{font-size:12px;color:var(--mute)}
+  .lead{font-size:14.5px;color:var(--soft);margin:6px 0 16px}
+
+  /* 八环总览 */
+  .ov{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+  .ov .o{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px;border-left:4px solid var(--brand)}
+  .ov .o b{font-size:15px}
+  .ov .o span{display:block;font-size:12.5px;color:var(--soft);margin-top:3px}
+  .ov .o.n1{border-left-color:#2f6df6}
+  .ov .o.n2{border-left-color:#0f9b8e}
+  .ov .o.n3{border-left-color:#7c5cbf}
+  .ov .o.n4{border-left-color:#d9822b}
+  .ov .o.n5{border-left-color:#1f9d55}
+  .ov .o.n6{border-left-color:#c0392b}
+  .ov .o.n7{border-left-color:#13b6c9}
+  .ov .o.n8{border-left-color:#5b6675}
+
+  /* 表格 */
+  .tbl{width:100%;border-collapse:collapse;font-size:13px;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;table-layout:fixed}
+  .tbl th,.tbl td{border-bottom:1px solid var(--line);padding:9px 11px;text-align:left;vertical-align:top;word-break:break-word}
+  .tbl thead th{background:#f2f5fa;color:var(--ink);font-weight:600;font-size:12.5px}
+  .tbl tbody tr:last-child td{border-bottom:none}
+  .tbl .c-name{font-weight:600}
+  .tbl .code{color:var(--mute);font-size:11.5px}
+  .tbl .num{font-variant-numeric:tabular-nums}
+  col.w0{width:23%} col.w1{width:13%} col.w2{width:13%} col.w3{width:9%} col.w4{width:42%}
+
+  /* 评级徽章 */
+  .r{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+  .r-core{background:var(--green-soft);color:var(--green)}
+  .r-half{background:var(--orange-soft);color:var(--orange)}
+  .r-edge{background:var(--red-soft);color:var(--red)}
+
+  .verdict{background:#fff;border:1px solid var(--line);border-left:4px solid var(--brand);border-radius:12px;padding:14px 18px;font-size:14px;color:var(--soft);margin-top:14px}
+  .verdict b{color:var(--ink)}
+
+  .warn{background:var(--red-soft);border:1px solid #f3c9c4;border-radius:12px;padding:14px 18px;font-size:14px;color:#7a2820;margin-top:14px}
+  .warn b{color:#c0392b}
+
+  .note{background:#fff;border:1px solid var(--line);border-left:4px solid var(--teal);border-radius:12px;padding:16px 20px;font-size:14px;color:var(--soft);margin-top:8px}
+  .note b{color:var(--ink)}
+
+  footer{border-top:1px solid var(--line);padding:26px 0 44px;text-align:center;color:var(--mute);font-size:12.5px;line-height:1.9}
+  .back{display:inline-block;margin:0 0 20px;font-size:13px;color:var(--brand);text-decoration:none}
+  @media (max-width:640px){
+    header{padding:34px 0 30px} h1{font-size:23px}
+    .tbl{font-size:12px} .tbl th,.tbl td{padding:7px 8px}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <h1>AI 安全产业链全景：八大环节核心标的核查</h1>
+    <p class="sub">把大模型 / 智能体带来的新型安全风险，拟人化为「办证、安检、管住嘴、装监控、上锁、防伪、体检、发执照」八个环节，逐环节拆解风险点、对应 A 股标的，并用行业归属 + 市值 + 营收核查它们是否真的「核心」。</p>
+    <div class="meta">
+      <div>数据口径：市值 <b>2026-10-09 收盘</b></div>
+      <div>营收 <b>2025 年报</b></div>
+      <div>行业 <b>申万 / 东财分类</b></div>
+      <div>标的 <b>22 只</b></div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="toc">
+    <div class="t">目录（点击直达）</div>
+    <a href="#ov">八环总览</a>
+    <a href="#s1">1 体检</a><a href="#s2">2 办证</a><a href="#s3">3 安检</a><a href="#s4">4 管住嘴</a>
+    <a href="#s5">5 装监控</a><a href="#s6">6 上锁</a><a href="#s7">7 防伪</a><a href="#s8">8 发执照</a>
+    <a href="#all">全景总表</a><a href="#warn">错配警示</a><a href="#concl">结论与风险</a>
+  </div>
+</div>
+
+<main class="wrap">
+
+  <section id="ov">
+    <div class="sec-head"><h2>八环总览：AI 为什么需要被「守护」</h2></div>
+    <p class="lead">生成式 AI 会「幻觉」、会泄密、会被诱导输出违规内容、也会被深度伪造冒充。围绕它的安全需求，被市场映射成下面八类「拟人化」环节——这也是本文的核查框架。</p>
+    <div class="ov">
+      <div class="o n1"><b>1 给 AI 体检</b><span>攻防演练 / 红蓝对抗，暴露模型漏洞</span></div>
+      <div class="o n2"><b>2 给 AI 办证</b><span>数字身份 / PKI / 数字证书，确认「你是谁」</span></div>
+      <div class="o n3"><b>3 给 AI 安检</b><span>防火墙 / 权限验证，守住边界与门禁</span></div>
+      <div class="o n4"><b>4 让 AI 管住嘴</b><span>内容安全 / 违规词审核，别乱说话</span></div>
+      <div class="o n5"><b>5 给 AI 装监控</b><span>审计 / 日志留痕，干了什么可追溯</span></div>
+      <div class="o n6"><b>6 给 AI 上锁</b><span>加密 / 隐私保护，数据不出笼</span></div>
+      <div class="o n7"><b>7 给 AI 防伪</b><span>鉴伪 / 水印，辨别真假 AI 内容</span></div>
+      <div class="o n8"><b>8 给 AI 发执照</b><span>模型测评 / 备案，合规才能上岗</span></div>
+    </div>
+  </section>
+
+  <!-- 1 体检 -->
+  <section id="s1">
+    <div class="sec-head"><h2><span class="no">1</span>给 AI 体检（攻防演练 / 红蓝对抗）</h2><span class="tag">风险：模型自身存在漏洞、越狱、提示注入</span></div>
+    <p class="lead">类比入职前的体检与驾考教官：通过红蓝对抗、靶场演练，主动暴露大模型与系统的安全弱点。</p>
+    <table class="tbl"><colgroup><col class="w0"><col class="w1"><col class="w2"><col class="w3"><col class="w4"></colgroup>
+      <thead><tr><th>标的</th><th>市值(亿)</th><th>2025营收(亿)</th><th>核心度</th><th>判定</th></tr></thead>
+      <tbody>
+        <tr><td class="c-name">永信至诚 <span class="code">688244</span></td><td class="num">36</td><td class="num">2.76</td><td><span class="r r-core">★真核心</span></td><td>网络靶场第一股，攻防演练、安全意识培训、AI 安全测评是主业，赛道极纯。</td></tr>
+        <tr><td class="c-name">绿盟科技 <span class="code">300369</span></td><td class="num">85</td><td class="num">25.41</td><td><span class="r r-half">◐半核心</span></td><td>有安全运营与 AISec 能力，「体检」可沾边，但本质是综合网安，非独属标签。</td></tr>
+      </tbody>
+    </table>
+    <div class="verdict"><b>结论：</b>永信至诚是这一格唯一的「纯正核心」；绿盟科技属于综合网安顺带覆盖。</div>
+  </section>
+
+  <!-- 2 办证 -->
+  <section id="s2">
+    <div class="sec-head"><h2><span class="no">2</span>给 AI 办证（数字身份 / PKI / 数字证书）</h2><span class="tag">风险：身份冒用、API 调用方不可信</span></div>
+    <p class="lead">给 AI 系统、智能体、API 发放可信身份凭证，确保「调用方是谁」可被验证。</p>
+    <table class="tbl"><colgroup><col class="w0"><col class="w1"><col class="w2"><col class="w3"><col class="w4"></colgroup>
+      <thead><tr><th>标的</th><th>市值(亿)</th><th>2025营收(亿)</th><th>核心度</th><th>判定</th></tr></thead>
+      <tbody>
+        <tr><td class="c-name">格尔软件 <span class="code">603232</span></td><td class="num">39</td><td class="num">3.58</td><td><span class="r r-core">★真核心</span></td><td>PKI / 密码应用老牌，数字证书核心。</td></tr>
+        <tr><td class="c-name">数字认证 <span class="code">300579</span></td><td class="num">66</td><td class="num">8.39</td><td><span class="r r-core">★真核心</span></td><td>持牌 CA 机构，电子认证服务核心。</td></tr>
+        <tr><td class="c-name">亚信安全 <span class="code">688225</span></td><td class="num">66</td><td class="num">77.41</td><td><span class="r r-edge">○边缘·错位</span></td><td>实为终端安全 / 防病毒 / 网络安全，数字证书只是一条线；营收虽大但放错筐，应归「安检」。</td></tr>
+      </tbody>
+    </table>
+    <div class="warn"><b>⚠ 错配：</b>亚信安全被图归到「办证」，但它本质是网络安全（77 亿营收主要来自安全产品与服务），不是数字证书核心。把它放进这一格会误导。</div>
+  </section>
+
+  <!-- 3 安检 -->
+  <section id="s3">
+    <div class="sec-head"><h2><span class="no">3</span>给 AI 安检（防火墙 / 权限验证 / 门禁）</h2><span class="tag">风险：越权访问、外部攻击、边界失守</span></div>
+    <p class="lead">守在 AI 系统的边界与入口：防火墙、入侵检测、身份认证、访问控制。</p>
+    <table class="tbl"><colgroup><col class="w0"><col class="w1"><col class="w2"><col class="w3"><col class="w4"></colgroup>
+      <thead><tr><th>标的</th><th>市值(亿)</th><th>2025营收(亿)</th><th>核心度</th><th>判定</th></tr></thead>
+      <tbody>
+        <tr><td class="c-name">启明星辰 <span class="code">002439</span></td><td class="num">180</td><td class="num">23.38</td><td><span class="r r-core">★真核心</span></td><td>传统网安一哥，边界安全、身份认证齐全。</td></tr>
+        <tr><td class="c-name">奇安信 <span class="code">688561</span></td><td class="num">212</td><td class="num">43.92</td><td><span class="r r-core">★真核心</span></td><td>综合网安龙头（市值最大），政企安全。</td></tr>
+        <tr><td class="c-name">天融信 <span class="code">002212</span></td><td class="num">89</td><td class="num">25.72</td><td><span class="r r-core">★真核心</span></td><td>防火墙起家，网络安全硬件主力。</td></tr>
+        <tr><td class="c-name">绿盟科技 <span class="code">300369</span></td><td class="num">85</td><td class="num">25.41</td><td><span class="r r-core">★真核心</span></td><td>入侵检测 / 防火墙老牌，与启明、奇安同列。</td></tr>
+      </tbody>
+    </table>
+    <div class="verdict"><b>结论：</b>整张图里最无可争议的核心板块——传统网安「四小龙」，边界安全与身份认证全覆盖。</div>
+  </section>
+
+  <!-- 4 管住嘴 -->
+  <section id="s4">
+    <div class="sec-head"><h2><span class="no">4</span>让 AI 管住嘴（内容安全 / 违规词审核）</h2><span class="tag">风险：违规内容、有害信息、价值观偏差</span></div>
+    <p class="lead">确保 AI 输出合规：内容审核、舆情监控、违规词过滤。</p>
+    <table class="tbl"><colgroup><col class="w0"><col class="w1"><col class="w2"><col class="w3"><col class="w4"></colgroup>
+      <thead><tr><th>标的</th><th>市值(亿)</th><th>2025营收(亿)</th><th>核心度</th><th>判定</th></tr></thead>
+      <tbody>
+        <tr><td class="c-name">人民网 <span class="code">603000</span></td><td class="num">186</td><td class="num">20.75</td><td><span class="r r-core">★真核心</span></td><td>党媒内容风控「人民审校」，国资内容安全标杆。</td></tr>
+        <tr><td class="c-name">新华网 <span class="code">603888</span></td><td class="num">132</td><td class="num">22.32</td><td><span class="r r-core">★真核心</span></td><td>党媒内容安全，审核 / 风控。</td></tr>
+        <tr><td class="c-name">拓尔思 <span class="code">300229</span></td><td class="num">113</td><td class="num">5.11</td><td><span class="r r-core">★真核心</span></td><td>NLP / 文本挖掘龙头，舆情与内容审核核心。</td></tr>
+      </tbody>
+    </table>
+    <div class="verdict"><b>结论：</b>内容安全的资产属性与 AI 审核逻辑高度契合，三家成立。注意人民网 / 新华网是传媒股，内容安全是其核心业务之一而非全部。</div>
+  </section>
+
+  <!-- 5 装监控 -->
+  <section id="s5">
+    <div class="sec-head"><h2><span class="no">5</span>给 AI 装监控（审计 / 日志留痕）</h2><span class="tag">风险：行为不可追溯、责任难界定</span></div>
+    <p class="lead">让 AI 的每次调用、每次决策可审计、可留痕，出问题能溯源。</p>
+    <table class="tbl"><colgroup><col class="w0"><col class="w1"><col class="w2"><col class="w3"><col class="w4"></colgroup>
+      <thead><tr><th>标的</th><th>市值(亿)</th><th>2025营收(亿)</th><th>核心度</th><th>判定</th></tr></thead>
+      <tbody>
+        <tr><td class="c-name">安恒信息 <span class="code">688023</span></td><td class="num">50</td><td class="num">21.51</td><td><span class="r r-core">★真核心</span></td><td>日志审计 / 态势感知 / 数据安全传统强项。</td></tr>
+        <tr><td class="c-name">深信服 <span class="code">300454</span></td><td class="num">600</td><td class="num">80.43</td><td><span class="r r-half">◐半核心</span></td><td>上网行为管理 / 审计是强项，但盘子过大、业务极宽，纯度不足。</td></tr>
+      </tbody>
+    </table>
+    <div class="verdict"><b>结论：</b>安恒信息最贴合；深信服沾边但 600 亿市值、80 亿营收横跨网安 + 云，弹性有限。</div>
+  </section>
+
+  <!-- 6 上锁 -->
+  <section id="s6">
+    <div class="sec-head"><h2><span class="no">6</span>给 AI 上锁（加密 / 隐私保护）</h2><span class="tag">风险：训练数据泄露、隐私被窃取</span></div>
+    <p class="lead">把数据锁进笼子：密码基础设施、密钥管理、隐私计算。</p>
+    <table class="tbl"><colgroup><col class="w0"><col class="w1"><col class="w2"><col class="w3"><col class="w4"></colgroup>
+      <thead><tr><th>标的</th><th>市值(亿)</th><th>2025营收(亿)</th><th>核心度</th><th>判定</th></tr></thead>
+      <tbody>
+        <tr><td class="c-name">电科网安 <span class="code">002268</span></td><td class="num">129</td><td class="num">22.68</td><td><span class="r r-core">★真核心</span></td><td>原卫士通，密码 / 数据安全国家队。</td></tr>
+        <tr><td class="c-name">三未信安 <span class="code">688489</span></td><td class="num">47</td><td class="num">5.54</td><td><span class="r r-core">★真核心</span></td><td>商用密码基础设施、密钥管理，小而纯。</td></tr>
+        <tr><td class="c-name">星环科技 <span class="code">688031</span></td><td class="num">115</td><td class="num">4.48</td><td><span class="r r-half">◐半核心</span></td><td>大数据底座 + 隐私计算沾边，但连年亏损、营收小，需看兑现。</td></tr>
+        <tr><td class="c-name">太极股份 <span class="code">002368</span></td><td class="num">77</td><td class="num">77.89</td><td><span class="r r-edge">○边缘·错位</span></td><td>信创 / 系统集成商，自身不做加密，「上锁」靠兄弟单位电科网安。</td></tr>
+      </tbody>
+    </table>
+    <div class="verdict"><b>结论：</b>电科网安、三未信安是这一格真正的核心；太极股份逻辑弱。</div>
+  </section>
+
+  <!-- 7 防伪 -->
+  <section id="s7">
+    <div class="sec-head"><h2><span class="no">7</span>给 AI 防伪（鉴伪 / 深度伪造检测 / 水印）</h2><span class="tag">风险：深度伪造、AI 生成虚假内容泛滥</span></div>
+    <p class="lead">辨别真假：图像 / 视频 / 语音鉴真，数字水印与版权保护。</p>
+    <table class="tbl"><colgroup><col class="w0"><col class="w1"><col class="w2"><col class="w3"><col class="w4"></colgroup>
+      <thead><tr><th>标的</th><th>市值(亿)</th><th>2025营收(亿)</th><th>核心度</th><th>判定</th></tr></thead>
+      <tbody>
+        <tr><td class="c-name">国投智能 <span class="code">300188</span></td><td class="num">93</td><td class="num">14.11</td><td><span class="r r-core">★真核心</span></td><td>原美亚柏科，电子取证 + AI 鉴伪（图像视频鉴真）核心。</td></tr>
+        <tr><td class="c-name">数码视讯 <span class="code">300079</span></td><td class="num">70</td><td class="num">7.33</td><td><span class="r r-half">◐半核心</span></td><td>视频安全 / 数字水印 / 版权保护，防伪半核心，主业偏广电编码。</td></tr>
+        <tr><td class="c-name">汉王科技 <span class="code">002362</span></td><td class="num">39</td><td class="num">18.89</td><td><span class="r r-edge">○边缘·牵强</span></td><td>手写 / AI 识别、生物特征，把「防伪」硬套笔迹较牵强，主业偏离。</td></tr>
+      </tbody>
+    </table>
+    <div class="verdict"><b>结论：</b>国投智能最贴合「防伪」；数码视讯半核心；汉王科技牵强。</div>
+  </section>
+
+  <!-- 8 发执照 -->
+  <section id="s8">
+    <div class="sec-head"><h2><span class="no">8</span>给 AI 发执照（模型测评 / 安全评估 / 备案）</h2><span class="tag">风险：模型未经验证就上线、合规缺失</span></div>
+    <p class="lead">类比政审与驾照考试：对大模型做安全测评、合规评估、备案，合格才发「执照」。</p>
+    <table class="tbl"><colgroup><col class="w0"><col class="w1"><col class="w2"><col class="w3"><col class="w4"></colgroup>
+      <thead><tr><th>标的</th><th>市值(亿)</th><th>2025营收(亿)</th><th>核心度</th><th>判定</th></tr></thead>
+      <tbody>
+        <tr><td class="c-name">电科数字 <span class="code">600850</span></td><td class="num">111</td><td class="num">107.4</td><td><span class="r r-edge">○边缘·牵强</span></td><td>系统集成「数字底座」，模型考试 / 发执照属性弱。</td></tr>
+        <tr><td class="c-name">太极股份 <span class="code">002368</span></td><td class="num">77</td><td class="num">77.89</td><td><span class="r r-edge">○边缘·牵强</span></td><td>信创 / 集成逻辑，发执照属性弱。</td></tr>
+        <tr><td class="c-name">神州泰岳 <span class="code">300002</span></td><td class="num">155</td><td class="num">58.21</td><td><span class="r r-edge">○边缘·最虚</span></td><td>游戏占营收大半（申万归传媒-游戏），AI（鼎富智能 NLP）是副业，发执照属性极弱。</td></tr>
+      </tbody>
+    </table>
+    <div class="warn"><b>⚠ 全图最虚的一格：</b>目前 A 股没有纯正的大模型安全测评 / 备案评测标的，这三家属性都偏弱。尤其神州泰岳本质是游戏股，硬塞进「发执照」最牵强。</div>
+  </section>
+
+  <!-- 全景总表 -->
+  <section id="all">
+    <div class="sec-head"><h2>全景总表：22 只标的逐一核查</h2><span class="tag">★真核心 · ◐半核心 · ○边缘</span></div>
+    <table class="tbl"><colgroup><col class="w0"><col class="w1"><col class="w2"><col class="w3"><col class="w4"></colgroup>
+      <thead><tr><th>标的（代码）</th><th>市值(亿)</th><th>2025营收(亿)</th><th>核心度</th><th>所属环节 / 一句话</th></tr></thead>
+      <tbody>
+        <tr><td class="c-name">永信至诚 688244</td><td class="num">36</td><td class="num">2.76</td><td><span class="r r-core">★</span></td><td>体检</td></tr>
+        <tr><td class="c-name">绿盟科技 300369</td><td class="num">85</td><td class="num">25.41</td><td><span class="r r-core">★</span></td><td>安检 + 体检（综合网安）</td></tr>
+        <tr><td class="c-name">格尔软件 603232</td><td class="num">39</td><td class="num">3.58</td><td><span class="r r-core">★</span></td><td>办证（PKI）</td></tr>
+        <tr><td class="c-name">数字认证 300579</td><td class="num">66</td><td class="num">8.39</td><td><span class="r r-core">★</span></td><td>办证（CA）</td></tr>
+        <tr><td class="c-name">亚信安全 688225</td><td class="num">66</td><td class="num">77.41</td><td><span class="r r-edge">○</span></td><td>错配：应归安检，非办证</td></tr>
+        <tr><td class="c-name">启明星辰 002439</td><td class="num">180</td><td class="num">23.38</td><td><span class="r r-core">★</span></td><td>安检</td></tr>
+        <tr><td class="c-name">奇安信 688561</td><td class="num">212</td><td class="num">43.92</td><td><span class="r r-core">★</span></td><td>安检</td></tr>
+        <tr><td class="c-name">天融信 002212</td><td class="num">89</td><td class="num">25.72</td><td><span class="r r-core">★</span></td><td>安检</td></tr>
+        <tr><td class="c-name">人民网 603000</td><td class="num">186</td><td class="num">20.75</td><td><span class="r r-core">★</span></td><td>管住嘴（内容安全）</td></tr>
+        <tr><td class="c-name">拓尔思 300229</td><td class="num">113</td><td class="num">5.11</td><td><span class="r r-core">★</span></td><td>管住嘴（NLP 审核）</td></tr>
+        <tr><td class="c-name">新华网 603888</td><td class="num">132</td><td class="num">22.32</td><td><span class="r r-core">★</span></td><td>管住嘴（内容安全）</td></tr>
+        <tr><td class="c-name">安恒信息 688023</td><td class="num">50</td><td class="num">21.51</td><td><span class="r r-core">★</span></td><td>装监控（审计）</td></tr>
+        <tr><td class="c-name">深信服 300454</td><td class="num">600</td><td class="num">80.43</td><td><span class="r r-half">◐</span></td><td>装监控（盘子过大、业务宽）</td></tr>
+        <tr><td class="c-name">电科网安 002268</td><td class="num">129</td><td class="num">22.68</td><td><span class="r r-core">★</span></td><td>上锁（密码国家队）</td></tr>
+        <tr><td class="c-name">三未信安 688489</td><td class="num">47</td><td class="num">5.54</td><td><span class="r r-core">★</span></td><td>上锁（商用密码）</td></tr>
+        <tr><td class="c-name">星环科技 688031</td><td class="num">115</td><td class="num">4.48</td><td><span class="r r-half">◐</span></td><td>上锁（隐私计算沾边、亏损）</td></tr>
+        <tr><td class="c-name">太极股份 002368</td><td class="num">77</td><td class="num">77.89</td><td><span class="r r-edge">○</span></td><td>上锁 / 发执照（集成商，均弱）</td></tr>
+        <tr><td class="c-name">国投智能 300188</td><td class="num">93</td><td class="num">14.11</td><td><span class="r r-core">★</span></td><td>防伪（AI 鉴伪）</td></tr>
+        <tr><td class="c-name">数码视讯 300079</td><td class="num">70</td><td class="num">7.33</td><td><span class="r r-half">◐</span></td><td>防伪（数字水印半核心）</td></tr>
+        <tr><td class="c-name">汉王科技 002362</td><td class="num">39</td><td class="num">18.89</td><td><span class="r r-edge">○</span></td><td>防伪（牵强）</td></tr>
+        <tr><td class="c-name">电科数字 600850</td><td class="num">111</td><td class="num">107.4</td><td><span class="r r-edge">○</span></td><td>发执照（属性弱）</td></tr>
+        <tr><td class="c-name">神州泰岳 300002</td><td class="num">155</td><td class="num">58.21</td><td><span class="r r-edge">○</span></td><td>发执照（本质游戏股）</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 错配警示 -->
+  <section id="warn">
+    <div class="sec-head"><h2>四处理应「拿掉或挪筐」的标的</h2></div>
+    <div class="warn">
+      <p><b>1. 亚信安全</b> —— 图归「办证」，实为终端安全 / 防病毒（77 亿营收是这堆最大之一），应挪去「安检」。</p>
+      <p><b>2. 太极股份</b> —— 信创 / 系统集成商，自身不做加密，也不做模型测评，在「上锁」「发执照」两格都弱。</p>
+      <p><b>3. 汉王科技</b> —— 手写 / AI 识别，把「防伪」硬套笔迹 / 生物特征较牵强，主业偏离。</p>
+      <p><b>4. 「发执照」整格（电科数字、太极股份、神州泰岳）</b> —— 属性都极弱，尤其神州泰岳 55%+ 营收来自游戏（申万归传媒-游戏）。这一格目前没有纯正 A 股标的。</p>
+    </div>
+  </section>
+
+  <!-- 结论 -->
+  <section id="concl">
+    <div class="sec-head"><h2>结论与风险提示</h2></div>
+    <div class="note">
+      <b>最硬的核心（赛道真身）：</b>网安四小龙（启明 / 奇安信 / 天融信 / 绿盟）、办证双雄（格尔 / 数字认证）、内容安全（人民网 / 新华网 / 拓尔思）、加密（电科网安 / 三未信安）、体检（永信至诚）、防伪（国投智能）、监控（安恒信息）。这些业务与「AI 安全」逻辑自洽。
+    </div>
+    <div class="note" style="border-left-color:var(--orange)">
+      <b>需打折扣的：</b>深信服（盘子过大）、星环科技（亏损小盘）、数码视讯（主业偏广电）—— 沾边但纯度不足或需订单兑现。
+    </div>
+    <div class="note" style="border-left-color:var(--red)">
+      <b>明显蹭概念 / 错位：</b>亚信安全（应归安检）、太极股份（集成非加密）、汉王科技（防伪牵强）、电科数字 / 神州泰岳（发执照属性极弱，神州泰岳本质是游戏股）。
+    </div>
+    <p class="lead" style="margin-top:16px"><b>投资视角：</b>小市值标的（永信至诚、格尔、三未、汉王、数码视讯多在 40–70 亿）弹性大但波动也大；大市值网安股（奇安信、启明、深信服）确定性高但弹性低。本图是「概念映射」而非「业务纯度」认证，投资需结合估值与订单兑现。</p>
+    <div class="warn" style="background:#fff;border:1px solid var(--line);border-left:4px solid var(--mute);color:var(--soft)">
+      <b style="color:var(--ink)">免责声明：</b>本报告仅作赛道逻辑核查与学习参考，所有数据来自东方财富等公开口径（市值 2026-10-09、营收 2025 年报），不构成任何投资建议。市场有风险，投资需谨慎。
+    </div>
+  </section>
+
+  <a class="back" href="index.html">← 返回学习站首页</a>
+</main>
+
+<footer>
+  由 WorkBuddy AI 整理 · 内容仅供学习参考，不构成投资建议<br>
+  数据口径：市值 2026-10-09 收盘，营收 2025 年报，行业取申万 / 东财分类
+</footer>
+
+</body>
+</html>
