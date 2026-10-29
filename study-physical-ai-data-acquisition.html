@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>华福证券《物理AI：机器人是核心载体》深度解析</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+:root{
+  --ink:#1a1d23; --ink2:#5b6472; --muted:#8b93a1;
+  --line:#e6e8ec; --line2:#d5d9e0;
+  --bg:#f5f6f8; --card:#ffffff;
+  --up:#d93025; --down:#12996b;
+  --accent:#16467d; --accent2:#2f6fc0; --accentbg:#eaf1fa;
+  --warn:#b45309; --warnbg:#fdf4e6;
+  --dangerbg:#fdeceb;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  background:var(--bg); color:var(--ink); line-height:1.7; font-size:15px;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px 80px}
+
+/* ---------- header ---------- */
+.hero{
+  background:linear-gradient(160deg,#16467d 0%,#235a9c 60%,#2f6fc0 100%);
+  color:#fff; padding:44px 0 40px; margin-bottom:28px;
+}
+.hero .wrap{padding-bottom:0}
+.tagline{font-size:12px;letter-spacing:2px;opacity:.8;text-transform:uppercase}
+.hero h1{font-size:30px;font-weight:600;margin:12px 0 8px;line-height:1.35}
+.hero .sub{font-size:15px;opacity:.9;font-weight:400}
+.meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+.meta span{
+  background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);
+  padding:5px 13px;border-radius:20px;font-size:12.5px;
+}
+
+/* ---------- generic ---------- */
+section{margin-bottom:34px}
+h2{
+  font-size:20px;font-weight:600;margin:0 0 4px;color:var(--ink);
+  display:flex;align-items:center;gap:10px;
+}
+h2 .num{
+  background:var(--accent);color:#fff;width:26px;height:26px;border-radius:7px;
+  font-size:13px;display:inline-flex;align-items:center;justify-content:center;font-weight:600;flex:none;
+}
+.h2sub{color:var(--ink2);font-size:13.5px;margin:0 0 18px;padding-left:36px}
+h3{font-size:16px;font-weight:600;margin:22px 0 10px}
+p{margin-bottom:12px;color:#33383f}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}
+.grid4{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+
+/* ---------- TLDR ---------- */
+.tldr{border-radius:14px;padding:22px;background:#fff;border:1px solid var(--line);border-left:4px solid var(--accent)}
+.tldr b{color:var(--accent)}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px}
+.kpi .lb{font-size:12.5px;color:var(--muted);margin-bottom:8px}
+.kpi .vl{font-size:27px;font-weight:600;line-height:1.15;color:var(--accent)}
+.kpi .vl.red{color:var(--up)}
+.kpi .note{font-size:12.5px;color:var(--ink2);margin-top:8px}
+
+/* ---------- chain ---------- */
+.chain{display:flex;flex-wrap:wrap;align-items:stretch;gap:8px}
+.chain .node{
+  flex:1 1 170px;background:var(--accentbg);border:1px solid #c8dcf2;border-radius:11px;
+  padding:14px 16px;position:relative;
+}
+.chain .node .t{font-size:14px;font-weight:600;color:var(--accent);margin-bottom:5px}
+.chain .node .d{font-size:12.5px;color:var(--ink2);line-height:1.6}
+.chain .arrow{
+  flex:0 0 26px;display:flex;align-items:center;justify-content:center;color:var(--accent2);font-size:19px;font-weight:300;
+}
+.chain .node.hl{background:#fdeceb;border-color:#f3b7b3}
+.chain .node.hl .t{color:var(--up)}
+
+/* ---------- catalyst ---------- */
+.cat{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px}
+.cat .who{font-size:12px;color:#fff;background:var(--accent);display:inline-block;padding:3px 10px;border-radius:5px;margin-bottom:10px}
+.cat h4{font-size:15px;font-weight:600;margin-bottom:8px}
+.cat ul{list-style:none;font-size:13.5px;color:var(--ink2)}
+.cat li{padding:5px 0 5px 15px;position:relative;border-top:1px dashed var(--line)}
+.cat li:first-child{border-top:0}
+.cat li::before{content:"";position:absolute;left:2px;top:14px;width:5px;height:5px;border-radius:50%;background:var(--accent2)}
+
+/* ---------- table ---------- */
+table{width:100%;border-collapse:collapse;font-size:13.5px;background:#fff}
+.tw{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+th{
+  background:#f0f3f7;color:var(--ink);font-weight:600;text-align:left;
+  padding:11px 12px;border-bottom:1px solid var(--line);white-space:nowrap;font-size:13px;
+}
+td{padding:10px 12px;border-bottom:1px solid #f0f1f4;color:#3a3f47;vertical-align:top}
+tr:last-child td{border-bottom:0}
+tbody tr:hover{background:#fafbfc}
+.up{color:var(--up);font-weight:600}
+.down{color:var(--down);font-weight:600}
+.mono{font-variant-numeric:tabular-nums}
+.code{color:var(--muted);font-size:12px}
+
+/* ---------- chart ---------- */
+.chartbox{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px}
+.chart{width:100%;height:360px}
+.cap{font-size:12.5px;color:var(--muted);margin-top:10px;text-align:center}
+
+/* ---------- chain map ---------- */
+.lane{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff}
+.lane .hd{
+  background:var(--accent);color:#fff;padding:13px 18px;font-size:15px;font-weight:600;
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;
+}
+.lane .hd .why{font-size:12.5px;font-weight:400;opacity:.9}
+.lane .bd{padding:16px 18px}
+.dir{border-left:3px solid var(--accent2);padding:2px 0 2px 14px;margin-bottom:16px}
+.dir:last-child{margin-bottom:0}
+.dir .dt{font-size:14px;font-weight:600;margin-bottom:4px}
+.dir .dd{font-size:13px;color:var(--ink2);margin-bottom:8px}
+.pills{display:flex;flex-wrap:wrap;gap:7px}
+.pill{
+  background:#f2f5f9;border:1px solid var(--line2);border-radius:20px;
+  padding:4px 12px;font-size:13px;display:inline-flex;gap:6px;align-items:baseline;
+}
+.pill .c{color:var(--muted);font-size:11.5px}
+.pill.key{background:#fdeceb;border-color:#f3b7b3;color:#8f2018;font-weight:600}
+
+/* ---------- review ---------- */
+.rev{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px}
+.rev.good{border-top:3px solid var(--accent2)}
+.rev.bad{border-top:3px solid var(--warn)}
+.rev h4{font-size:15px;font-weight:600;margin-bottom:12px;display:flex;gap:8px;align-items:center}
+.rev ul{list-style:none;font-size:13.5px}
+.rev li{padding:8px 0 8px 20px;position:relative;border-top:1px solid #f2f3f6;color:#3a3f47}
+.rev li:first-child{border-top:0}
+.rev li::before{content:"›";position:absolute;left:4px;top:7px;color:var(--muted);font-size:15px}
+.rev li b{color:var(--ink)}
+
+.warnbox{background:var(--warnbg);border:1px solid #f0dcbc;border-radius:12px;padding:16px 18px;font-size:13.5px;color:#6b4408}
+.disc{background:#f7f8fa;border:1px solid var(--line);border-radius:12px;padding:16px 18px;font-size:12.5px;color:var(--ink2);margin-top:26px}
+.src{font-size:12px;color:var(--muted);margin-top:8px}
+footer{text-align:center;color:var(--muted);font-size:12.5px;padding:30px 0 0;border-top:1px solid var(--line);margin-top:34px}
+@media(max-width:700px){
+  .hero h1{font-size:23px}
+  .chart{height:300px}
+  .wrap{padding:0 16px 60px}
+}
+</style>
+</head>
+<body>
+
+<div style="max-width:1180px;margin:0 auto;padding:12px 24px 0">
+  <a href="index.html" style="font-size:13px;color:#16467d;text-decoration:none">← 返回 AI 学习站</a>
+</div>
+
+<div class="hero">
+  <div class="wrap">
+    <div class="tagline">HUAFU SECURITIES · ROBOTICS WEEKLY</div>
+    <h1>物理 AI：机器人是核心载体，从模型突破到跨越数据约束</h1>
+    <div class="sub">华福证券行业定期报告（机器人）深度解析与核心标的梳理</div>
+    <div class="meta">
+      <span>报告日期：2026-10-25</span>
+      <span>分析师：孟鹏飞 S0210526040001</span>
+      <span>分析师：欧阳蕤 S0210526050001</span>
+      <span>行业评级：强于大市（维持）</span>
+      <span>行情数据截至：2026-10-28</span>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+<!-- 1 TL;DR -->
+<section>
+  <div class="tldr">
+    <h2 style="margin-bottom:12px"><span class="num">01</span>一句话读懂这份报告</h2>
+    <p style="font-size:15.5px;margin-bottom:14px">
+      这份报告的真正在讲一件事：<b>具身智能的瓶颈已经从"模型不够聪明"转移到了"没有足够的真实物理交互数据"</b>。
+      OpenAI、Meta、Google、字节这些模型公司自己没有本体、没有数据源，只能外采或与本体厂共建——
+      <b>于是"数据采集"从本体厂商的内部成本项，变成了可以独立定价的外部需求</b>。这是 A 股这轮机器人行情与以往最大的不同。
+    </p>
+    <p style="margin-bottom:0;font-size:14px;color:var(--ink2)">
+      因此报告把受益环节收敛成两条链：<b style="color:var(--up)">① 数据采集链</b>（本体、触觉/力传感、视觉、IMU、数采手套、数采服务）与
+      <b style="color:var(--accent)">② 特斯拉零部件供应链</b>（丝杠、减速器、轴承、电机）。前者是本轮新增量，后者是传统份额逻辑。
+    </p>
+  </div>
+
+  <div class="grid4" style="margin-top:16px">
+    <div class="kpi">
+      <div class="lb">板块表现（10/19–10/23）</div>
+      <div class="vl red">+14.21%</div>
+      <div class="note">人形机器人核心公司指数，同期沪深300 <span class="down">−1.57%</span></div>
+    </div>
+    <div class="kpi">
+      <div class="lb">数据供需缺口</div>
+      <div class="vl">20 倍</div>
+      <div class="note">全球可用 50 万小时 vs 通用泛化需 1000 万小时级</div>
+    </div>
+    <div class="kpi">
+      <div class="lb">数采成本梯度</div>
+      <div class="vl">25 倍</div>
+      <div class="note">真机遥操作 500–1000 元/小时 vs 仿真合成 20–50 元/小时</div>
+    </div>
+    <div class="kpi">
+      <div class="lb">数据有效良率</div>
+      <div class="vl red">约 4%</div>
+      <div class="note">12 万小时人类行为数据 → 可用于预训练不足 5000 小时</div>
+    </div>
+  </div>
+</section>
+
+<!-- 2 逻辑链 -->
+<section>
+  <h2><span class="num">02</span>核心逻辑传导链</h2>
+  <p class="h2sub">报告的全部论证可以压缩成下面这条因果链，每一环都对应一批标的</p>
+  <div class="card">
+    <div class="chain">
+      <div class="node">
+        <div class="t">① 物理 AI = 世界模型</div>
+        <div class="d">让 AI 理解并作用于物理世界，核心是预测"动作干预下物理状态如何演化"</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="node">
+        <div class="t">② 机器人是唯一载体</div>
+        <div class="d">同时具备感知、决策、执行、反馈闭环，动作后果可被观测、度量、标注</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="node">
+        <div class="t">③ 模型公司集体下场</div>
+        <div class="d">OpenAI / Meta / Google / 字节入局，但普遍不具备本体产能与自有数据源</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="node hl">
+        <div class="t">④ 数据成为最稀缺资源</div>
+        <div class="d">训练数据只能外采或与本体方共建 → 数采从内部成本项转为可独立定价的外部需求</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="node hl">
+        <div class="t">⑤ 数采硬件＋服务受益</div>
+        <div class="d">触觉/力传感、视觉、IMU、数采手套、动捕设备、数据平台服务商</div>
+      </div>
+    </div>
+    <p class="src">来源：华福证券研究所《机器人行业定期报告》2026-10-25，由本页整理。</p>
+  </div>
+</section>
+
+<!-- 3 四大催化 -->
+<section>
+  <h2><span class="num">03</span>本周四大产业催化</h2>
+  <p class="h2sub">四条线索彼此独立但方向一致：工具侧、模型侧、需求侧、量产侧同时指向同一个约束</p>
+  <div class="grid4">
+    <div class="cat">
+      <div class="who">OpenAI · 需求侧</div>
+      <h4>官宣自研人形机器人</h4>
+      <ul>
+        <li>2026 年 9 月发布 <b>GPT-6 Astra</b>，具身操作任务完成率表现出色</li>
+        <li>奥特曼公开确认自研人形机器人，成立 <b>OpenAI Robotics</b> 部门</li>
+        <li>预计 <b>2027 年</b>推出演示样机</li>
+      </ul>
+    </div>
+    <div class="cat">
+      <div class="who">英伟达 · 工具侧</div>
+      <h4>GR00T N2 ＋ Isaac 闭环</h4>
+      <ul>
+        <li>10/9 GTC 2026 发布 <b>GR00T N2</b> 世界模型预览版，搭配 Cosmos 3 与 Isaac Lab 3.0</li>
+        <li>官方口径：新任务成功率较上一代 VLA 提升<b>超一倍</b></li>
+        <li>10/21 柏林 GTC，黄仁勋称物理 AI 是下一波浪潮，扩展 Isaac 开放平台</li>
+      </ul>
+    </div>
+    <div class="cat">
+      <div class="who">特斯拉 · 量产侧</div>
+      <h4>给出量产时间表</h4>
+      <ul>
+        <li>10/22 Q3 电话会：年产 100 万台产线大部分已在<b>弗里蒙特</b>落地</li>
+        <li>但爬坡遵循 <b>S 曲线</b>，年化 100 万台至少需一年以上，预计 <b>2027 年底</b>前后外部交付</li>
+        <li>公司再次强调：<b>灵巧手和数据是难度最大的卡点</b></li>
+      </ul>
+    </div>
+    <div class="cat">
+      <div class="who">宇树 · 本体侧</div>
+      <h4>世界物理 AI 大会</h4>
+      <ul>
+        <li>10/22 杭州举办 2026 世界物理 AI 大会暨宇树生态大会</li>
+        <li>王兴兴：未来大模型可能"<b>击穿</b>"物理 AI</li>
+        <li>宇树正研发<b>"物理 AI 机器人自进化 V1"</b>模型系统</li>
+      </ul>
+    </div>
+  </div>
+  <div class="warnbox" style="margin-top:14px">
+    <b>为什么这四条要一起看：</b>工具链标准化把真机数据从"主力燃料"变成"校准锚"；模型侧突破证明能力迁移取决于数据组织方式而非参数堆叠；
+    大厂入场带来外部付费需求；特斯拉量产启动真实世界的数据飞轮。四条线索共同指向——<b>约束落在真实物理交互数据的供给上</b>。
+  </div>
+</section>
+
+<!-- 4 数据缺口 -->
+<section>
+  <h2><span class="num">04</span>数据缺口的三重性：量、质、结构</h2>
+  <p class="h2sub">这是报告最有价值的部分——它把"数据不够"这个模糊判断拆成了三个可验证的维度</p>
+  <div class="grid2">
+    <div class="chartbox">
+      <div id="gapChart" class="chart"></div>
+      <div class="cap">图表：数据缺口的量级差（纵轴为对数轴）· 数据来源：华福证券研究所引科普中国、中国信通院</div>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">① 量的缺口：差一个数量级以上</h3>
+      <p style="font-size:13.5px">
+        截至 2026 年初全球合规可用的真实物理交互数据约 <b>50 万小时</b>，而训练一个具备通用泛化能力的具身模型需要
+        <b>千万小时量级</b>；2026 年"百万小时数据产能"已成为企业研发模型的硬性门槛。
+      </p>
+      <p style="font-size:13.5px">
+        参照系：智元 AgiBot World 含 100 万条以上轨迹、约 <b>2976 小时</b>；北美 13 个实验室联合采集的 DROID 合计约 <b>350 小时</b>——
+        单个数据集与需求之间仍差<b>两个数量级</b>。
+      </p>
+      <p style="font-size:13.5px;margin-bottom:0">
+        中国信通院测算：若训练 1.1 万亿 token 全部依靠真机采集，约需 <b>2 万台以上机器人连续工作一整年</b>；截至 2026 年 6 月底全国已建成启用训练场 <b>70 家以上</b>，另有 46 家在建。
+      </p>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:16px">
+    <div class="card">
+      <h3 style="margin-top:0">② 质的缺口：采集小时数 ≠ 有效数据</h3>
+      <p style="font-size:13.5px">
+        上海交大研究者从约 <b>12 万小时</b>第一人称人类行为数据中筛选后，真正可用于预训练的<b>不超过 5000 小时</b>（良率约 4%）。
+        北京人形机器人创新中心数据训练基地建立初期，数据合格率仅约 <b>50%</b>。
+      </p>
+      <p style="font-size:13.5px;margin-bottom:0;color:var(--up)">
+        <b>结论：数采服务商的核心竞争要素不是机器人台数，而是"合格率的爬坡速度"</b>——这个指标直接决定单位有效数据的真实成本。
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">③ 结构缺口：格式与同步精度</h3>
+      <p style="font-size:13.5px">
+        Open X-Embodiment 把来自 34 个实验室的 60 个数据集统一到一种格式，工程量巨大，原因是坐标系定义、控制频率、动作语义、时间戳口径各不相同。
+      </p>
+      <p style="font-size:13.5px">
+        同步精度同样关键：<b>关节与 IMU 之间若存在 40 毫秒同步偏差，位置估计误差可能被放大至 10 米量级</b>。
+      </p>
+      <p style="font-size:13.5px;margin-bottom:0">
+        标准正在补齐：《YD/T 6771-2026 具身智能数据集质量要求及评估方法》2026 年 7 月经工信部批准发布，<b>2026 年 11 月 1 日实施</b>。
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- 5 数采路线 -->
+<section>
+  <h2><span class="num">05</span>四条数采路线：成本与产能是锚点</h2>
+  <p class="h2sub">报告判断中期配比会向仿真侧倾斜——这条判断与它推荐的硬件标的之间存在张力，后文会展开</p>
+  <div class="grid2">
+    <div class="chartbox">
+      <div id="costChart" class="chart"></div>
+      <div class="cap">图表：各路线单位成本中位数对比（元/小时）· 数据来源：华福证券研究所</div>
+    </div>
+    <div class="tw">
+      <table>
+        <thead>
+          <tr><th>维度</th><th>整机遥操作</th><th>UMI 手持</th><th>第一人称 EGO</th><th>仿真合成</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><b>保真度</b></td><td>最高（含关节角、力与触觉）</td><td>高（轨迹精度高）</td><td>中（缺本体信息）</td><td>取决于仿真到现实迁移</td></tr>
+          <tr><td><b>单位成本</b></td><td class="up">500–1000 元/时</td><td>200–600 元/时</td><td>约 100 元/时</td><td class="down">20–50 元/时</td></tr>
+          <tr><td><b>跨本体通用性</b></td><td class="down">差</td><td>中</td><td class="up">高</td><td class="up">高</td></tr>
+          <tr><td><b>可规模化</b></td><td>受本体数量与场地约束</td><td>设备复用率高</td><td class="up">最高</td><td class="up">最高（边际成本最低）</td></tr>
+          <tr><td><b>配套硬件</b></td><td>本体＋VR/主从设备</td><td>手持设备＋相机＋IMU</td><td>相机头环＋触觉手套</td><td>GPU＋仿真资产</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <p style="font-size:13.5px;margin-bottom:10px">
+      成本梯度决定了配比走向：建设 <b>100 万小时级真机数据产能的资本开支在十亿元量级</b>，而同等规模的仿真数据产能仅需<b>几千万元级</b>。
+      真机遥操作单小时有效数据成本仍在 500 元以上，操作节拍远低于机械臂约 1200 次的物理上限。
+    </p>
+    <p style="font-size:13.5px;margin-bottom:0">
+      报告判断路线权重将发生三点变化：<b>① 位姿级数据权重上升</b>（通用模型输出末端位姿而非关节角，UMI 与 EGO 天然受益）；
+      <b>② 触觉模态权重上升</b>（精细操作失败被归因于缺少触觉反馈）；<b>③ 仿真合成权重上升</b>。
+    </p>
+  </div>
+</section>
+
+<!-- 6 标的地图 -->
+<section>
+  <h2><span class="num">06</span>核心标的梳理：两大链条</h2>
+  <p class="h2sub">链条 A 是本轮新增量（数据资产），链条 B 是传统份额逻辑（特斯拉量产）</p>
+
+  <div class="lane">
+    <div class="hd">
+      <span>链条 A · 「击穿」物理 AI 的核心资产——数据</span>
+      <span class="why">报告定性：最确定的受益环节</span>
+    </div>
+    <div class="bd">
+      <div class="dir">
+        <div class="dt">方向 1：本体、垂类场景与数据闭环方</div>
+        <div class="dd">自有场景并形成"部署—采集—训练—再部署"闭环的厂商，数据获取接近零增量成本且具备天然独占性，闭环一旦成立壁垒最深。</div>
+        <div class="pills">
+          <span class="pill key">上纬新材 <span class="c">688585</span></span>
+          <span class="pill">宇树科技 <span class="c">未上市</span></span>
+          <span class="pill">杰克科技 <span class="c">603337</span></span>
+        </div>
+      </div>
+      <div class="dir">
+        <div class="dt">方向 2：触觉与力传感 ＋ 灵巧手</div>
+        <div class="dd">GPT-6 Astra 在真机测试中的失败被归因于缺少触觉反馈；马斯克多次点名灵巧手是 Optimus 量产最大瓶颈。过去高精度触觉传感器单片售价万元级、主要依赖进口，国内厂商正在加速导入头部供应链。</div>
+        <div class="pills">
+          <span class="pill key">福莱新材 <span class="c">605488</span></span>
+          <span class="pill key">安培龙 <span class="c">301413</span></span>
+          <span class="pill key">兆威机电 <span class="c">003021</span></span>
+          <span class="pill">雷赛智能 <span class="c">002979</span></span>
+        </div>
+      </div>
+      <div class="dir">
+        <div class="dt">方向 3：机器视觉、IMU、数采手套与动捕</div>
+        <div class="dd">第一人称 EGO 采集需要触觉手套与视觉相机，UMI 需要配套相机与 IMU。随着真机与 EGO 路线并行推进，这几类硬件持续受益。</div>
+        <div class="pills">
+          <span class="pill">奥比中光-W <span class="c">688322</span></span>
+          <span class="pill">奥普特 <span class="c">688686</span></span>
+          <span class="pill">华依科技 <span class="c">688071</span></span>
+          <span class="pill">敏芯股份 <span class="c">688286</span></span>
+          <span class="pill">福莱新材 <span class="c">605488</span></span>
+          <span class="pill">利亚德 <span class="c">300296</span></span>
+        </div>
+      </div>
+      <div class="dir">
+        <div class="dt">方向 4：数采服务与数据平台</div>
+        <div class="dd">把人类在真实场景中的触觉、力觉、视觉与动作信息，转化为可训练、可复用、高保真的结构化数据集；核心是形成"采集—标注—训练—部署—反馈"闭环，靠规模效应降低客户迁移成本。</div>
+        <div class="pills">
+          <span class="pill key">凡拓数创 <span class="c">301313</span></span>
+          <span class="pill">海天瑞声 <span class="c">688787</span></span>
+          <span class="pill">龙旗科技 <span class="c">603341</span></span>
+          <span class="pill">阿尔特 <span class="c">300825</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="lane" style="margin-top:16px">
+    <div class="hd" style="background:#4a5568">
+      <span>链条 B · 以特斯拉为核心的零部件供应链</span>
+      <span class="why">传统份额逻辑，取决于 Optimus 量产爬坡</span>
+    </div>
+    <div class="bd">
+      <div class="tw">
+        <table>
+          <thead><tr><th style="width:22%">环节</th><th>相关公司</th></tr></thead>
+          <tbody>
+            <tr><td><b>丝杠</b></td><td>天创时尚、恒立液压、五洲新春、震裕科技、浙江荣泰</td></tr>
+            <tr><td><b>结构件</b></td><td>模塑科技（塑料件）、岱美股份、均胜电子</td></tr>
+            <tr><td><b>减速器</b></td><td>科达利</td></tr>
+            <tr><td><b>轴承</b></td><td>万向钱潮、天创时尚</td></tr>
+            <tr><td><b>电机及执行器</b></td><td>三花智控、拓普集团、震裕科技、峰岹科技</td></tr>
+            <tr><td><b>头部模组</b></td><td>蓝思科技、星宇股份</td></tr>
+            <tr><td><b>PCB</b></td><td>世运电路</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="src">来源：华福证券研究所《机器人行业定期报告》2026-10-25 第 10–11 页投资建议。</p>
+    </div>
+  </div>
+</section>
+
+<!-- 7 行情 -->
+<section>
+  <h2><span class="num">07</span>核心标的当前位置（截至 2026-10-28 收盘）</h2>
+  <p class="h2sub">报告发布于 10-25，下表是发布后 3 个交易日的实际走势——可以用来检验市场是否认同这套逻辑</p>
+  <div class="tw">
+    <table>
+      <thead>
+        <tr>
+          <th>股票</th><th>代码</th><th class="mono">收盘价</th><th class="mono">当日</th>
+          <th class="mono">近 5 日</th><th class="mono">近 20 日</th>
+          <th class="mono">换手率</th><th class="mono">流通市值</th><th class="mono">PE(TTM)</th><th class="mono">PB</th>
+        </tr>
+      </thead>
+      <tbody id="quoteBody"></tbody>
+    </table>
+  </div>
+  <div class="chartbox" style="margin-top:16px">
+    <div id="momChart" class="chart" style="height:460px"></div>
+    <div class="cap">图表：近 5 日 vs 近 20 日涨幅对比（%）· 行情来源：腾讯自选股行情接口，2026-10-28 收盘</div>
+  </div>
+  <div class="warnbox" style="margin-top:14px">
+    <b>读数提示：</b>报告发布后的 3 个交易日，链条 A 多数标的近 5 日涨幅在 <b>+17% 至 +55%</b> 区间，
+    说明市场正在按这套逻辑快速定价。但同时也意味着——<b>当前位置已经不是"逻辑刚被发现的低位"，而是"逻辑已被大幅定价后的位置"</b>。
+    表中 14 只标的里，有 6 只处于亏损状态（PE 为负），其余 PE(TTM) 多在 80–470 倍之间，属于典型的主题想象力定价。
+  </div>
+</section>
+
+<!-- 8 独立审视 -->
+<section>
+  <h2><span class="num">08</span>我的独立审视：哪些站得住，哪些要打折</h2>
+  <p class="h2sub">读卖方报告的惯例——认同它的框架，但把它没说出口的部分补上</p>
+  <div class="grid2">
+    <div class="rev good">
+      <h4>✓ 站得住的部分</h4>
+      <ul>
+        <li><b>"数采从成本项变为可定价需求"这个框架是对的。</b>模型公司无本体、无数据源是硬事实，这笔钱必然要花出去，而且会花在外部。</li>
+        <li><b>"量的缺口"论证扎实。</b>50 万小时 vs 千万小时是 20 倍差，参照系（AgiBot World 2976 小时、DROID 350 小时）也很具体，两个数量级的落差可信。</li>
+        <li><b>"良率比台数重要"是内行视角。</b>12 万小时筛出不足 5000 小时，说明这门生意的护城河在清洗与质检能力，不在堆机器人。</li>
+        <li><b>触觉/灵巧手被多重独立信源交叉验证</b>：GPT-6 Astra 真机失败归因子缺少触觉、马斯克点名灵巧手为最大瓶颈。</li>
+      </ul>
+    </div>
+    <div class="rev bad">
+      <h4>△ 需要打折的部分</h4>
+      <ul>
+        <li><b>核心数据来源偏软。</b>"50 万小时"和"12 万小时→5000 小时"这两个最关键的数字，报告标注来源是"科普中国＋大连外国语大学'和萌'学风涵养工作室"，并非权威统计机构或官方口径，量级可信但精确值需保留。</li>
+        <li><b>内在张力：报告说配比会向仿真倾斜，却主要推荐真机路线的硬件。</b>仿真只需 GPU＋仿真资产，受益方是算力与仿真引擎，不在推荐名单里；而推荐的触觉手套、IMU、数采服务恰恰属于成本最高的真机与 EGO 路线。这两处判断不完全自洽。</li>
+        <li><b>数采服务的商业模式比硬件弱。</b>凡拓数创、海天瑞声这类本质是人力密集型服务，毛利率承压；真正的好生意是"数据可复售"（如光轮智能部分标品复售倍数超 10 倍），A 股标的是否具备这种复用能力尚未验证。</li>
+        <li><b>光轮智能是非上市公司</b>（估值突破 150 亿元，来源：证券日报），A 股只能做"映射"，弹性取决于情绪而非业绩兑现。</li>
+        <li><b>全篇没有给出任何目标价、盈利预测与估值锚。</b>这是一份纯主题推荐的报告，逻辑先行，缺乏可证伪的财务落点。</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <h3 style="margin-top:0">如果要跟踪这条线，建议盯这三个可验证指标</h3>
+    <div class="grid2" style="gap:12px">
+      <div class="dir" style="margin:0">
+        <div class="dt">① 数据单价是否下行</div>
+        <div class="dd" style="margin:0">真机数据若从 500 元/小时快速下探，说明供给追上需求，数采服务商的溢价会被压缩——对硬件是利好，对服务是利空。</div>
+      </div>
+      <div class="dir" style="margin:0">
+        <div class="dt">② 11 月 1 日标准实施后的订单结构</div>
+        <div class="dd" style="margin:0">YD/T 6771-2026 实施后，采购方会开始按"合格数据"而非"采集小时数"结算，良率高的厂商会立刻拉开差距。</div>
+      </div>
+      <div class="dir" style="margin:0">
+        <div class="dt">③ 特斯拉 Optimus 的爬坡曲线</div>
+        <div class="dd" style="margin:0">报告明确写了爬坡遵循 S 曲线、年化 100 万台至少需一年以上。链条 B 的所有标的都绑定这个节奏，慢于预期就是估值杀。</div>
+      </div>
+      <div class="dir" style="margin:0">
+        <div class="dt">④ 龙头分化信号</div>
+        <div class="dd" style="margin:0">10-28 凡拓数创换手率已达 39%，属于极端投机状态；若后续出现高位放量不涨或龙头断板，整条链会先于基本面转向。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 9 风险 -->
+<section>
+  <h2><span class="num">09</span>风险提示</h2>
+  <div class="card">
+    <p style="margin-bottom:8px"><b>报告列示风险：</b>宏观经济波动风险、机器人量产不及预期、供应链发展不及预期。</p>
+    <p style="margin-bottom:0;font-size:13.5px;color:var(--ink2)">
+      <b>补充提示：</b>① 本轮标的普遍处于亏损或超高 PE 状态，估值对情绪极度敏感，主题退潮时回撤幅度会大于业绩型标的；
+      ② 数据采集路线的最终配比尚未确定，若仿真路线占比超预期提升，真机硬件与服务环节的需求会被稀释；
+      ③ 报告未给出目标价与盈利预测，缺乏可证伪的财务锚点，请自行设置止损与仓位上限。
+    </p>
+  </div>
+
+  <div class="disc">
+    <b>数据来源与口径说明：</b>报告内容来自华福证券《机器人行业定期报告（机器人）》2026-10-25，分析师孟鹏飞（S0210526040001）、欧阳蕤（S0210526050001），行业评级"强于大市（维持）"。
+    行情数据来自腾讯自选股行情接口，截至 2026-10-28 收盘，涨跌幅为区间涨跌幅字段，PE/PB 为 TTM 口径。<br><br>
+    <b>免责声明：</b>以上内容基于公开数据和量化分析，仅供参考，不构成投资建议。市场有风险，投资需谨慎。任何投资决策应结合个人风险承受能力、资金状况和投资目标独立判断，必要时咨询持牌专业机构。过往表现不预示未来收益。
+  </div>
+</section>
+
+<footer>本页由 WorkBuddy AI 依据华福证券研报自动生成 · 仅供研究参考，不构成投资建议</footer>
+</div>
+
+<script>
+var QUOTES = [
+  {n:"凡拓数创", c:"301313", p:63.00,  d1:-2.17, d5:20.69, d20:100.70, tr:39.02, mc:49.59,  pe:null,  pb:11.66},
+  {n:"福莱新材", c:"605488", p:48.61,  d1:10.00, d5:47.71, d20:62.03,  tr:17.16, mc:145.09, pe:186.19, pb:6.50},
+  {n:"华依科技", c:"688071", p:57.00,  d1:4.53,  d5:42.50, d20:58.16,  tr:23.94, mc:48.33,  pe:null,  pb:4.74},
+  {n:"海天瑞声", c:"688787", p:135.57, d1:0.14,  d5:17.28, d20:45.81,  tr:17.90, mc:81.78,  pe:407.15, pb:11.19},
+  {n:"敏芯股份", c:"688286", p:67.31,  d1:8.72,  d5:27.46, d20:35.35,  tr:22.70, mc:52.71,  pe:null,  pb:5.09},
+  {n:"兆威机电", c:"003021", p:97.41,  d1:5.31,  d5:28.49, d20:35.10,  tr:10.22, mc:202.82, pe:121.02, pb:5.15},
+  {n:"利亚德",   c:"300296", p:6.22,   d1:-1.43, d5:10.48, d20:25.40,  tr:19.66, mc:144.37, pe:82.45,  pb:2.16},
+  {n:"上纬新材", c:"688585", p:175.00, d1:13.26, d5:55.00, d20:23.79,  tr:4.30,  mc:705.88, pe:null,  pb:59.96},
+  {n:"安培龙",   c:"301413", p:69.30,  d1:14.19, d5:29.92, d20:22.16,  tr:22.47, mc:52.93,  pe:347.11, pb:5.35},
+  {n:"奥比中光", c:"688322", p:107.16, d1:0.24,  d5:15.47, d20:18.42,  tr:9.09,  mc:343.19, pe:471.87, pb:10.94},
+  {n:"奥普特",   c:"688686", p:154.88, d1:5.15,  d5:17.50, d20:9.73,   tr:4.81,  mc:189.32, pe:80.50,  pb:5.86},
+  {n:"雷赛智能", c:"002979", p:57.03,  d1:2.68,  d5:11.54, d20:5.49,   tr:16.89, mc:127.79, pe:49.46,  pb:8.49},
+  {n:"龙旗科技", c:"603341", p:40.83,  d1:2.41,  d5:1.29,  d20:3.89,   tr:6.93,  mc:109.18, pe:44.85,  pb:2.92},
+  {n:"阿尔特",   c:"300825", p:11.82,  d1:2.96,  d5:0.17,  d20:-7.80,  tr:6.22,  mc:57.27,  pe:null,  pb:2.84}
+];
+
+function fmt(v, unit) {
+  if (v === null) { return '<span style="color:#8b93a1">亏损</span>'; }
+  var cls = v > 0 ? 'up' : (v < 0 ? 'down' : '');
+  var sign = v > 0 ? '+' : '';
+  return '<span class="' + cls + '">' + sign + v.toFixed(2) + (unit || '%') + '</span>';
+}
+
+(function () {
+  var rows = [];
+  for (var i = 0; i < QUOTES.length; i++) {
+    var q = QUOTES[i];
+    rows.push('<tr>'
+      + '<td><b>' + q.n + '</b></td>'
+      + '<td class="code">' + q.c + '</td>'
+      + '<td class="mono">' + q.p.toFixed(2) + '</td>'
+      + '<td class="mono">' + fmt(q.d1) + '</td>'
+      + '<td class="mono">' + fmt(q.d5) + '</td>'
+      + '<td class="mono">' + fmt(q.d20) + '</td>'
+      + '<td class="mono">' + q.tr.toFixed(2) + '%</td>'
+      + '<td class="mono">' + q.mc.toFixed(2) + ' 亿</td>'
+      + '<td class="mono">' + (q.pe === null ? '<span style="color:#8b93a1">亏损</span>' : q.pe.toFixed(2)) + '</td>'
+      + '<td class="mono">' + q.pb.toFixed(2) + '</td>'
+      + '</tr>');
+  }
+  document.getElementById('quoteBody').innerHTML = rows.join('');
+})();
+
+echarts.init(document.getElementById('gapChart')).setOption({
+  tooltip: { trigger: 'axis', formatter: '{b}<br/>{c} 万小时' },
+  grid: { left: 70, right: 30, top: 30, bottom: 70 },
+  xAxis: {
+    type: 'category',
+    data: ['全球现有合规可用\n（2026年初）', '企业研发门槛\n（2026年）', '通用泛化所需\n（千万小时级）'],
+    axisLabel: { interval: 0, fontSize: 12, lineHeight: 16, color: '#5b6472' }
+  },
+  yAxis: { type: 'log', name: '万小时（对数）', nameTextStyle: { fontSize: 12, color: '#8b93a1' } },
+  series: [{
+    type: 'bar',
+    barWidth: '42%',
+    data: [
+      { value: 50, itemStyle: { color: '#2f6fc0' } },
+      { value: 100, itemStyle: { color: '#e08a2c' } },
+      { value: 1000, itemStyle: { color: '#d93025' } }
+    ],
+    label: { show: true, position: 'top', formatter: '{c} 万小时', fontSize: 12, color: '#5b6472' }
+  }]
+});
+
+echarts.init(document.getElementById('costChart')).setOption({
+  tooltip: { trigger: 'axis', formatter: '{b}<br/>约 {c} 元/小时' },
+  grid: { left: 100, right: 80, top: 20, bottom: 50 },
+  xAxis: { type: 'value', name: '元/小时', nameTextStyle: { fontSize: 12, color: '#8b93a1' } },
+  yAxis: {
+    type: 'category',
+    data: ['仿真合成', '第一人称 EGO', 'UMI 手持', '整机遥操作'],
+    axisLabel: { fontSize: 12.5, color: '#5b6472' }
+  },
+  series: [{
+    type: 'bar',
+    barWidth: '52%',
+    data: [
+      { value: 35, itemStyle: { color: '#12996b' } },
+      { value: 100, itemStyle: { color: '#2f6fc0' } },
+      { value: 400, itemStyle: { color: '#e08a2c' } },
+      { value: 750, itemStyle: { color: '#d93025' } }
+    ],
+    label: { show: true, position: 'right', formatter: '{c}', fontSize: 12, color: '#5b6472' }
+  }]
+});
+
+(function () {
+  var sorted = QUOTES.slice().sort(function (a, b) { return a.d20 - b.d20; });
+  var names = [];
+  var v5 = [];
+  var v20 = [];
+  for (var i = 0; i < sorted.length; i++) {
+    names.push(sorted[i].n);
+    v5.push(sorted[i].d5);
+    v20.push(sorted[i].d20);
+  }
+  echarts.init(document.getElementById('momChart')).setOption({
+    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, valueFormatter: function (v) { return v + '%'; } },
+    legend: { data: ['近 5 日', '近 20 日'], top: 0, textStyle: { fontSize: 12.5 } },
+    grid: { left: 90, right: 50, top: 40, bottom: 40 },
+    xAxis: { type: 'value', name: '%', nameTextStyle: { fontSize: 12, color: '#8b93a1' } },
+    yAxis: { type: 'category', data: names, axisLabel: { fontSize: 12.5, color: '#5b6472' } },
+    series: [
+      { name: '近 5 日', type: 'bar', barWidth: '38%', data: v5, itemStyle: { color: '#e08a2c' } },
+      { name: '近 20 日', type: 'bar', barWidth: '38%', data: v20, itemStyle: { color: '#d93025' } }
+    ]
+  });
+})();
+</script>
+
+</body>
+</html>
